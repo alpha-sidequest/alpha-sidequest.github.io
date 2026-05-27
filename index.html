@@ -14,44 +14,18 @@
 
     /* Interactive Map */
     .map-section { margin: 3rem 0; text-align: center; }
-    .australia-map { 
-      position: relative; 
-      display: inline-block; 
-      max-width: 100%; 
-    }
-    .australia-map img { 
-      width: 100%; 
-      max-width: 800px; 
-      border: 3px solid #00205B; 
-      border-radius: 12px; 
-    }
+    .australia-map { position: relative; display: inline-block; max-width: 100%; }
+    .australia-map img { width: 100%; max-width: 800px; border: 3px solid #00205B; border-radius: 12px; }
     .base-marker {
-      position: absolute;
-      width: 18px; height: 18px;
-      background: #FF0000;
-      border: 3px solid white;
-      border-radius: 50%;
-      box-shadow: 0 0 8px rgba(0,0,0,0.6);
-      cursor: pointer;
-      transition: all 0.3s;
+      position: absolute; width: 18px; height: 18px; background: #FF0000; border: 3px solid white;
+      border-radius: 50%; box-shadow: 0 0 8px rgba(0,0,0,0.6); cursor: pointer;
     }
     .base-marker:hover { transform: scale(1.4); }
     .tooltip {
-      position: absolute;
-      background: white;
-      border: 2px solid #00205B;
-      border-radius: 8px;
-      padding: 10px;
-      width: 220px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      display: none;
-      z-index: 10;
-      font-size: 0.95rem;
+      position: absolute; background: white; border: 2px solid #00205B; border-radius: 8px;
+      padding: 10px; width: 240px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: none; z-index: 10;
     }
     .base-marker:hover + .tooltip { display: block; }
-
-    /* Rest of your styles */
-    .thumbnails, .card { /* your existing styles */ }
   </style>
 </head>
 <body>
@@ -69,56 +43,38 @@
 
   <div class="container">
 
-    <!-- Interactive Australia Map -->
     <section id="map" class="map-section">
-      <h2>RAAF Main Bases – Interactive Map</h2>
+      <h2>RAAF Main Bases – Interactive Map (Hover the red dots)</h2>
       <div class="australia-map">
         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Australia_map.svg/800px-Australia_map.svg.png" alt="Australia Map">
 
         <!-- Amberley -->
         <div class="base-marker" style="top: 48%; left: 68%;"></div>
         <div class="tooltip" style="top: 52%; left: 72%;">
-          <strong>RAAF Base Amberley (QLD)</strong><br>
-          Strike & Mobility<br>
-          Aircraft: F/A-18F, EA-18G, C-17, KC-30, C-27J
+          <strong>Amberley (QLD)</strong><br>Strike & Mobility<br>F/A-18F, EA-18G, C-17, KC-30, C-27J
         </div>
 
         <!-- Williamtown -->
         <div class="base-marker" style="top: 58%; left: 78%;"></div>
         <div class="tooltip" style="top: 62%; left: 82%;">
-          <strong>RAAF Base Williamtown (NSW)</strong><br>
-          Fighters<br>
-          Aircraft: F-35A, E-7A Wedgetail
+          <strong>Williamtown (NSW)</strong><br>Fighters<br>F-35A, E-7A Wedgetail
         </div>
 
         <!-- Tindal -->
         <div class="base-marker" style="top: 32%; left: 72%;"></div>
         <div class="tooltip" style="top: 36%; left: 76%;">
-          <strong>RAAF Base Tindal (NT)</strong><br>
-          Fighters<br>
-          Aircraft: F-35A
+          <strong>Tindal (NT)</strong><br>Fighters<br>F-35A
         </div>
 
         <!-- Edinburgh -->
         <div class="base-marker" style="top: 68%; left: 45%;"></div>
         <div class="tooltip" style="top: 72%; left: 49%;">
-          <strong>RAAF Base Edinburgh (SA)</strong><br>
-          Maritime Patrol<br>
-          Aircraft: P-8A Poseidon
-        </div>
-
-        <!-- Richmond -->
-        <div class="base-marker" style="top: 62%; left: 79%;"></div>
-        <div class="tooltip" style="top: 66%; left: 83%;">
-          <strong>RAAF Base Richmond (NSW)</strong><br>
-          Tactical Transport<br>
-          Aircraft: C-130J
+          <strong>Edinburgh (SA)</strong><br>Maritime Patrol<br>P-8A Poseidon
         </div>
       </div>
     </section>
 
-    <!-- Your existing fleet section can go here -->
-    <!-- ... paste your previous fleet cards below if you want ... -->
+    <!-- You can add your fleet cards here later -->
 
   </div>
 </body>
