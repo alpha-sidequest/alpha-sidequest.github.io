@@ -14,16 +14,40 @@
 
     /* Interactive Map */
     .map-section { margin: 3rem 0; text-align: center; }
-    .australia-map { position: relative; display: inline-block; max-width: 100%; }
-    .australia-map img { width: 100%; max-width: 800px; border: 3px solid #00205B; border-radius: 12px; }
-    .base-marker {
-      position: absolute; width: 18px; height: 18px; background: #FF0000; border: 3px solid white;
-      border-radius: 50%; box-shadow: 0 0 8px rgba(0,0,0,0.6); cursor: pointer;
+    .australia-map { 
+      position: relative; 
+      display: inline-block; 
+      max-width: 100%; 
     }
-    .base-marker:hover { transform: scale(1.4); }
+    .australia-map img { 
+      width: 100%; 
+      max-width: 750px; 
+      border: 4px solid #00205B; 
+      border-radius: 12px; 
+    }
+    .base-marker {
+      position: absolute;
+      width: 20px; height: 20px;
+      background: #FF0000;
+      border: 3px solid white;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(0,0,0,0.7);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .base-marker:hover { transform: scale(1.5); }
     .tooltip {
-      position: absolute; background: white; border: 2px solid #00205B; border-radius: 8px;
-      padding: 10px; width: 240px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: none; z-index: 10;
+      position: absolute;
+      background: white;
+      border: 3px solid #00205B;
+      border-radius: 10px;
+      padding: 12px;
+      width: 260px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+      display: none;
+      z-index: 20;
+      font-size: 1rem;
+      pointer-events: none;
     }
     .base-marker:hover + .tooltip { display: block; }
   </style>
@@ -46,35 +70,41 @@
     <section id="map" class="map-section">
       <h2>RAAF Main Bases – Interactive Map (Hover the red dots)</h2>
       <div class="australia-map">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Australia_map.svg/800px-Australia_map.svg.png" alt="Australia Map">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Australia_map.svg/1200px-Australia_map.svg.png" alt="Australia Map">
 
         <!-- Amberley -->
-        <div class="base-marker" style="top: 48%; left: 68%;"></div>
-        <div class="tooltip" style="top: 52%; left: 72%;">
-          <strong>Amberley (QLD)</strong><br>Strike & Mobility<br>F/A-18F, EA-18G, C-17, KC-30, C-27J
+        <div class="base-marker" style="top: 52%; left: 69%;"></div>
+        <div class="tooltip" style="top: 55%; left: 73%;">
+          <strong>Amberley (QLD)</strong><br>
+          Strike & Mobility Wing<br>
+          <small>F/A-18F Super Hornet, EA-18G Growler, C-17, KC-30, C-27J</small>
         </div>
 
         <!-- Williamtown -->
-        <div class="base-marker" style="top: 58%; left: 78%;"></div>
-        <div class="tooltip" style="top: 62%; left: 82%;">
-          <strong>Williamtown (NSW)</strong><br>Fighters<br>F-35A, E-7A Wedgetail
+        <div class="base-marker" style="top: 62%; left: 78%;"></div>
+        <div class="tooltip" style="top: 65%; left: 82%;">
+          <strong>Williamtown (NSW)</strong><br>
+          Fighter Base<br>
+          <small>F-35A Lightning II, E-7A Wedgetail</small>
         </div>
 
         <!-- Tindal -->
-        <div class="base-marker" style="top: 32%; left: 72%;"></div>
-        <div class="tooltip" style="top: 36%; left: 76%;">
-          <strong>Tindal (NT)</strong><br>Fighters<br>F-35A
+        <div class="base-marker" style="top: 35%; left: 73%;"></div>
+        <div class="tooltip" style="top: 38%; left: 77%;">
+          <strong>Tindal (NT)</strong><br>
+          Forward Fighter Base<br>
+          <small>F-35A Lightning II</small>
         </div>
 
         <!-- Edinburgh -->
-        <div class="base-marker" style="top: 68%; left: 45%;"></div>
-        <div class="tooltip" style="top: 72%; left: 49%;">
-          <strong>Edinburgh (SA)</strong><br>Maritime Patrol<br>P-8A Poseidon
+        <div class="base-marker" style="top: 72%; left: 48%;"></div>
+        <div class="tooltip" style="top: 75%; left: 52%;">
+          <strong>Edinburgh (SA)</strong><br>
+          Maritime Patrol<br>
+          <small>P-8A Poseidon</small>
         </div>
       </div>
     </section>
-
-    <!-- You can add your fleet cards here later -->
 
   </div>
 </body>
