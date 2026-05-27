@@ -6,23 +6,22 @@
   <title>RAAF Officer Prep Hub - 2026</title>
   <style>
     body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f4f4f4; color: #333; line-height: 1.6; }
-    header { background: linear-gradient(#00205B, #001540); color: white; padding: 3rem 1rem; text-align: center; }
-    nav { background: #003087; padding: 1rem; text-align: center; position: sticky; top: 0; z-index: 100; }
-    nav a { color: white; margin: 0 1.2rem; text-decoration: none; font-weight: bold; }
+    header { background: linear-gradient(#00205B, #001540); color: white; padding: 2rem; text-align: center; }
+    nav { background: #003087; padding: 1rem; text-align: center; position: sticky; top: 0; }
+    nav a { color: white; margin: 0 15px; text-decoration: none; font-weight: bold; }
 
     .container { max-width: 1200px; margin: 0 auto; padding: 1rem; }
-
     .map-section { margin: 3rem 0; text-align: center; }
     .australia-map { position: relative; display: inline-block; max-width: 100%; }
-    .australia-map img { width: 100%; max-width: 750px; border: 4px solid #00205B; border-radius: 12px; }
+    .australia-map img { width: 100%; max-width: 800px; border: 5px solid #00205B; border-radius: 15px; }
     .base-marker {
-      position: absolute; width: 20px; height: 20px; background: #FF0000; border: 3px solid white;
-      border-radius: 50%; box-shadow: 0 0 10px rgba(0,0,0,0.7); cursor: pointer;
+      position: absolute; width: 22px; height: 22px; background: #e63939; border: 3px solid white;
+      border-radius: 50%; cursor: pointer; box-shadow: 0 0 12px black;
     }
-    .base-marker:hover { transform: scale(1.5); }
+    .base-marker:hover { transform: scale(1.6); }
     .tooltip {
       position: absolute; background: white; border: 3px solid #00205B; border-radius: 10px;
-      padding: 12px; width: 260px; box-shadow: 0 6px 20px rgba(0,0,0,0.3); display: none; z-index: 20;
+      padding: 12px; width: 280px; display: none; z-index: 100; box-shadow: 0 5px 20px rgba(0,0,0,0.3);
     }
     .base-marker:hover + .tooltip { display: block; }
   </style>
@@ -45,26 +44,30 @@
     <section id="map" class="map-section">
       <h2>RAAF Main Bases – Interactive Map (Hover the red dots)</h2>
       <div class="australia-map">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Australia_map.svg/1200px-Australia_map.svg.png" alt="Australia Map">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Australia_map.svg/1200px-Australia_map.svg.png" alt="Australia">
 
+        <!-- Amberley -->
         <div class="base-marker" style="top: 52%; left: 69%;"></div>
-        <div class="tooltip" style="top: 55%; left: 73%;">
-          <strong>Amberley (QLD)</strong><br>Strike & Mobility<br>F/A-18F, EA-18G, C-17, KC-30, C-27J
+        <div class="tooltip" style="top: 56%; left: 73%;">
+          <strong>Amberley (QLD)</strong><br>Strike & Mobility
         </div>
 
+        <!-- Williamtown -->
         <div class="base-marker" style="top: 62%; left: 78%;"></div>
-        <div class="tooltip" style="top: 65%; left: 82%;">
-          <strong>Williamtown (NSW)</strong><br>Fighters<br>F-35A, E-7A
+        <div class="tooltip" style="top: 66%; left: 82%;">
+          <strong>Williamtown (NSW)</strong><br>Fighters
         </div>
 
+        <!-- Tindal -->
         <div class="base-marker" style="top: 35%; left: 73%;"></div>
-        <div class="tooltip" style="top: 38%; left: 77%;">
-          <strong>Tindal (NT)</strong><br>F-35A
+        <div class="tooltip" style="top: 39%; left: 77%;">
+          <strong>Tindal (NT)</strong><br>Fighters
         </div>
 
+        <!-- Edinburgh -->
         <div class="base-marker" style="top: 72%; left: 48%;"></div>
-        <div class="tooltip" style="top: 75%; left: 52%;">
-          <strong>Edinburgh (SA)</strong><br>P-8A Poseidon
+        <div class="tooltip" style="top: 76%; left: 52%;">
+          <strong>Edinburgh (SA)</strong><br>Maritime Patrol
         </div>
       </div>
     </section>
