@@ -11,18 +11,19 @@
     nav a { color: white; margin: 0 1.5rem; text-decoration: none; font-weight: bold; }
     .container { max-width: 1200px; margin: 2rem auto; padding: 1rem; }
     .card { background: white; border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    img { max-width: 100%; border-radius: 8px; margin: 10px 0; }
+    img { max-width: 100%; border-radius: 8px; margin: 12px 0; }
     table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
     th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
     th { background: #00205B; color: white; }
     h2 { color: #00205B; border-bottom: 3px solid #00205B; padding-bottom: 8px; }
+    .acronym { background: #e6f0ff; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
   </style>
 </head>
 <body>
 
   <header>
     <h1>Royal Australian Air Force Knowledge Hub</h1>
-    <p>Officer Training • Defence Interview Preparation</p>
+    <p>Officer Training • Defence Interview Preparation • 2026</p>
   </header>
 
   <nav>
@@ -38,58 +39,74 @@
 
       <div class="card">
         <h3>F-35A Lightning II</h3>
-        <p><strong>Role:</strong> Stealth Multirole Fighter | <strong>Crew:</strong> 1 | <strong>Bases:</strong> Williamtown, Tindal</p>
+        <img src="https://www.airforce.gov.au/sites/default/files/styles/full/public/2023-08/F-35A%20Lightning%20II.jpg" alt="F-35A">
+        <p><strong>Role:</strong> 5th-generation stealth multirole fighter</p>
+        <p><strong>Code meaning:</strong> <span class="acronym">F</span> = Fighter, <span class="acronym">35</span> = design number, <span class="acronym">A</span> = Australian variant</p>
+        <p><strong>Crew:</strong> 1 pilot</p>
+        <p><strong>Bases:</strong> Williamtown (main), Tindal</p>
         <p><strong>Squadrons:</strong> No. 3, 77, 2 OCU (Williamtown), No. 75 (Tindal)</p>
-        <p><strong>Key Systems:</strong> AN/APG-81 AESA radar, 360° DAS sensors, stealth, sensor fusion, Helmet Mounted Display</p>
+        <p><strong>Key Capabilities:</strong> AN/APG-81 AESA (Active Electronically Scanned Array) radar, 360° DAS (Distributed Aperture System) sensors, stealth design, sensor fusion, internal weapons bay. Mach 1.6, excellent manoeuvrability.</p>
       </div>
 
       <div class="card">
         <h3>F/A-18F Super Hornet</h3>
-        <p><strong>Role:</strong> Strike Fighter | <strong>Crew:</strong> 2 | <strong>Base:</strong> Amberley</p>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/F-A-18F_Super_Hornet_RAAF.jpg/1280px-F-A-18F_Super_Hornet_RAAF.jpg" alt="Super Hornet">
+        <p><strong>Role:</strong> Multirole strike fighter</p>
+        <p><strong>Crew:</strong> 2 (pilot + weapons systems officer)</p>
+        <p><strong>Base:</strong> Amberley</p>
         <p><strong>Squadron:</strong> No. 1 Squadron</p>
       </div>
 
       <div class="card">
         <h3>EA-18G Growler</h3>
-        <p><strong>Role:</strong> Electronic Attack | <strong>Crew:</strong> 2 | <strong>Base:</strong> Amberley</p>
-        <p><strong>Squadron:</strong> No. 6 Squadron</p>
+        <p><strong>Role:</strong> Electronic Attack / Jamming (SEAD - Suppression of Enemy Air Defences)</p>
+        <p><strong>Crew:</strong> 2</p>
+        <p><strong>Base/Squadron:</strong> Amberley, No. 6 Squadron</p>
       </div>
 
       <div class="card">
         <h3>E-7A Wedgetail</h3>
-        <p><strong>Role:</strong> Airborne Early Warning & Control | <strong>Crew:</strong> 6–10 | <strong>Base:</strong> Williamtown</p>
-        <p><strong>Squadron:</strong> No. 2 Squadron</p>
+        <p><strong>Role:</strong> AEW&C (Airborne Early Warning & Control)</p>
+        <p><strong>Crew:</strong> 6–10 (flight + mission crew)</p>
+        <p><strong>Base/Squadron:</strong> Williamtown, No. 2 Squadron</p>
       </div>
 
       <div class="card">
         <h3>P-8A Poseidon</h3>
-        <p><strong>Role:</strong> Maritime Patrol / ASW | <strong>Crew:</strong> 9–11 | <strong>Base:</strong> Edinburgh</p>
-        <p><strong>Squadrons:</strong> No. 11, 292</p>
+        <p><strong>Role:</strong> Maritime Patrol / ASW (Anti-Submarine Warfare)</p>
+        <p><strong>Crew:</strong> 9–11</p>
+        <p><strong>Base:</strong> Edinburgh</p>
+        <p><strong>Squadrons:</strong> No. 11 & 292</p>
       </div>
 
       <div class="card">
         <h3>C-17A Globemaster III</h3>
-        <p><strong>Role:</strong> Strategic Heavy Lift | <strong>Crew:</strong> 3 | <strong>Base:</strong> Amberley</p>
-        <p><strong>Squadron:</strong> No. 36 Squadron</p>
+        <p><strong>Role:</strong> Strategic heavy lift transport</p>
+        <p><strong>Crew:</strong> 3 (2 pilots + loadmaster)</p>
+        <p><strong>Base/Squadron:</strong> Amberley, No. 36 Squadron</p>
       </div>
 
       <div class="card">
-        <h3>KC-30A Multi-Role Tanker</h3>
-        <p><strong>Role:</strong> Air-to-Air Refuelling + Transport | <strong>Crew:</strong> 3–5 | <strong>Base:</strong> Amberley</p>
-        <p><strong>Squadron:</strong> No. 33 Squadron</p>
+        <h3>KC-30A Multi-Role Tanker Transport</h3>
+        <p><strong>Role:</strong> Air-to-air refuelling + strategic transport</p>
+        <p><strong>Crew:</strong> 3–5</p>
+        <p><strong>Base/Squadron:</strong> Amberley, No. 33 Squadron</p>
       </div>
 
+      <!-- Add more cards as needed - we can keep expanding! -->
     </section>
 
     <section id="bases">
-      <h2>Major Bases</h2>
+      <h2>Major RAAF Bases</h2>
       <table>
-        <tr><th>Base</th><th>Location</th><th>Main Aircraft</th></tr>
-        <tr><td>Amberley</td><td>QLD</td><td>F/A-18F, EA-18G, C-17, KC-30, C-27J</td></tr>
-        <tr><td>Williamtown</td><td>NSW</td><td>F-35A, E-7A</td></tr>
-        <tr><td>Tindal</td><td>NT</td><td>F-35A (No.75 Sqn)</td></tr>
-        <tr><td>Edinburgh</td><td>SA</td><td>P-8A, MC-55A, MQ-4C</td></tr>
-        <tr><td>Richmond</td><td>NSW</td><td>C-130J</td></tr>
+        <tr><th>Base</th><th>Location</th><th>Key Aircraft / Role</th></tr>
+        <tr><td>Amberley</td><td>QLD</td><td>F/A-18F, EA-18G, C-17, KC-30, C-27J (largest base)</td></tr>
+        <tr><td>Williamtown</td><td>NSW</td><td>F-35A, E-7A Wedgetail (fighter hub)</td></tr>
+        <tr><td>Tindal</td><td>NT</td><td>F-35A (No.75 Squadron) - Northern deterrence</td></tr>
+        <tr><td>Edinburgh</td><td>SA</td><td>P-8A Poseidon, MC-55A, MQ-4C Triton</td></tr>
+        <tr><td>Richmond</td><td>NSW</td><td>C-130J Hercules</td></tr>
+        <tr><td>East Sale</td><td>VIC</td><td>PC-21 pilot training</td></tr>
+        <tr><td>Pearce</td><td>WA</td><td>Hawk 127 fighter training</td></tr>
       </table>
     </section>
 
