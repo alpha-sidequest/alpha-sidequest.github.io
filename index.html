@@ -5,13 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RAAF Officer Prep Hub</title>
   <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f4f4f4; color: #333; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f4f4f4; color: #333; line-height: 1.6; }
     header { background: #00205B; color: white; padding: 3rem 1rem; text-align: center; }
-    nav { background: #003087; padding: 1rem; text-align: center; }
+    nav { background: #003087; padding: 1rem; text-align: center; position: sticky; top: 0; z-index: 100; }
     nav a { color: white; margin: 0 1.5rem; text-decoration: none; font-weight: bold; }
     .container { max-width: 1200px; margin: 2rem auto; padding: 1rem; }
     .card { background: white; border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
     img { max-width: 100%; border-radius: 8px; margin: 10px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+    th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+    th { background: #00205B; color: white; }
     h2 { color: #00205B; border-bottom: 3px solid #00205B; padding-bottom: 8px; }
   </style>
 </head>
@@ -36,8 +39,8 @@
       <div class="card">
         <h3>F-35A Lightning II</h3>
         <p><strong>Role:</strong> Stealth Multirole Fighter | <strong>Crew:</strong> 1 | <strong>Bases:</strong> Williamtown, Tindal</p>
-        <p><strong>Squadrons:</strong> No. 3, 77, 2 OCU, No. 75</p>
-        <p><strong>Key Systems:</strong> AN/APG-81 AESA radar, DAS 360° sensors, stealth, advanced data fusion.</p>
+        <p><strong>Squadrons:</strong> No. 3, 77, 2 OCU (Williamtown), No. 75 (Tindal)</p>
+        <p><strong>Key Systems:</strong> AN/APG-81 AESA radar, 360° DAS sensors, stealth, sensor fusion, Helmet Mounted Display</p>
       </div>
 
       <div class="card">
@@ -52,7 +55,42 @@
         <p><strong>Squadron:</strong> No. 6 Squadron</p>
       </div>
 
-      <!-- More cards can be added easily -->
+      <div class="card">
+        <h3>E-7A Wedgetail</h3>
+        <p><strong>Role:</strong> Airborne Early Warning & Control | <strong>Crew:</strong> 6–10 | <strong>Base:</strong> Williamtown</p>
+        <p><strong>Squadron:</strong> No. 2 Squadron</p>
+      </div>
+
+      <div class="card">
+        <h3>P-8A Poseidon</h3>
+        <p><strong>Role:</strong> Maritime Patrol / ASW | <strong>Crew:</strong> 9–11 | <strong>Base:</strong> Edinburgh</p>
+        <p><strong>Squadrons:</strong> No. 11, 292</p>
+      </div>
+
+      <div class="card">
+        <h3>C-17A Globemaster III</h3>
+        <p><strong>Role:</strong> Strategic Heavy Lift | <strong>Crew:</strong> 3 | <strong>Base:</strong> Amberley</p>
+        <p><strong>Squadron:</strong> No. 36 Squadron</p>
+      </div>
+
+      <div class="card">
+        <h3>KC-30A Multi-Role Tanker</h3>
+        <p><strong>Role:</strong> Air-to-Air Refuelling + Transport | <strong>Crew:</strong> 3–5 | <strong>Base:</strong> Amberley</p>
+        <p><strong>Squadron:</strong> No. 33 Squadron</p>
+      </div>
+
+    </section>
+
+    <section id="bases">
+      <h2>Major Bases</h2>
+      <table>
+        <tr><th>Base</th><th>Location</th><th>Main Aircraft</th></tr>
+        <tr><td>Amberley</td><td>QLD</td><td>F/A-18F, EA-18G, C-17, KC-30, C-27J</td></tr>
+        <tr><td>Williamtown</td><td>NSW</td><td>F-35A, E-7A</td></tr>
+        <tr><td>Tindal</td><td>NT</td><td>F-35A (No.75 Sqn)</td></tr>
+        <tr><td>Edinburgh</td><td>SA</td><td>P-8A, MC-55A, MQ-4C</td></tr>
+        <tr><td>Richmond</td><td>NSW</td><td>C-130J</td></tr>
+      </table>
     </section>
 
   </div>
