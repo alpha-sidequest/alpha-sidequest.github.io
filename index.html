@@ -1,135 +1,1271 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RAAF Officer Prep Hub – 2026</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #333; }
-    header { background: #00205B; color: white; padding: 2rem; text-align: center; }
-    header h1 { font-size: 1.8rem; font-weight: 600; }
-    header p  { font-size: 0.9rem; opacity: 0.8; margin-top: 0.3rem; }
-    nav { background: #003087; padding: 0.7rem 1.5rem; position: sticky; top: 0; z-index: 10; }
-    nav a { color: white; margin-right: 1.5rem; text-decoration: none; font-weight: 600; font-size: 0.9rem; opacity: 0.85; }
-    nav a:hover { opacity: 1; }
-    .container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
-    .section-title { font-size: 1.1rem; font-weight: 600; text-align: center; margin-bottom: 1rem; color: #00205B; }
-    #map-container {
-      position: relative; width: 100%; background: #cde8f5;
-      border: 3px solid #00205B; border-radius: 12px; overflow: hidden;
-    }
-    #map-container img { width: 100%; height: auto; display: block; }
-    .marker {
-      position: absolute; width: 18px; height: 18px;
-      background: #e63939; border: 2.5px solid white; border-radius: 50%;
-      cursor: pointer; transform: translate(-50%, -50%);
-      box-shadow: 0 0 0 2px rgba(230,57,57,0.35);
-      transition: transform 0.15s;
-    }
-    .marker:hover { transform: translate(-50%, -50%) scale(1.6); }
-    .tooltip-box {
-      display: none; position: absolute;
-      background: white; border: 2px solid #00205B; border-radius: 10px;
-      padding: 10px 14px; width: 200px; font-size: 13px; z-index: 50;
-      pointer-events: none; box-shadow: 0 4px 18px rgba(0,0,0,0.18);
-    }
-    .tb-name  { font-weight: 600; color: #00205B; }
-    .tb-role  { color: #555; margin-top: 3px; font-size: 12px; }
-    .tb-state {
-      font-size: 11px; background: #dbeafe; color: #1e40af;
-      border-radius: 4px; padding: 2px 7px;
-      display: inline-block; margin-top: 6px;
-    }
-    .legend { display: flex; align-items: center; gap: 8px; margin-top: 10px; justify-content: center; font-size: 12px; color: #555; }
-    .legend-dot { width: 12px; height: 12px; background: #e63939; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 0 1.5px #e63939; }
-    footer { text-align: center; padding: 2rem; font-size: 12px; color: #888; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAAF Knowledge Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C96A;
+    --gold-dark: #8A6B1E;
+    --navy: #0A1628;
+    --navy-mid: #0F2040;
+    --navy-light: #1A3560;
+    --navy-surface: #162845;
+    --slate: #1E3A5F;
+    --text: #F0EDE8;
+    --text-muted: #9AABB8;
+    --text-dim: #6A7D8D;
+    --border: rgba(201,168,76,0.2);
+    --border-subtle: rgba(255,255,255,0.08);
+    --accent-blue: #4A9EDB;
+    --accent-teal: #2EC4A0;
+    --accent-red: #E05A40;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--navy);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,22,40,0.96);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex; align-items: center; gap: 0;
+  }
+  .nav-brand {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 0; margin-right: 2rem;
+    text-decoration: none;
+  }
+  .nav-roundel {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px; font-weight: 700;
+    color: var(--gold); letter-spacing: 0.05em;
+  }
+  .nav-title { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: 0.08em; }
+  .nav-title span { color: var(--gold); }
+  .nav-links { display: flex; gap: 0; flex: 1; }
+  .nav-link {
+    padding: 16px 18px;
+    font-size: 12px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text-muted); text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .nav-link:hover, .nav-link.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .nav-badge {
+    margin-left: auto; padding: 4px 12px;
+    background: rgba(201,168,76,0.12);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 11px; font-weight: 500; color: var(--gold); letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(160deg, #0F2040 0%, #0A1628 60%);
+    border-bottom: 1px solid var(--border);
+    padding: 64px 2rem 56px;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: 
+      repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(201,168,76,0.04) 60px),
+      repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(201,168,76,0.04) 60px);
+  }
+  .hero-inner { max-width: 900px; position: relative; }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 20px;
+  }
+  .hero-eyebrow::before { content: ''; width: 24px; height: 1px; background: var(--gold); }
+  .hero h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(36px, 6vw, 60px);
+    font-weight: 700; line-height: 1.05;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+  .hero h1 span { color: var(--gold); }
+  .hero-desc { font-size: 16px; color: var(--text-muted); line-height: 1.7; max-width: 620px; }
+  .hero-stats {
+    display: flex; gap: 40px; margin-top: 40px;
+    padding-top: 32px; border-top: 1px solid var(--border-subtle);
+  }
+  .hero-stat-num {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 32px; font-weight: 700; color: var(--gold); line-height: 1;
+  }
+  .hero-stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* ── SECTIONS ── */
+  section { display: none; }
+  section.active { display: block; }
+
+  .section-wrap { max-width: 1200px; margin: 0 auto; padding: 48px 2rem 80px; }
+  .section-header { margin-bottom: 40px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+  .section-header h2 {
+    font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 700;
+    color: var(--text); letter-spacing: 0.06em; margin-bottom: 8px;
+  }
+  .section-header h2 span { color: var(--gold); }
+  .section-header p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+
+  /* ── MAP SECTION ── */
+  .map-layout { display: grid; grid-template-columns: 1fr 380px; gap: 28px; align-items: start; }
+  .map-container {
+    background: var(--navy-mid);
+    border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden;
+    position: relative;
+  }
+  #australia-svg { width: 100%; height: auto; display: block; }
+  .base-dot {
+    cursor: pointer; transition: all 0.2s;
+  }
+  .base-dot circle { transition: all 0.2s; }
+  .base-dot:hover circle.outer { r: 10; opacity: 0.4; }
+  .base-dot:hover circle.inner { r: 6; }
+  .base-dot.selected circle.outer { r: 12; opacity: 0.5; fill: var(--gold); }
+  .base-dot.selected circle.inner { r: 7; fill: var(--gold); }
+  .map-legend {
+    padding: 16px;
+    border-top: 1px solid var(--border-subtle);
+    display: flex; gap: 20px;
+    font-size: 12px; color: var(--text-muted);
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+  .legend-dot.combat { background: #E05A40; }
+  .legend-dot.maritime { background: #4A9EDB; }
+  .legend-dot.transport { background: #2EC4A0; }
+  .legend-dot.training { background: #9B59B6; }
+  .legend-dot.mixed { background: var(--gold); }
+
+  /* Base Info Panel */
+  .base-panel {
+    position: sticky; top: 72px;
+  }
+  .base-panel-placeholder {
+    background: var(--navy-mid);
+    border: 1px dashed rgba(201,168,76,0.3);
+    border-radius: 8px;
+    padding: 48px 24px;
+    text-align: center;
+  }
+  .base-panel-placeholder .icon { font-size: 32px; margin-bottom: 12px; opacity: 0.4; }
+  .base-panel-placeholder p { font-size: 14px; color: var(--text-dim); }
+  .base-card { display: none; background: var(--navy-mid); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .base-card.visible { display: block; }
+  .base-card-header {
+    padding: 20px 20px 16px;
+    background: var(--navy-light);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .base-card-location {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em;
+    color: var(--gold); margin-bottom: 6px;
+  }
+  .base-card-name {
+    font-family: 'Rajdhani', sans-serif; font-size: 24px; font-weight: 700;
+    color: var(--text); letter-spacing: 0.04em;
+  }
+  .base-card-role {
+    font-size: 13px; color: var(--text-muted); margin-top: 6px;
+  }
+  .base-card-body { padding: 20px; }
+  .base-section-label {
+    font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em;
+    color: var(--gold-dark); margin-bottom: 10px; margin-top: 18px;
+  }
+  .base-section-label:first-child { margin-top: 0; }
+  .squadron-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .squadron-item:last-child { border-bottom: none; }
+  .squadron-num {
+    background: rgba(201,168,76,0.12);
+    border: 1px solid var(--border);
+    padding: 3px 8px; border-radius: 3px;
+    font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 700;
+    color: var(--gold); white-space: nowrap; flex-shrink: 0;
+  }
+  .squadron-info { flex: 1; }
+  .squadron-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .squadron-aircraft { font-size: 12px; color: var(--accent-blue); margin-top: 2px; }
+  .aircraft-chip {
+    display: inline-block;
+    background: rgba(74,158,219,0.12);
+    border: 1px solid rgba(74,158,219,0.3);
+    padding: 4px 10px; border-radius: 3px; margin: 4px 4px 0 0;
+    font-size: 12px; color: var(--accent-blue); cursor: pointer;
+    transition: all 0.2s;
+  }
+  .aircraft-chip:hover {
+    background: rgba(74,158,219,0.25);
+    color: #7FC8F0;
+  }
+  .base-desc { font-size: 13px; color: var(--text-muted); line-height: 1.65; }
+
+  /* ── AIRCRAFT SECTION ── */
+  .aircraft-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+  .aircraft-card {
+    background: var(--navy-mid);
+    border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden;
+    cursor: pointer; transition: all 0.25s;
+  }
+  .aircraft-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+  .aircraft-img-wrap {
+    height: 200px; overflow: hidden; position: relative;
+    background: var(--navy-light);
+  }
+  .aircraft-img-wrap img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform 0.4s;
+  }
+  .aircraft-card:hover .aircraft-img-wrap img { transform: scale(1.05); }
+  .aircraft-type-badge {
+    position: absolute; top: 12px; right: 12px;
+    padding: 3px 10px; border-radius: 3px;
+    font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
+  }
+  .badge-combat { background: rgba(224,90,64,0.8); color: #FFD4CA; }
+  .badge-patrol { background: rgba(74,158,219,0.8); color: #D4EDFF; }
+  .badge-transport { background: rgba(46,196,160,0.8); color: #D4F7F0; }
+  .badge-ew { background: rgba(155,89,182,0.8); color: #EED4FF; }
+  .badge-tanker { background: rgba(201,168,76,0.8); color: #FFF5D4; }
+  .badge-helicopter { background: rgba(107,142,35,0.8); color: #E8FFD4; }
+  .aircraft-card-body { padding: 18px 20px; }
+  .aircraft-designation {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.2em;
+    color: var(--gold); margin-bottom: 4px;
+  }
+  .aircraft-name {
+    font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 700;
+    color: var(--text); letter-spacing: 0.04em; margin-bottom: 8px;
+  }
+  .aircraft-tagline { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px; }
+  .aircraft-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    padding: 3px 9px; border-radius: 3px; font-size: 11px;
+    background: rgba(255,255,255,0.06); color: var(--text-muted); border: 1px solid var(--border-subtle);
+  }
+
+  /* Aircraft Detail Modal */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: rgba(5,12,25,0.88);
+    backdrop-filter: blur(4px);
+    align-items: flex-start; justify-content: center;
+    padding: 24px;
+    overflow-y: auto;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--navy-mid);
+    border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden;
+    width: 100%; max-width: 820px;
+    position: relative;
+    margin: auto;
+  }
+  .modal-close {
+    position: absolute; top: 16px; right: 16px; z-index: 10;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(0,0,0,0.5); border: 1px solid var(--border);
+    color: var(--text); font-size: 20px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .modal-close:hover { background: rgba(201,168,76,0.2); color: var(--gold); }
+  .modal-hero { height: 300px; overflow: hidden; position: relative; }
+  .modal-hero img { width: 100%; height: 100%; object-fit: cover; }
+  .modal-hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, var(--navy-mid) 0%, transparent 60%);
+  }
+  .modal-hero-text {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 28px 32px 20px;
+  }
+  .modal-desig { font-size: 12px; text-transform: uppercase; letter-spacing: 0.2em; color: var(--gold); margin-bottom: 6px; }
+  .modal-name {
+    font-family: 'Rajdhani', sans-serif; font-size: 36px; font-weight: 700;
+    color: var(--text); letter-spacing: 0.04em; line-height: 1;
+  }
+  .modal-body { padding: 28px 32px 32px; }
+  .modal-stats-row {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px;
+  }
+  .modal-stat {
+    background: var(--navy-light); border: 1px solid var(--border-subtle);
+    padding: 12px; border-radius: 6px; text-align: center;
+  }
+  .modal-stat-val {
+    font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; color: var(--gold);
+  }
+  .modal-stat-key { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-dim); margin-top: 2px; }
+  .modal-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border-subtle); margin-bottom: 24px; }
+  .modal-tab {
+    padding: 10px 20px; font-size: 13px; font-weight: 500;
+    color: var(--text-muted); cursor: pointer;
+    border-bottom: 2px solid transparent; transition: all 0.2s;
+  }
+  .modal-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .modal-tab-pane { display: none; }
+  .modal-tab-pane.active { display: block; }
+  .modal-desc { font-size: 14px; color: var(--text-muted); line-height: 1.7; margin-bottom: 20px; }
+  .system-list { list-style: none; }
+  .system-item { padding: 14px 0; border-bottom: 1px solid var(--border-subtle); display: grid; grid-template-columns: 160px 1fr; gap: 20px; }
+  .system-item:last-child { border-bottom: none; }
+  .system-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .system-code { font-size: 11px; font-family: 'Rajdhani', sans-serif; letter-spacing: 0.1em; color: var(--gold); margin-top: 2px; }
+  .system-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+  .layman-box {
+    background: rgba(74,158,219,0.08); border-left: 3px solid var(--accent-blue);
+    padding: 10px 14px; border-radius: 0 6px 6px 0; margin-top: 8px;
+    font-size: 12px; color: var(--accent-blue);
+  }
+  .layman-box strong { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; display: block; margin-bottom: 4px; opacity: 0.7; }
+
+  /* ── OPERATIONS SECTION ── */
+  .world-map-wrap {
+    background: var(--navy-mid); border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden; margin-bottom: 32px;
+    position: relative;
+  }
+  #world-svg { width: 100%; height: auto; display: block; }
+  .op-dot { cursor: pointer; transition: all 0.2s; }
+  .op-dot circle.op-ring { transition: all 0.2s; }
+  .op-dot:hover circle.op-ring { r: 12; opacity: 0.4; }
+  .op-dot.selected circle.op-ring { r: 14; opacity: 0.5; }
+  .ops-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
+  .op-card {
+    background: var(--navy-mid); border: 1px solid var(--border);
+    border-radius: 8px; padding: 20px;
+    cursor: pointer; transition: all 0.2s;
+    border-left: 3px solid transparent;
+  }
+  .op-card:hover { border-color: var(--gold); }
+  .op-card.selected { border-left-color: var(--gold); background: var(--navy-light); }
+  .op-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .op-name {
+    font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700;
+    color: var(--text); letter-spacing: 0.04em; line-height: 1.1;
+  }
+  .op-status {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 3px;
+    font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
+    white-space: nowrap; flex-shrink: 0; margin-left: 12px;
+  }
+  .op-status.active { background: rgba(46,196,160,0.12); color: var(--accent-teal); border: 1px solid rgba(46,196,160,0.3); }
+  .op-status.active::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent-teal); }
+  .op-region { font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--gold); margin-bottom: 8px; }
+  .op-desc { font-size: 13px; color: var(--text-muted); line-height: 1.65; margin-bottom: 14px; }
+  .op-assets { display: flex; flex-wrap: wrap; gap: 6px; }
+  .asset-tag {
+    padding: 3px 9px; border-radius: 3px; font-size: 11px;
+    border: 1px solid rgba(74,158,219,0.3);
+    background: rgba(74,158,219,0.08); color: var(--accent-blue);
+  }
+  .asset-tag.army {
+    border-color: rgba(46,196,160,0.3);
+    background: rgba(46,196,160,0.08); color: var(--accent-teal);
+  }
+  .asset-tag.navy {
+    border-color: rgba(107,142,35,0.3);
+    background: rgba(46,90,80,0.15); color: #6DC06D;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--navy); }
+  ::-webkit-scrollbar-thumb { background: var(--navy-light); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--gold-dark); }
+
+  /* Tooltip */
+  .map-tooltip {
+    position: fixed; z-index: 500; pointer-events: none;
+    background: var(--navy-light); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 14px;
+    font-size: 13px; color: var(--text);
+    max-width: 220px; box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    display: none;
+  }
+  .map-tooltip.visible { display: block; }
+  .map-tooltip-name { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 700; color: var(--gold); margin-bottom: 4px; }
+  .map-tooltip-sub { font-size: 12px; color: var(--text-muted); }
+
+  @media (max-width: 900px) {
+    .map-layout { grid-template-columns: 1fr; }
+    .base-panel { position: relative; top: auto; }
+    .modal-stats-row { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 600px) {
+    nav { padding: 0 1rem; }
+    .nav-link { padding: 14px 12px; font-size: 10px; }
+    .hero { padding: 40px 1rem 36px; }
+    .hero-stats { gap: 24px; flex-wrap: wrap; }
+    .section-wrap { padding: 32px 1rem 60px; }
+    .aircraft-grid { grid-template-columns: 1fr; }
+  }
+</style>
 </head>
 <body>
 
-<header>
-  <h1>Royal Australian Air Force</h1>
-  <p>Officer Knowledge Hub &bull; Complete Fleet Guide 2026</p>
-</header>
-
-<nav>
-  <a href="#map-section">Bases Map</a>
-</nav>
-
-<div class="container">
-  <section id="map-section">
-    <p class="section-title">RAAF Main Bases — hover the red markers</p>
-    <div id="map-container">
-      <!--
-        If the Wikimedia image is blocked by your host's CSP, download the PNG from:
-        https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Australia_map.svg/1200px-Australia_map.svg.png
-        Save it as "australia_map.png" in the same folder and change the src below to "australia_map.png"
-      -->
-      <img
-        id="aus-map"
-        src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Australia_map.svg/1200px-Australia_map.svg.png"
-        alt="Map of Australia"
-      />
-      <div class="tooltip-box" id="tooltip">
-        <div class="tb-name" id="tt-name"></div>
-        <div class="tb-role" id="tt-role"></div>
-        <span class="tb-state" id="tt-state"></span>
-      </div>
-    </div>
-    <div class="legend"><div class="legend-dot"></div> RAAF base</div>
-  </section>
+<!-- TOOLTIP -->
+<div class="map-tooltip" id="mapTooltip">
+  <div class="map-tooltip-name" id="tooltipName"></div>
+  <div class="map-tooltip-sub" id="tooltipSub"></div>
 </div>
 
-<footer>RAAF Officer Prep Hub &bull; 2026 &bull; Unofficial reference only</footer>
+<!-- AIRCRAFT MODAL -->
+<div class="modal-overlay" id="aircraftModal">
+  <div class="modal" id="modalContent">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div id="modalInner"></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#">
+    <div class="nav-roundel">RAAF</div>
+    <div class="nav-title"><span>RAAF</span> Knowledge Hub</div>
+  </a>
+  <div class="nav-links">
+    <span class="nav-link active" onclick="showSection('home',this)">Overview</span>
+    <span class="nav-link" onclick="showSection('bases',this)">RAAF Bases</span>
+    <span class="nav-link" onclick="showSection('aircraft',this)">Aircraft</span>
+    <span class="nav-link" onclick="showSection('operations',this)">Operations</span>
+  </div>
+  <div class="nav-badge">Unclassified</div>
+</nav>
+
+<!-- HOME -->
+<section id="home" class="active">
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-eyebrow">Royal Australian Air Force</div>
+      <h1>Your Defence<br><span>Knowledge Hub</span></h1>
+      <p class="hero-desc">A comprehensive reference for RAAF bases, aircraft systems, and current ADF operations. Designed to support defence study and interview preparation.</p>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-num">11</div>
+          <div class="hero-stat-label">Active RAAF Bases</div>
+        </div>
+        <div>
+          <div class="hero-stat-num">72</div>
+          <div class="hero-stat-label">F-35A Lightning II</div>
+        </div>
+        <div>
+          <div class="hero-stat-num">15+</div>
+          <div class="hero-stat-label">Active Operations</div>
+        </div>
+        <div>
+          <div class="hero-stat-num">A$55.7B</div>
+          <div class="hero-stat-label">2024–25 Defence Budget</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section-wrap" style="max-width:1100px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px">
+      <div style="background:var(--navy-mid);border:1px solid var(--border);border-radius:8px;padding:28px;cursor:pointer" onclick="showSection('bases',document.querySelectorAll('.nav-link')[1])">
+        <div style="font-size:28px;margin-bottom:12px">🗺️</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--gold);margin-bottom:8px">RAAF Bases</div>
+        <p style="font-size:14px;color:var(--text-muted);line-height:1.6">Interactive map of all RAAF bases across Australia. Hover to explore squadrons, aircraft and base roles.</p>
+        <div style="margin-top:16px;font-size:12px;color:var(--accent-blue)">Explore → 11 active bases</div>
+      </div>
+      <div style="background:var(--navy-mid);border:1px solid var(--border);border-radius:8px;padding:28px;cursor:pointer" onclick="showSection('aircraft',document.querySelectorAll('.nav-link')[2])">
+        <div style="font-size:28px;margin-bottom:12px">✈️</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--gold);margin-bottom:8px">Aircraft Fleet</div>
+        <p style="font-size:14px;color:var(--text-muted);line-height:1.6">Detailed breakdowns of every RAAF aircraft — weapons systems, sensors and technology explained in plain English.</p>
+        <div style="margin-top:16px;font-size:12px;color:var(--accent-blue)">Explore → 12 aircraft types</div>
+      </div>
+      <div style="background:var(--navy-mid);border:1px solid var(--border);border-radius:8px;padding:28px;cursor:pointer" onclick="showSection('operations',document.querySelectorAll('.nav-link')[3])">
+        <div style="font-size:28px;margin-bottom:12px">🌏</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--gold);margin-bottom:8px">Global Operations</div>
+        <p style="font-size:14px;color:var(--text-muted);line-height:1.6">Current ADF international missions and operations. Interactive world map with mission details and deployed assets.</p>
+        <div style="margin-top:16px;font-size:12px;color:var(--accent-blue)">Explore → 10+ active operations</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BASES SECTION -->
+<section id="bases">
+  <div class="section-wrap">
+    <div class="section-header">
+      <h2>RAAF <span>Bases</span></h2>
+      <p>Click any base marker on the map to see its squadrons, aircraft and role. Aircraft names link to the Aircraft section for full details.</p>
+    </div>
+    <div class="map-layout">
+      <div class="map-container">
+        <svg id="australia-svg" viewBox="0 0 800 700" xmlns="http://www.w3.org/2000/svg">
+          <rect width="800" height="700" fill="#0A1628"/>
+          <!-- Australia outline simplified -->
+          <path d="M 135 195 L 148 175 L 170 162 L 198 155 L 225 148 L 258 140 L 295 135 L 330 132 L 368 130 L 405 130 L 440 133 L 472 138 L 500 145 L 525 155 L 548 168 L 565 182 L 580 198 L 595 215 L 608 230 L 618 248 L 625 262 L 628 278 L 625 292 L 618 305 L 608 318 L 595 332 L 580 348 L 572 362 L 568 375 L 572 388 L 580 400 L 592 412 L 602 426 L 608 440 L 605 452 L 596 462 L 582 470 L 566 475 L 550 476 L 536 470 L 524 460 L 516 448 L 512 434 L 514 420 L 520 408 L 524 396 L 522 386 L 514 378 L 502 372 L 488 368 L 475 366 L 462 368 L 452 376 L 448 388 L 450 402 L 456 416 L 458 432 L 452 448 L 440 462 L 425 474 L 408 482 L 392 486 L 378 484 L 366 476 L 356 464 L 350 450 L 348 436 L 350 422 L 354 410 L 354 398 L 348 386 L 336 376 L 320 368 L 303 362 L 286 358 L 270 356 L 256 358 L 244 364 L 235 374 L 230 386 L 228 400 L 232 414 L 238 428 L 240 440 L 235 450 L 225 455 L 212 454 L 200 448 L 192 436 L 190 422 L 194 408 L 200 396 L 202 384 L 196 374 L 184 366 L 168 360 L 150 356 L 133 356 L 118 360 L 106 368 L 99 378 L 98 390 L 104 400 L 115 408 L 128 413 L 140 414 L 150 410 L 156 400 L 156 388 L 150 378 L 142 372 L 132 370 L 122 374 L 116 382 L 116 392 L 124 400"
+            fill="#162845" stroke="rgba(201,168,76,0.4)" stroke-width="1.5" stroke-linejoin="round"/>
+          <!-- Tasmania -->
+          <ellipse cx="490" cy="540" rx="28" ry="22" fill="#162845" stroke="rgba(201,168,76,0.3)" stroke-width="1"/>
+          <!-- Grid lines subtle -->
+          <line x1="0" y1="350" x2="800" y2="350" stroke="rgba(201,168,76,0.05)" stroke-width="1"/>
+          <line x1="400" y1="0" x2="400" y2="700" stroke="rgba(201,168,76,0.05)" stroke-width="1"/>
+
+          <!-- BASE MARKERS: id, cx, cy, color -->
+          <!-- Amberley QLD -->
+          <g class="base-dot" data-base="amberley" onclick="selectBase('amberley',event)">
+            <circle class="outer" cx="552" cy="338" r="8" fill="#E05A40" opacity="0.25"/>
+            <circle class="inner" cx="552" cy="338" r="4.5" fill="#E05A40"/>
+          </g>
+          <!-- Williamtown NSW -->
+          <g class="base-dot" data-base="williamtown" onclick="selectBase('williamtown',event)">
+            <circle class="outer" cx="570" cy="388" r="8" fill="#E05A40" opacity="0.25"/>
+            <circle class="inner" cx="570" cy="388" r="4.5" fill="#E05A40"/>
+          </g>
+          <!-- Edinburgh SA -->
+          <g class="base-dot" data-base="edinburgh" onclick="selectBase('edinburgh',event)">
+            <circle class="outer" cx="420" cy="388" r="8" fill="#4A9EDB" opacity="0.25"/>
+            <circle class="inner" cx="420" cy="388" r="4.5" fill="#4A9EDB"/>
+          </g>
+          <!-- Richmond NSW -->
+          <g class="base-dot" data-base="richmond" onclick="selectBase('richmond',event)">
+            <circle class="outer" cx="558" cy="372" r="8" fill="#2EC4A0" opacity="0.25"/>
+            <circle class="inner" cx="558" cy="372" r="4.5" fill="#2EC4A0"/>
+          </g>
+          <!-- Pearce WA -->
+          <g class="base-dot" data-base="pearce" onclick="selectBase('pearce',event)">
+            <circle class="outer" cx="178" cy="342" r="8" fill="#4A9EDB" opacity="0.25"/>
+            <circle class="inner" cx="178" cy="342" r="4.5" fill="#4A9EDB"/>
+          </g>
+          <!-- Darwin NT -->
+          <g class="base-dot" data-base="darwin" onclick="selectBase('darwin',event)">
+            <circle class="outer" cx="382" cy="160" r="8" fill="#E05A40" opacity="0.25"/>
+            <circle class="inner" cx="382" cy="160" r="4.5" fill="#E05A40"/>
+          </g>
+          <!-- Tindal NT -->
+          <g class="base-dot" data-base="tindal" onclick="selectBase('tindal',event)">
+            <circle class="outer" cx="402" cy="198" r="8" fill="#E05A40" opacity="0.25"/>
+            <circle class="inner" cx="402" cy="198" r="4.5" fill="#E05A40"/>
+          </g>
+          <!-- Fairbairn ACT -->
+          <g class="base-dot" data-base="fairbairn" onclick="selectBase('fairbairn',event)">
+            <circle class="outer" cx="540" cy="418" r="8" fill="#C9A84C" opacity="0.25"/>
+            <circle class="inner" cx="540" cy="418" r="4.5" fill="#C9A84C"/>
+          </g>
+          <!-- East Sale VIC -->
+          <g class="base-dot" data-base="eastsale" onclick="selectBase('eastsale',event)">
+            <circle class="outer" cx="530" cy="450" r="8" fill="#9B59B6" opacity="0.25"/>
+            <circle class="inner" cx="530" cy="450" r="4.5" fill="#9B59B6"/>
+          </g>
+          <!-- Townsville QLD -->
+          <g class="base-dot" data-base="townsville" onclick="selectBase('townsville',event)">
+            <circle class="outer" cx="535" cy="235" r="8" fill="#C9A84C" opacity="0.25"/>
+            <circle class="inner" cx="535" cy="235" r="4.5" fill="#C9A84C"/>
+          </g>
+          <!-- Learmonth WA -->
+          <g class="base-dot" data-base="learmonth" onclick="selectBase('learmonth',event)">
+            <circle class="outer" cx="138" cy="252" r="8" fill="#4A9EDB" opacity="0.25"/>
+            <circle class="inner" cx="138" cy="252" r="4.5" fill="#4A9EDB"/>
+          </g>
+
+          <!-- Labels -->
+          <text x="565" y="333" font-family="Rajdhani,sans-serif" font-size="11" fill="rgba(240,237,232,0.7)">Amberley</text>
+          <text x="578" y="384" font-family="Rajdhani,sans-serif" font-size="11" fill="rgba(240,237,232,0.7)">Williamtown</text>
+          <text x="432" y="384" font-family="Rajdhani,sans-serif" font-size="11" fill="rgba(240,237,232,0.7)">Edinburgh</text>
+          <text x="568" y="368" font-family="Rajdhani,sans-serif" font-size="11" fill="rgba(240,237,232,0.7)">Richmond</text>
+          <text x="142" y="356" font-family="Rajdhani,sans-serif" font-size="11" fill="rgba(240,237,232,0.7)">Pearce</text>
+          <text x="358" y="156" font-family="Rajdhani,sans-serif" font-size="11" fill="rgba(240,237,232,0.7)">Darwin</text>
+          <text x="414" y="194" font-family="Rajdhani,sans-serif" font-size="11" fill="rgba(240,237,232,0.7)">Tindal</text>
+          <text x="552" y="415" font-family="Rajdhani,sans-serif" font-size="11" fill="rgba(240,237,232,0.7)">Fairbairn</text>
+          <text x="540" y="447" font-family="Rajdhani,sans-serif" font-size="11" fill="rgba(240,237,232,0.7)">East Sale</text>
+          <text x="548" y="231" font-family="Rajdhani,sans-serif" font-size="11" fill="rgba(240,237,232,0.7)">Townsville</text>
+          <text x="100" y="248" font-family="Rajdhani,sans-serif" font-size="11" fill="rgba(240,237,232,0.7)">Learmonth</text>
+        </svg>
+        <div class="map-legend">
+          <div class="legend-item"><div class="legend-dot combat"></div> Combat</div>
+          <div class="legend-item"><div class="legend-dot maritime"></div> Maritime / ISR</div>
+          <div class="legend-item"><div class="legend-dot transport"></div> Transport</div>
+          <div class="legend-item"><div class="legend-dot training"></div> Training</div>
+          <div class="legend-item"><div class="legend-dot mixed"></div> Mixed / HQ</div>
+        </div>
+      </div>
+
+      <div class="base-panel">
+        <div class="base-panel-placeholder" id="basePlaceholder">
+          <div class="icon">📍</div>
+          <p>Click a base marker on the map to view squadrons and aircraft details</p>
+        </div>
+        <div class="base-card" id="baseCard"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AIRCRAFT SECTION -->
+<section id="aircraft">
+  <div class="section-wrap">
+    <div class="section-header">
+      <h2>RAAF <span>Aircraft Fleet</span></h2>
+      <p>Click any aircraft card for a full breakdown of weapons systems, sensors and technology — with plain-English explanations of all acronyms and codes.</p>
+    </div>
+    <div class="aircraft-grid" id="aircraftGrid"></div>
+  </div>
+</section>
+
+<!-- OPERATIONS SECTION -->
+<section id="operations">
+  <div class="section-wrap">
+    <div class="section-header">
+      <h2>ADF International <span>Operations</span></h2>
+      <p>Current and recent ADF deployments worldwide. Click a card or map marker to see mission details, deployed assets and objectives.</p>
+    </div>
+    <div class="world-map-wrap">
+      <svg id="world-svg" viewBox="0 0 900 460" xmlns="http://www.w3.org/2000/svg">
+        <rect width="900" height="460" fill="#0A1628"/>
+        <!-- Simplified world landmasses -->
+        <!-- North America -->
+        <path d="M 60 55 L 80 48 L 108 45 L 130 48 L 152 54 L 170 64 L 182 78 L 188 96 L 185 115 L 176 130 L 162 142 L 148 150 L 140 165 L 138 182 L 145 196 L 158 206 L 165 218 L 158 232 L 144 242 L 126 248 L 108 248 L 92 242 L 78 230 L 68 215 L 62 200 L 60 185 L 58 170 L 52 155 L 44 142 L 40 125 L 42 108 L 48 92 L 56 76 Z" fill="#162845" stroke="rgba(201,168,76,0.25)" stroke-width="0.8"/>
+        <!-- Greenland -->
+        <ellipse cx="205" cy="42" rx="28" ry="18" fill="#162845" stroke="rgba(201,168,76,0.25)" stroke-width="0.8"/>
+        <!-- Central America -->
+        <path d="M 125 248 L 140 252 L 148 262 L 142 272 L 130 278 L 118 272 L 112 260 Z" fill="#162845" stroke="rgba(201,168,76,0.2)" stroke-width="0.7"/>
+        <!-- South America -->
+        <path d="M 148 282 L 168 278 L 186 280 L 202 286 L 214 298 L 222 315 L 225 335 L 222 355 L 215 372 L 204 386 L 188 396 L 170 400 L 152 396 L 135 386 L 122 372 L 115 355 L 115 335 L 120 315 L 130 298 Z" fill="#162845" stroke="rgba(201,168,76,0.25)" stroke-width="0.8"/>
+        <!-- Europe -->
+        <path d="M 375 55 L 395 50 L 415 52 L 432 60 L 442 72 L 440 88 L 428 100 L 412 108 L 395 110 L 378 105 L 365 95 L 360 80 Z" fill="#162845" stroke="rgba(201,168,76,0.25)" stroke-width="0.8"/>
+        <!-- UK -->
+        <ellipse cx="355" cy="72" rx="10" ry="14" fill="#162845" stroke="rgba(201,168,76,0.25)" stroke-width="0.7"/>
+        <!-- Africa -->
+        <path d="M 370 115 L 395 108 L 420 112 L 442 122 L 455 138 L 460 158 L 455 178 L 442 196 L 425 210 L 405 218 L 388 218 L 372 210 L 358 196 L 350 178 L 350 158 L 356 138 Z" fill="#162845" stroke="rgba(201,168,76,0.25)" stroke-width="0.8"/>
+        <!-- Middle East -->
+        <path d="M 460 105 L 478 100 L 495 104 L 508 114 L 510 130 L 500 142 L 484 148 L 468 142 L 458 130 Z" fill="#162845" stroke="rgba(201,168,76,0.25)" stroke-width="0.8"/>
+        <!-- Russia / Central Asia -->
+        <path d="M 430 45 L 460 40 L 498 38 L 540 36 L 580 38 L 620 42 L 652 48 L 670 56 L 675 68 L 665 78 L 645 86 L 620 90 L 590 92 L 558 90 L 525 86 L 492 80 L 462 72 L 440 62 Z" fill="#162845" stroke="rgba(201,168,76,0.25)" stroke-width="0.8"/>
+        <!-- South Asia / India -->
+        <path d="M 530 130 L 552 125 L 572 130 L 582 148 L 578 168 L 562 182 L 545 185 L 530 178 L 520 162 L 520 145 Z" fill="#162845" stroke="rgba(201,168,76,0.25)" stroke-width="0.8"/>
+        <!-- SE Asia -->
+        <path d="M 610 130 L 632 126 L 648 132 L 655 148 L 648 162 L 632 168 L 615 162 L 608 148 Z" fill="#162845" stroke="rgba(201,168,76,0.25)" stroke-width="0.8"/>
+        <!-- China / East Asia -->
+        <path d="M 600 68 L 628 64 L 655 65 L 678 72 L 692 85 L 695 102 L 685 116 L 665 124 L 640 128 L 614 124 L 594 112 L 588 96 Z" fill="#162845" stroke="rgba(201,168,76,0.25)" stroke-width="0.8"/>
+        <!-- Japan -->
+        <path d="M 700 82 L 714 78 L 724 84 L 720 96 L 708 100 L 698 94 Z" fill="#162845" stroke="rgba(201,168,76,0.25)" stroke-width="0.8"/>
+        <!-- Australia -->
+        <path d="M 642 275 L 665 268 L 692 265 L 718 268 L 738 278 L 748 295 L 745 315 L 732 330 L 714 338 L 692 340 L 672 335 L 656 322 L 648 305 Z" fill="#162845" stroke="rgba(201,168,76,0.35)" stroke-width="1"/>
+        <!-- Indonesia -->
+        <path d="M 610 210 L 640 205 L 665 208 L 680 218 L 676 228 L 656 232 L 630 230 L 612 222 Z" fill="#162845" stroke="rgba(201,168,76,0.2)" stroke-width="0.7"/>
+        <!-- Pacific Islands rough -->
+        <circle cx="760" cy="270" r="4" fill="#162845" stroke="rgba(201,168,76,0.2)" stroke-width="0.7"/>
+        <circle cx="790" cy="250" r="3" fill="#162845" stroke="rgba(201,168,76,0.2)" stroke-width="0.7"/>
+        <circle cx="775" cy="290" r="3" fill="#162845" stroke="rgba(201,168,76,0.2)" stroke-width="0.7"/>
+
+        <!-- Operation Markers -->
+        <!-- Op Accordion - UAE -->
+        <g class="op-dot" data-op="accordion" onclick="selectOp('accordion',event)">
+          <circle class="op-ring" cx="488" cy="118" r="8" fill="#C9A84C" opacity="0.25"/>
+          <circle cx="488" cy="118" r="4" fill="#C9A84C"/>
+        </g>
+        <!-- Op Gateway - Malaysia -->
+        <g class="op-dot" data-op="gateway" onclick="selectOp('gateway',event)">
+          <circle class="op-ring" cx="632" cy="185" r="8" fill="#4A9EDB" opacity="0.25"/>
+          <circle cx="632" cy="185" r="4" fill="#4A9EDB"/>
+        </g>
+        <!-- Op Resolute - Australia -->
+        <g class="op-dot" data-op="resolute" onclick="selectOp('resolute',event)">
+          <circle class="op-ring" cx="692" cy="300" r="8" fill="#2EC4A0" opacity="0.25"/>
+          <circle cx="692" cy="300" r="4" fill="#2EC4A0"/>
+        </g>
+        <!-- Op Solania - Pacific -->
+        <g class="op-dot" data-op="solania" onclick="selectOp('solania',event)">
+          <circle class="op-ring" cx="775" cy="268" r="8" fill="#4A9EDB" opacity="0.25"/>
+          <circle cx="775" cy="268" r="4" fill="#4A9EDB"/>
+        </g>
+        <!-- IPE - Indo-Pacific -->
+        <g class="op-dot" data-op="ipe" onclick="selectOp('ipe',event)">
+          <circle class="op-ring" cx="658" cy="240" r="8" fill="#9B59B6" opacity="0.25"/>
+          <circle cx="658" cy="240" r="4" fill="#9B59B6"/>
+        </g>
+        <!-- Op Hydranth - Red Sea -->
+        <g class="op-dot" data-op="hydranth" onclick="selectOp('hydranth',event)">
+          <circle class="op-ring" cx="448" cy="140" r="8" fill="#E05A40" opacity="0.25"/>
+          <circle cx="448" cy="140" r="4" fill="#E05A40"/>
+        </g>
+        <!-- Op Kudu - Europe/Ukraine -->
+        <g class="op-dot" data-op="kudu" onclick="selectOp('kudu',event)">
+          <circle class="op-ring" cx="430" cy="72" r="8" fill="#E05A40" opacity="0.25"/>
+          <circle cx="430" cy="72" r="4" fill="#E05A40"/>
+        </g>
+        <!-- Op Manitou - Indian Ocean -->
+        <g class="op-dot" data-op="manitou" onclick="selectOp('manitou',event)">
+          <circle class="op-ring" cx="530" cy="230" r="8" fill="#C9A84C" opacity="0.25"/>
+          <circle cx="530" cy="230" r="4" fill="#C9A84C"/>
+        </g>
+      </svg>
+      <div style="padding:12px 16px;border-top:1px solid rgba(201,168,76,0.1);display:flex;gap:20px;font-size:12px;color:var(--text-muted)">
+        <span>● Click markers on map or cards below for details</span>
+      </div>
+    </div>
+    <div class="ops-grid" id="opsGrid"></div>
+  </div>
+</section>
 
 <script>
-  // px / py are percentages of the map image (left%, top%)
-  const bases = [
-    { name: 'RAAF Base Amberley',    role: 'Strike & mobility',         state: 'QLD', px: 83.5, py: 62   },
-    { name: 'RAAF Base Williamtown', role: 'Fighter operations',        state: 'NSW', px: 87,   py: 74   },
-    { name: 'RAAF Base Richmond',    role: 'Air mobility',              state: 'NSW', px: 85.5, py: 76   },
-    { name: 'RAAF Base Tindal',      role: 'Fighter operations',        state: 'NT',  px: 52,   py: 28   },
-    { name: 'RAAF Base Darwin',      role: 'Northern air defence',      state: 'NT',  px: 50,   py: 19   },
-    { name: 'RAAF Base Edinburgh',   role: 'Maritime patrol & ISR',     state: 'SA',  px: 63,   py: 74   },
-    { name: 'RAAF Base Pearce',      role: 'Training & air defence',    state: 'WA',  px: 17,   py: 68   },
-    { name: 'RAAF Base Learmonth',   role: 'Bare base / deployable',    state: 'WA',  px: 10,   py: 38   },
-    { name: 'RAAF Base Townsville',  role: 'Airlift & support',         state: 'QLD', px: 76,   py: 42   },
-  ];
+// ── DATA ──────────────────────────────────────────────────────
 
-  const container = document.getElementById('map-container');
-  const tooltip   = document.getElementById('tooltip');
+const BASES = {
+  amberley: {
+    name: "RAAF Base Amberley",
+    location: "Queensland",
+    role: "Air Combat & Strike Hub",
+    color: "#E05A40",
+    desc: "Australia's largest RAAF base and primary air combat hub. Home to strike, electronic warfare, transport and tanker capabilities, operating under Air Combat Group and Combat Support Group.",
+    squadrons: [
+      { num: "No. 1 Sqn", name: "Air Combat", aircraft: "F/A-18F Super Hornet" },
+      { num: "No. 6 Sqn", name: "Electronic Attack", aircraft: "EA-18G Growler" },
+      { num: "No. 33 Sqn", name: "Aerial Refuelling / Strategic Transport", aircraft: "KC-30A MRTT" },
+      { num: "No. 35 Sqn", name: "Battlefield Airlift", aircraft: "C-27J Spartan" },
+      { num: "No. 36 Sqn", name: "Heavy Strategic Transport", aircraft: "C-17A Globemaster III" },
+    ]
+  },
+  williamtown: {
+    name: "RAAF Base Williamtown",
+    location: "New South Wales",
+    role: "Air Combat Group HQ & F-35 Hub",
+    color: "#E05A40",
+    desc: "Home of the F-35A Lightning II and the Wedgetail Airborne Early Warning & Control aircraft. This is Australia's primary air defence base and headquarters of Air Combat Group (78 Wing).",
+    squadrons: [
+      { num: "No. 2 OCU", name: "F-35A Conversion Unit", aircraft: "F-35A Lightning II" },
+      { num: "No. 3 Sqn", name: "Combat: F-35A", aircraft: "F-35A Lightning II" },
+      { num: "No. 75 Sqn", name: "Combat: F-35A (Tindal detachment)", aircraft: "F-35A Lightning II" },
+      { num: "No. 77 Sqn", name: "Combat: F-35A", aircraft: "F-35A Lightning II" },
+      { num: "No. 2 Sqn", name: "Airborne Early Warning & Control", aircraft: "E-7A Wedgetail" },
+    ]
+  },
+  edinburgh: {
+    name: "RAAF Base Edinburgh",
+    location: "South Australia",
+    role: "Intelligence, Surveillance & Reconnaissance",
+    color: "#4A9EDB",
+    desc: "Australia's ISR hub, hosting P-8A Poseidon maritime patrol aircraft and the MC-55A Peregrine signals intelligence platform. Critical for maritime domain awareness across the Indo-Pacific.",
+    squadrons: [
+      { num: "No. 11 Sqn", name: "Maritime Patrol & ASW", aircraft: "P-8A Poseidon" },
+      { num: "No. 12 Sqn", name: "Maritime Patrol & ASW", aircraft: "P-8A Poseidon" },
+      { num: "No. 10 Sqn", name: "Signals Intelligence / ISR", aircraft: "MC-55A Peregrine" },
+    ]
+  },
+  richmond: {
+    name: "RAAF Base Richmond",
+    location: "New South Wales",
+    role: "Medium Airlift",
+    color: "#2EC4A0",
+    desc: "Primary home of the C-130J Hercules medium tactical airlifter. Located 50 km north-west of Sydney, Richmond handles both tactical airlift and aerial delivery training.",
+    squadrons: [
+      { num: "No. 37 Sqn", name: "Medium Tactical Airlift", aircraft: "C-130J Hercules" },
+      { num: "No. 453 Sqn Flight", name: "Air Traffic Services", aircraft: "Admin / ATC" },
+    ]
+  },
+  pearce: {
+    name: "RAAF Base Pearce",
+    location: "Western Australia",
+    role: "Fighter Training & Maritime Patrol",
+    color: "#4A9EDB",
+    desc: "Fighter pilot training hub in Western Australia. Also hosts maritime patrol aircraft for operations across the Indian Ocean and serves as a gateway base for operations to Australia's north-west.",
+    squadrons: [
+      { num: "No. 25 Sqn", name: "Lead-In Fighter Training", aircraft: "BAE Hawk 127" },
+      { num: "No. 79 Sqn", name: "Basic Fighter Training", aircraft: "BAE Hawk 127" },
+    ]
+  },
+  darwin: {
+    name: "RAAF Base Darwin",
+    location: "Northern Territory",
+    role: "Northern Air Defence & Surge Base",
+    color: "#E05A40",
+    desc: "Australia's northernmost major base, strategically vital for northern approaches. Regularly hosts USAF rotational deployments under Force Posture Initiatives and serves as a surge base for regional operations.",
+    squadrons: [
+      { num: "Rotational USAF", name: "Enhanced Air Cooperation", aircraft: "F-22, B-52 (rotational)" },
+      { num: "No. 452 Sqn", name: "Air Base Services", aircraft: "Admin / Support" },
+    ]
+  },
+  tindal: {
+    name: "RAAF Base Tindal",
+    location: "Northern Territory",
+    role: "Primary F-35A Forward Base",
+    color: "#E05A40",
+    desc: "Home of No. 75 Squadron (F-35A), Australia's northernmost combat aircraft base. Currently undergoing major expansion under the RAAF's Northern Base Redevelopment to support enhanced strike and deterrence.",
+    squadrons: [
+      { num: "No. 75 Sqn", name: "Combat: F-35A (Primary)", aircraft: "F-35A Lightning II" },
+    ]
+  },
+  fairbairn: {
+    name: "Defence Establishment Fairbairn",
+    location: "Australian Capital Territory",
+    role: "VIP & Government Air Transport",
+    color: "#C9A84C",
+    desc: "Located adjacent to Canberra Airport, Fairbairn is home to the VIP transport squadron supporting the Prime Minister, Governor-General and senior government officials.",
+    squadrons: [
+      { num: "No. 34 Sqn", name: "VIP / Government Transport", aircraft: "BBJ / Dassault Falcon 7X" },
+    ]
+  },
+  eastsale: {
+    name: "RAAF Base East Sale",
+    location: "Victoria",
+    role: "Training HQ",
+    color: "#9B59B6",
+    desc: "Home of the Air Force Flying Training School and Air Force Officer Training School. East Sale is the foundation of RAAF aircrew training and officer development.",
+    squadrons: [
+      { num: "No. 32 Sqn", name: "Navigator Training / Transport", aircraft: "Beechcraft King Air 350 / PC-21" },
+      { num: "AFOTS", name: "Air Force Officer Training", aircraft: "n/a" },
+    ]
+  },
+  townsville: {
+    name: "RAAF Base Townsville",
+    location: "Queensland",
+    role: "Army Aviation Support & Strategic Location",
+    color: "#C9A84C",
+    desc: "Primarily an Army base (Lavarack Barracks), Townsville co-hosts RAAF elements focused on Northern Queensland and Pacific operations, supporting Army Aviation and strategic airlift.",
+    squadrons: [
+      { num: "No. 38 Sqn", name: "Operational Support", aircraft: "Support / Admin" },
+    ]
+  },
+  learmonth: {
+    name: "RAAF Base Learmonth",
+    location: "Western Australia",
+    role: "Remote Forward Operating Base",
+    color: "#4A9EDB",
+    desc: "Remote forward operating base in north-west WA. Used for maritime patrol, ISR and as a diversion base for Indian Ocean operations. Supports P-8A and ISR rotations.",
+    squadrons: [
+      { num: "Deployed Flights", name: "P-8A Rotational Detachment", aircraft: "P-8A Poseidon" },
+    ]
+  },
+};
 
-  function placeMarkers() {
-    document.querySelectorAll('.marker').forEach(m => m.remove());
-    const w = container.offsetWidth;
-    const h = container.offsetHeight;
-    bases.forEach(b => {
-      const el = document.createElement('div');
-      el.className = 'marker';
-      el.style.left = (b.px / 100 * w) + 'px';
-      el.style.top  = (b.py / 100 * h) + 'px';
-      el.addEventListener('mouseenter', () => {
-        document.getElementById('tt-name').textContent = b.name;
-        document.getElementById('tt-role').textContent = b.role;
-        document.getElementById('tt-state').textContent = b.state;
-        let left = (b.px / 100 * w) + 14;
-        let top  = (b.py / 100 * h) - 10;
-        if (left + 215 > w) left = (b.px / 100 * w) - 215;
-        tooltip.style.left = left + 'px';
-        tooltip.style.top  = top  + 'px';
-        tooltip.style.display = 'block';
-      });
-      el.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
-      container.appendChild(el);
-    });
-  }
+const AIRCRAFT = [
+  {
+    id: "f35a",
+    desig: "F-35A",
+    name: "Lightning II",
+    type: "combat",
+    typeName: "5th Gen Fighter",
+    tagline: "Australia's primary combat aircraft. A stealthy multirole fighter that blends air-to-air dominance with precision strike capability.",
+    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/F-35A_flight_%28cropped%29.jpg/1200px-F-35A_flight_%28cropped%29.jpg",
+    stats: [{ k:"Speed", v:"Mach 1.6" },{ k:"Range", v:"2,220 km" },{ k:"Ceiling", v:"50,000 ft" },{ k:"In service", v:"72 aircraft" }],
+    overview: "The F-35A is a fifth-generation, single-engine, supersonic stealth fighter manufactured by Lockheed Martin. Australia operates 72 F-35As, completing delivery in 2023. It is the most advanced combat aircraft in the RAAF inventory, combining low observability (stealth), sensor fusion, and precision strike in a single airframe. It replaced the legacy F/A-18A/B Hornet in RAAF service.",
+    systems: [
+      { name:"AN/APG-81 AESA Radar", code:"AESA", desc:"Active Electronically Scanned Array radar. Unlike older radars with a single rotating dish, this radar has thousands of tiny transmitter elements that electronically steer the beam. Think of it as thousands of small torches all pointing together — you can switch direction in microseconds without moving any parts.", layman:"Like having thousands of eyes that can look in any direction instantly, without turning your head." },
+      { name:"AN/AAQ-40 EOTS", code:"EOTS", desc:"Electro-Optical Targeting System. A high-resolution infrared and optical camera built flush into the fuselage. Allows the pilot to see targets in detail day or night, guide laser-guided bombs and measure target distance.", layman:"An incredibly powerful zoom camera that also acts as a laser pointer for bombs — all built invisibly into the aircraft's nose." },
+      { name:"AN/ASQ-239 EW Suite", code:"EW / ECM", desc:"Electronic Warfare suite covering radar warning, threat identification and electronic countermeasures. Detects enemy radar signals, identifies threat type and can automatically jam or spoof them.", layman:"The aircraft's self-defence system — it detects enemy radars trying to track you and can trick or jam them." },
+      { name:"Distributed Aperture System", code:"AN/AAQ-37 DAS", desc:"Six infrared cameras arrayed around the aircraft giving the pilot 360° spherical vision. With a special helmet, a pilot can literally look through the floor of the aircraft.", layman:"Six cameras wrapped around the whole plane so you can see everywhere at once — the pilot can look through the floor." },
+      { name:"JSM / Joint Strike Missile", code:"JSM", desc:"Norway's Kongsberg JSM is a stealth cruise missile that fits internally in the F-35A's weapons bay, preserving stealth. It can attack both ships and land targets using terrain-following navigation and GPS.", layman:"A GPS-guided cruise missile that can hide inside the aircraft (to stay stealthy) and hit ships or buildings from 200+ km away." },
+      { name:"AIM-120 AMRAAM", code:"AMRAAM", desc:"Advanced Medium-Range Air-to-Air Missile. A radar-guided missile that can autonomously track and destroy enemy aircraft beyond visual range. 'Fire and forget' — the pilot doesn't need to keep pointing at the target.", layman:"The main air-to-air missile. You fire it, it finds the enemy aircraft itself, and you can fly away." },
+    ],
+    tags: ["Stealth","AESA Radar","Multirole","Precision Strike","Air Superiority"]
+  },
+  {
+    id: "fa18f",
+    desig: "F/A-18F",
+    name: "Super Hornet",
+    type: "combat",
+    typeName: "Strike Fighter",
+    tagline: "A powerful twin-engine strike fighter. Australia's premier long-range strike platform until F-35A reaches full operational capability.",
+    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/FA-18F_VFA-102_over_Pacific_Ocean_2006.jpg/1200px-FA-18F_VFA-102_over_Pacific_Ocean_2006.jpg",
+    stats: [{ k:"Speed", v:"Mach 1.8+" },{ k:"Range", v:"~2,000 km" },{ k:"Ceiling", v:"50,000 ft" },{ k:"In service", v:"24 aircraft" }],
+    overview: "The F/A-18F Super Hornet is a two-seat, twin-engine, carrier-capable multirole fighter operated by No. 1 Squadron at RAAF Amberley. Australia's 24 Super Hornets have been upgraded with the Advanced Super Hornet configuration, adding an enclosed weapons pod (EWP), conformal fuel tanks for extended range, and enhanced electronic attack capability.",
+    systems: [
+      { name:"AN/APG-79 AESA Radar", code:"AESA", desc:"Advanced phased-array radar providing long-range air and surface search, tracking, and weapons guidance.", layman:"Powerful radar that can track many aircraft at once and guide missiles to multiple targets simultaneously." },
+      { name:"AN/ALQ-214 IDECM", code:"IDECM", desc:"Integrated Defensive Electronic Countermeasures. Combines radar warning, missile warning, and active jamming in one system.", layman:"The jet's self-defence system — detects missiles fired at it and automatically deploys countermeasures." },
+      { name:"JDAM & JSOW", code:"JDAM / JSOW", desc:"Joint Direct Attack Munition converts unguided bombs to GPS-guided precision weapons. Joint Standoff Weapon is a glide weapon released from altitude that flies unpowered to the target.", layman:"JDAM: strap a GPS kit onto a regular bomb to make it hit within metres of the target. JSOW: a bomb with wings that glides 100+ km after release." },
+      { name:"HARPOON", code:"AGM-84", desc:"Anti-ship missile with active radar homing, designed to attack surface vessels at long range.", layman:"A missile specifically designed to sink ships — it flies low over the water and then activates its own radar to find the target." },
+      { name:"SLAM-ER", code:"AGM-84H", desc:"Standoff Land Attack Missile – Expanded Response. Precision long-range cruise missile for land targets.", layman:"A precision cruise missile that can strike land targets from over 250 km away." },
+    ],
+    tags: ["Strike","Twin Engine","Long Range","Anti-ship","Precision"]
+  },
+  {
+    id: "ea18g",
+    desig: "EA-18G",
+    name: "Growler",
+    type: "ew",
+    typeName: "Electronic Warfare",
+    tagline: "The world's only dedicated airborne electronic attack aircraft. It can shut down enemy radars and communications from the air.",
+    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/EA-18G_Growler_VAQ-132.jpg/1200px-EA-18G_Growler_VAQ-132.jpg",
+    stats: [{ k:"Speed", v:"Mach 1.8" },{ k:"Range", v:"~2,000 km" },{ k:"Ceiling", v:"50,000 ft" },{ k:"In service", v:"12 aircraft" }],
+    overview: "The EA-18G Growler is the world's only operational airborne electronic attack aircraft, operated by No. 6 Squadron at RAAF Amberley. Derived from the F/A-18F, it replaces the gun and some weapons with an advanced suite of jamming and electronic warfare systems. Its primary mission is to suppress and destroy enemy air defence systems (SEAD) and provide electronic protection for strike packages.",
+    systems: [
+      { name:"AN/ALQ-218 Receiver", code:"ALQ-218", desc:"Wideband, high-sensitivity receiver that detects and precisely locates enemy radar and radio emissions across a vast frequency range.", layman:"An incredibly sensitive radio scanner that picks up every radar and radio signal in the area and maps where they're coming from." },
+      { name:"AN/ALQ-99 Jamming Pods", code:"ALQ-99 TJS", desc:"Tactical Jamming System. These pods emit powerful electromagnetic signals to overload and blind enemy radar systems, rendering them ineffective.", layman:"Like shining a spotlight directly into someone's eyes to blind them — but for radar. Enemy radar operators see only static." },
+      { name:"AN/APG-79 AESA Radar", code:"AESA", desc:"Same advanced radar as the Super Hornet, allowing the Growler to also self-defend and engage air threats.", layman:"Keeps all the Super Hornet's air combat radar, so it's not defenceless." },
+      { name:"AGM-88 HARM", code:"HARM", desc:"High-speed Anti-Radiation Missile. Homes in on enemy radar emissions to destroy ground-based air defence radar systems.", layman:"A missile that specifically hunts radar — if an enemy radar turns on, HARM finds it and destroys it." },
+      { name:"MALD-J", code:"MALD-J", desc:"Miniature Air Launched Decoy — Jammer. Small drone-like decoy that mimics a fighter aircraft's radar signature to confuse enemy air defences, while also jamming.", layman:"A small disposable drone the Growler launches that pretends to be a fighter jet on enemy radar, drawing fire away from real aircraft." },
+    ],
+    tags: ["Jamming","SEAD","Electronic Attack","Force Multiplier"]
+  },
+  {
+    id: "e7a",
+    desig: "E-7A",
+    name: "Wedgetail",
+    type: "ew",
+    typeName: "Airborne Early Warning",
+    tagline: "Australia's airborne command post and radar in the sky. Sees threats hundreds of kilometres away and directs the entire battle.",
+    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/RAAF_Boeing_737_AEW%26C_Wedgetail.jpg/1200px-RAAF_Boeing_737_AEW%26C_Wedgetail.jpg",
+    stats: [{ k:"Speed", v:"Mach 0.85" },{ k:"Range", v:"~7,000 km" },{ k:"Endurance", v:"10+ hrs" },{ k:"In service", v:"6 aircraft" }],
+    overview: "The E-7A Wedgetail (Boeing 737 AEW&C) is one of the world's most advanced Airborne Early Warning and Control aircraft, operated by No. 2 Squadron at RAAF Williamtown. It carries a top-mounted radar that rotates electronically (not physically) and can simultaneously track hundreds of airborne and surface targets while acting as an airborne command post to direct the entire air battle.",
+    systems: [
+      { name:"MESA Radar", code:"MESA", desc:"Multi-role Electronically Scanned Array. A fixed, top-mounted radar that uses electronic beam steering in both elevation and azimuth, providing 360° coverage without needing to physically rotate. Tracks both air and surface targets simultaneously.", layman:"A radar strapped on top of the aircraft that can look in every direction at once without spinning. It sees aircraft 600+ km away." },
+      { name:"Mission Computing System", code:"MCS", desc:"Integrates all sensor data (radar, ESM, IFF) and fuses them into a single, coherent air picture. Operators in the cabin use this to manage the whole air battle.", layman:"The brain of the aircraft — it combines all the radar and sensor data into one clear picture that operators use to control the battle." },
+      { name:"ESM System", code:"ESM", desc:"Electronic Support Measures — passively detects and locates radar and radio emissions from enemy aircraft and ships without transmitting a signal itself.", layman:"A passive listening system — it detects enemy radars without giving away the Wedgetail's own position." },
+      { name:"IFF System", code:"IFF / Mode 5", desc:"Identification Friend or Foe — a coded signal system to distinguish friendly aircraft from enemy aircraft. Mode 5 is NATO's latest encrypted, hard-to-spoof standard.", layman:"An electronic tag system — friendly aircraft respond to a secret question so the Wedgetail knows not to shoot at them." },
+      { name:"JTIDS / Link 16", code:"Link 16", desc:"Joint Tactical Information Distribution System. A secure, jam-resistant data network that shares the air picture in real time with all friendly forces.", layman:"A secure 'group chat' for all military platforms — aircraft, ships and ground forces all share the same live battlefield picture." },
+    ],
+    tags: ["AEW&C","Command & Control","MESA Radar","Force Multiplier","Link 16"]
+  },
+  {
+    id: "p8a",
+    desig: "P-8A",
+    name: "Poseidon",
+    type: "patrol",
+    typeName: "Maritime Patrol",
+    tagline: "Australia's maritime guardian. Hunts submarines and surface threats across vast ocean areas in the Indo-Pacific.",
+    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/P-8A_Poseidon_aircraft_in_flight_%28cropped%29.jpg/1200px-P-8A_Poseidon_aircraft_in_flight_%28cropped%29.jpg",
+    stats: [{ k:"Speed", v:"Mach 0.82" },{ k:"Range", v:"~8,300 km" },{ k:"Endurance", v:"10 hrs" },{ k:"In service", v:"13 aircraft" }],
+    overview: "The Boeing P-8A Poseidon is a maritime patrol and anti-submarine warfare (ASW) aircraft operated by No. 11 and No. 12 Squadrons at RAAF Edinburgh. Based on the 737-800ERX airframe, it replaced the AP-3C Orion and represents a quantum leap in maritime surveillance capability for Australia.",
+    systems: [
+      { name:"AN/APY-10 Radar", code:"APY-10", desc:"Multimode surface search radar. Can detect surfaced or snorkelling submarines, surface vessels and small objects in high sea states.", layman:"A powerful ground-scanning radar that can spot a submarine periscope poking above the water from high altitude." },
+      { name:"Acoustic Sonobuoys", code:"DIFAR / LOFAR", desc:"Cylindrical devices dropped into the ocean that float and listen for underwater sounds. Directional Frequency And Recording (DIFAR) types detect direction; Low Frequency Analysis and Recording (LOFAR) detect very quiet sounds. Data is relayed back to the aircraft.", layman:"Underwater microphones dropped from the aircraft. They float on the surface listening for submarine engine noise and radio the data back." },
+      { name:"MAD-XR", code:"MAD", desc:"Magnetic Anomaly Detector. Detects disturbances in the Earth's magnetic field caused by a submarine's steel hull. Towed in an extended 'boom' on some aircraft variants.", layman:"Detects the magnetic pull of a submarine's metal hull — like a massive compass that twitches when a submarine is below." },
+      { name:"Mk-54 Lightweight Torpedo", code:"Mk-54 LHT", desc:"The primary anti-submarine weapon — dropped from altitude, it enters the water, activates its own sonar, and autonomously tracks and destroys submarines.", layman:"An underwater missile dropped from the air. Once it hits the water it 'wakes up', finds the submarine by sound and chases it down." },
+      { name:"Harpoon Block II", code:"AGM-84L", desc:"Anti-ship missile for attacking surface vessels at long range.", layman:"Same anti-ship missile as the Super Hornet — lets the Poseidon attack enemy ships from a safe distance." },
+    ],
+    tags: ["ASW","Maritime Patrol","Anti-submarine","ISR","Long Range"]
+  },
+  {
+    id: "c17",
+    desig: "C-17A",
+    name: "Globemaster III",
+    type: "transport",
+    typeName: "Heavy Transport",
+    tagline: "Australia's heavy strategic airlifter — carries tanks, helicopters and hundreds of troops anywhere in the world.",
+    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Boeing_C-17A_Globemaster_III_RAAF.jpg/1200px-Boeing_C-17A_Globemaster_III_RAAF.jpg",
+    stats: [{ k:"Payload", v:"77,500 kg" },{ k:"Range", v:"10,400 km" },{ k:"Ceiling", v:"45,000 ft" },{ k:"In service", v:"8 aircraft" }],
+    overview: "The C-17A Globemaster III is operated by No. 36 Squadron at RAAF Amberley. It is Australia's only heavy strategic airlifter, capable of carrying tanks, large vehicles, bulk cargo and over 100 personnel. It can land on unprepared, semi-prepared and short runways, making it the backbone of rapid strategic deployment for the ADF.",
+    systems: [
+      { name:"HGS-6000 Head-Up Display", code:"HUD", desc:"Projects critical flight data directly onto the windscreen so pilots can see altitude, speed and navigation without looking down at instruments.", layman:"Like a car's GPS screen projected directly in front of your eyes so you never have to look away from the road." },
+      { name:"LAIRCM", code:"LAIRCM", desc:"Large Aircraft Infrared Countermeasures. Detects incoming heat-seeking missiles and uses a laser to confuse the missile's seeker, causing it to miss.", layman:"An automatic laser that blinds heat-seeking missiles fired at the aircraft — no pilot action needed." },
+      { name:"TCAS II", code:"TCAS", desc:"Traffic Collision Avoidance System — monitors airspace for other aircraft and commands avoidance manoeuvres if collision is likely.", layman:"Automatic system that warns pilots of nearby aircraft and tells them which direction to fly to avoid a collision." },
+    ],
+    tags: ["Strategic Airlift","Heavy Cargo","Global Reach","Humanitarian"]
+  },
+  {
+    id: "kc30a",
+    desig: "KC-30A",
+    name: "Multi-Role Tanker Transport",
+    type: "tanker",
+    typeName: "Air-to-Air Refuelling",
+    tagline: "Extends the range of the entire RAAF fleet. Turns a 2-hour mission into an 8-hour one.",
+    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/KC-30A_MRTT_No33Sqn_2011.jpg/1200px-KC-30A_MRTT_No33Sqn_2011.jpg",
+    stats: [{ k:"Fuel Offload", v:"111,000 kg" },{ k:"Range", v:"14,800 km" },{ k:"Ceiling", v:"43,000 ft" },{ k:"In service", v:"7 aircraft" }],
+    overview: "The Airbus KC-30A MRTT (Multi-Role Tanker Transport) is operated by No. 33 Squadron at Amberley. Based on the A330, it is both a strategic transport and the RAAF's primary air-to-air refuelling platform. It extends the operational radius of F-35As, Super Hornets, Growlers and Wedgetails, enabling longer missions and reaching further into the Indo-Pacific without forward basing.",
+    systems: [
+      { name:"Fly-by-Wire Refuelling Boom", code:"FBW ARBS", desc:"An extendable boom at the tail of the aircraft that a receiver aircraft connects to. The boom is controlled by an operator using a fly-by-wire joystick, similar to video game controls.", layman:"A retractable 'hose on a stick' at the tail that links to a fighter's fuel port — the boom operator flies it into place with a joystick." },
+      { name:"Hose & Drogue System", code:"HDU", desc:"Alternative refuelling system using a flexible hose with a funnel-shaped drogue basket at the end. The receiving aircraft's pilot flies into the basket to connect.", layman:"A flexible fuel hose with a basket on the end — the receiving pilot flies their aircraft's refuelling probe into the basket to refuel." },
+    ],
+    tags: ["Air Refuelling","Strategic Transport","Force Multiplier","MRTT"]
+  },
+  {
+    id: "mc55a",
+    desig: "MC-55A",
+    name: "Peregrine",
+    type: "ew",
+    typeName: "Signals Intelligence",
+    tagline: "Australia's most secretive airborne intelligence platform — listens to everything, seen by almost no one.",
+    img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/MC-12W_Liberty_flight.jpg/1200px-MC-12W_Liberty_flight.jpg",
+    stats: [{ k:"Type", v:"SIGINT / ISR" },{ k:"Based on", v:"Gulfstream G550" },{ k:"Sqn", v:"No. 10 Sqn" },{ k:"In service", v:"1 (3 on order)" }],
+    overview: "The MC-55A Peregrine is Australia's signals intelligence (SIGINT) and electronic intelligence (ELINT) platform, operated by No. 10 Squadron at RAAF Edinburgh. Based on a modified Gulfstream G550 airframe, it provides the ADF with strategic-level intelligence gathering capability. Few public details are available due to its sensitive nature.",
+    systems: [
+      { name:"SIGINT Collection Systems", code:"SIGINT", desc:"Signals Intelligence — the collection and analysis of information from electromagnetic signals, including communications (COMINT) and electronic emissions (ELINT) from radars and weapons systems.", layman:"Flies around listening to enemy radio communications, radar emissions and electronic signals — then analyses what it hears for intelligence." },
+      { name:"ELINT Sensors", code:"ELINT", desc:"Electronic Intelligence — specifically the collection of non-communications electronic signals, such as radar parameters. Allows the ADF to characterise enemy radar systems.", layman:"Records the unique 'fingerprint' of enemy radars — so next time that radar turns on, we instantly know who it is and what it can do." },
+    ],
+    tags: ["SIGINT","ELINT","ISR","Intelligence","Classified"]
+  },
+];
 
-  const img = document.getElementById('aus-map');
-  img.addEventListener('load', placeMarkers);
-  if (img.complete) placeMarkers();
-  window.addEventListener('resize', placeMarkers);
+const OPERATIONS = [
+  {
+    id: "accordion",
+    name: "Operation Accordion",
+    region: "Middle East — UAE",
+    status: "active",
+    desc: "Australia's overarching support mission in the Middle East. Headquarters Middle East (HQME) at Al Minhad Air Base, UAE, provides logistics, communications and support for up to 12 concurrent ADF operations across the region. The only forward-deployed ADF headquarters worldwide.",
+    assets: ["70–80 ADF personnel","HQ support","Al Minhad AB, UAE"],
+    types: ["army","army"]
+  },
+  {
+    id: "gateway",
+    name: "Operation Gateway",
+    region: "North Indian Ocean & South China Sea",
+    status: "active",
+    desc: "Long-running maritime surveillance patrols in the North Indian Ocean and South China Sea under the Malaysia-Australia Joint Defence Program (MAJDP). Operating from Royal Malaysian Air Force Base Butterworth, Malaysia.",
+    assets: ["P-8A Poseidon","RAAF rotational detachment","RMAF Base Butterworth"],
+    types: ["patrol"]
+  },
+  {
+    id: "resolute",
+    name: "Operation Resolute",
+    region: "Australia — Maritime Borders",
+    status: "active",
+    desc: "The ADF's primary domestic border protection operation. Covers 10% of the world's surface including Australia's exclusive economic zone extending 200 nautical miles from the mainland. ADF assets support Australian Border Force in maritime security operations.",
+    assets: ["P-8A Poseidon","AP-3C (legacy)","Navy patrol vessels","Army detachments"],
+    types: ["patrol","navy","army"]
+  },
+  {
+    id: "solania",
+    name: "Operation Solania",
+    region: "Pacific — Fisheries Surveillance",
+    status: "active",
+    desc: "ADF support to Pacific Island Forum Fisheries Agency operations to detect and deter illegal, unreported and unregulated fishing across Pacific Island exclusive economic zones. Conducted under the Pacific Maritime Security Program.",
+    assets: ["C-27J Spartan (No. 35 Sqn)","RAAF aircrews","Pacific detachments"],
+    types: ["patrol"]
+  },
+  {
+    id: "ipe",
+    name: "Indo-Pacific Endeavour",
+    region: "Indo-Pacific Region",
+    status: "active",
+    desc: "Australia's annual strategic military engagement activity across the Indo-Pacific. IPE 2025 deployed approximately 1,600 ADF personnel — the largest commitment in nearly 20 years — to build regional partnerships, conduct exercises and demonstrate capability.",
+    assets: ["HMAS Choules","P-8A Poseidon","Army Engineer elements","Special Operations","~1,600 personnel"],
+    types: ["navy","patrol","army"]
+  },
+  {
+    id: "hydranth",
+    name: "Operation Hydranth",
+    region: "Red Sea / Middle East",
+    status: "active",
+    desc: "ADF personnel embedded in the US-led headquarters supporting Operation Poseidon Archer — strikes targeting Houthi capabilities threatening freedom of navigation in the Red Sea. ADF contribution is embedded staff officers, not direct strike operations.",
+    assets: ["ADF embedded staff","HQME support","Combined Maritime Forces"],
+    types: ["army"]
+  },
+  {
+    id: "kudu",
+    name: "Operation Kudu",
+    region: "Europe — Ukraine",
+    status: "active",
+    desc: "Australia's contribution to training the Armed Forces of Ukraine. ADF personnel operate from bases in the UK and Europe, providing training to Ukrainian military personnel in a range of land and other capabilities.",
+    assets: ["~50–100 ADF trainers","Army instructors","UK-based training"],
+    types: ["army"]
+  },
+  {
+    id: "manitou",
+    name: "Operation Manitou",
+    region: "Middle East — Persian Gulf",
+    status: "active",
+    desc: "Australia's contribution to Combined Task Force 150 and Combined Maritime Forces in the Gulf and broader Middle East. Focused on maritime security, counter-narcotics and counter-terrorism at sea. One of Australia's longest-running overseas commitments.",
+    assets: ["RAN frigate/destroyer (rotational)","Navy Seahawk helicopters","ADF embarked personnel"],
+    types: ["navy","army"]
+  },
+];
+
+// ── SECTION SWITCHING ─────────────────────────────────────────
+function showSection(id, el) {
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (el) el.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── BASE MAP ──────────────────────────────────────────────────
+function selectBase(id, event) {
+  document.querySelectorAll('.base-dot').forEach(d => d.classList.remove('selected'));
+  const dot = document.querySelector(`.base-dot[data-base="${id}"]`);
+  if (dot) dot.classList.add('selected');
+  renderBaseCard(id);
+}
+
+function renderBaseCard(id) {
+  const b = BASES[id];
+  if (!b) return;
+  document.getElementById('basePlaceholder').style.display = 'none';
+  const card = document.getElementById('baseCard');
+  card.classList.add('visible');
+  const sqHTML = b.squadrons.map(s => `
+    <div class="squadron-item">
+      <div class="squadron-num">${s.num}</div>
+      <div class="squadron-info">
+        <div class="squadron-name">${s.name}</div>
+        <div class="squadron-aircraft">
+          ${s.aircraft.split(' / ').map(a => `<span class="aircraft-chip" onclick="goToAircraft('${a}')">${a}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  card.innerHTML = `
+    <div class="base-card-header">
+      <div class="base-card-location">${b.location}</div>
+      <div class="base-card-name">${b.name.replace('RAAF Base ','')}</div>
+      <div class="base-card-role">${b.role}</div>
+    </div>
+    <div class="base-card-body">
+      <div class="base-section-label">About this base</div>
+      <p class="base-desc">${b.desc}</p>
+      <div class="base-section-label">Squadrons & Aircraft</div>
+      ${sqHTML}
+      <p style="font-size:11px;color:var(--text-dim);margin-top:12px">Tap aircraft names above to view full aircraft details</p>
+    </div>
+  `;
+}
+
+function goToAircraft(name) {
+  showSection('aircraft', document.querySelectorAll('.nav-link')[2]);
+  setTimeout(() => {
+    const match = AIRCRAFT.find(a => name.includes(a.desig) || name.includes(a.name));
+    if (match) openAircraftModal(match.id);
+  }, 200);
+}
+
+// ── AIRCRAFT GRID ─────────────────────────────────────────────
+function buildAircraftGrid() {
+  const grid = document.getElementById('aircraftGrid');
+  grid.innerHTML = AIRCRAFT.map(ac => `
+    <div class="aircraft-card" onclick="openAircraftModal('${ac.id}')">
+      <div class="aircraft-img-wrap">
+        <img src="${ac.img}" alt="${ac.name}" onerror="this.src='data:image/svg+xml,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'400\\' height=\\'200\\'><rect width=\\'400\\' height=\\'200\\' fill=\\'%231A3560\\'/><text x=\\'200\\' y=\\'110\\' text-anchor=\\'middle\\' fill=\\'%23C9A84C\\' font-family=\\'Rajdhani\\' font-size=\\'24\\'>${ac.desig}</text></svg>'">
+        <span class="aircraft-type-badge badge-${ac.type}">${ac.typeName}</span>
+      </div>
+      <div class="aircraft-card-body">
+        <div class="aircraft-designation">${ac.desig}</div>
+        <div class="aircraft-name">${ac.name}</div>
+        <div class="aircraft-tagline">${ac.tagline}</div>
+        <div class="aircraft-tags">${ac.tags.slice(0,4).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openAircraftModal(id) {
+  const ac = AIRCRAFT.find(a => a.id === id);
+  if (!ac) return;
+  const statsHTML = ac.stats.map(s => `<div class="modal-stat"><div class="modal-stat-val">${s.v}</div><div class="modal-stat-key">${s.k}</div></div>`).join('');
+  const sysHTML = ac.systems.map(s => `
+    <li class="system-item">
+      <div>
+        <div class="system-name">${s.name}</div>
+        <div class="system-code">${s.code}</div>
+      </div>
+      <div>
+        <div class="system-desc">${s.desc}</div>
+        <div class="layman-box"><strong>Plain English</strong>${s.layman}</div>
+      </div>
+    </li>
+  `).join('');
+
+  document.getElementById('modalInner').innerHTML = `
+    <div class="modal-hero">
+      <img src="${ac.img}" alt="${ac.name}" onerror="this.src='data:image/svg+xml,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'820\\' height=\\'300\\'><rect width=\\'820\\' height=\\'300\\' fill=\\'%231A3560\\'/><text x=\\'410\\' y=\\'160\\' text-anchor=\\'middle\\' fill=\\'%23C9A84C\\' font-family=\\'Rajdhani\\' font-size=\\'48\\'>${ac.desig}</text></svg>'">
+      <div class="modal-hero-overlay"></div>
+      <div class="modal-hero-text">
+        <div class="modal-desig">${ac.desig} · ${ac.typeName}</div>
+        <div class="modal-name">${ac.name}</div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-stats-row">${statsHTML}</div>
+      <div class="modal-tabs">
+        <div class="modal-tab active" onclick="switchTab(event,'overview-${id}')">Overview</div>
+        <div class="modal-tab" onclick="switchTab(event,'systems-${id}')">Systems & Weapons</div>
+      </div>
+      <div class="modal-tab-pane active" id="overview-${id}">
+        <p class="modal-desc">${ac.overview}</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">${ac.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      </div>
+      <div class="modal-tab-pane" id="systems-${id}">
+        <ul class="system-list">${sysHTML}</ul>
+      </div>
+    </div>
+  `;
+  document.getElementById('aircraftModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('aircraftModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function switchTab(event, paneId) {
+  const tabs = event.target.closest('.modal-tabs').querySelectorAll('.modal-tab');
+  const panes = event.target.closest('.modal-body').querySelectorAll('.modal-tab-pane');
+  tabs.forEach(t => t.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(paneId).classList.add('active');
+}
+
+document.getElementById('aircraftModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ── OPERATIONS ────────────────────────────────────────────────
+function buildOpsGrid() {
+  const grid = document.getElementById('opsGrid');
+  grid.innerHTML = OPERATIONS.map(op => `
+    <div class="op-card" id="opcard-${op.id}" onclick="selectOp('${op.id}',null)">
+      <div class="op-header">
+        <div>
+          <div class="op-region">${op.region}</div>
+          <div class="op-name">${op.name}</div>
+        </div>
+        <div class="op-status active">Active</div>
+      </div>
+      <p class="op-desc">${op.desc}</p>
+      <div class="op-assets">
+        ${op.assets.map((a,i) => `<span class="asset-tag ${op.types[i]||''}">${a}</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectOp(id, event) {
+  document.querySelectorAll('.op-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.op-dot').forEach(d => d.classList.remove('selected'));
+  const card = document.getElementById('opcard-'+id);
+  if (card) { card.classList.add('selected'); card.scrollIntoView({ behavior:'smooth', block:'nearest' }); }
+  const dot = document.querySelector(`.op-dot[data-op="${id}"]`);
+  if (dot) dot.classList.add('selected');
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+buildAircraftGrid();
+buildOpsGrid();
+
+// Keyboard close
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 </script>
-
 </body>
 </html>
