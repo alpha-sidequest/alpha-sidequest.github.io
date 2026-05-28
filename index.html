@@ -3,58 +3,133 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RAAF Officer Prep Hub - 2026</title>
+  <title>RAAF Officer Prep Hub – 2026</title>
   <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: #f4f4f4; color: #333; line-height: 1.6; }
-    header { background: linear-gradient(#00205B, #001540); color: white; padding: 2rem; text-align: center; }
-    nav { background: #003087; padding: 1rem; text-align: center; position: sticky; top: 0; }
-    nav a { color: white; margin: 0 15px; text-decoration: none; font-weight: bold; }
-    .container { max-width: 1200px; margin: 0 auto; padding: 1rem; }
-    .map-section { margin: 3rem 0; text-align: center; }
-    .australia-map { position: relative; display: inline-block; max-width: 100%; }
-    .australia-map img { width: 100%; max-width: 800px; border: 5px solid #00205B; border-radius: 15px; }
-    .base-marker {
-      position: absolute; width: 22px; height: 22px; background: #e63939; border: 3px solid white;
-      border-radius: 50%; cursor: pointer; box-shadow: 0 0 12px black;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #333; }
+    header { background: #00205B; color: white; padding: 2rem; text-align: center; }
+    header h1 { font-size: 1.8rem; font-weight: 600; }
+    header p  { font-size: 0.9rem; opacity: 0.8; margin-top: 0.3rem; }
+    nav { background: #003087; padding: 0.7rem 1.5rem; position: sticky; top: 0; z-index: 10; }
+    nav a { color: white; margin-right: 1.5rem; text-decoration: none; font-weight: 600; font-size: 0.9rem; opacity: 0.85; }
+    nav a:hover { opacity: 1; }
+    .container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+    .section-title { font-size: 1.1rem; font-weight: 600; text-align: center; margin-bottom: 1rem; color: #00205B; }
+    #map-container {
+      position: relative; width: 100%; background: #cde8f5;
+      border: 3px solid #00205B; border-radius: 12px; overflow: hidden;
     }
-    .base-marker:hover { transform: scale(1.6); }
-    .tooltip {
-      position: absolute; background: white; border: 3px solid #00205B; border-radius: 10px;
-      padding: 12px; width: 280px; display: none; z-index: 100; box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    #map-container img { width: 100%; height: auto; display: block; }
+    .marker {
+      position: absolute; width: 18px; height: 18px;
+      background: #e63939; border: 2.5px solid white; border-radius: 50%;
+      cursor: pointer; transform: translate(-50%, -50%);
+      box-shadow: 0 0 0 2px rgba(230,57,57,0.35);
+      transition: transform 0.15s;
     }
-    .base-marker:hover + .tooltip { display: block; }
+    .marker:hover { transform: translate(-50%, -50%) scale(1.6); }
+    .tooltip-box {
+      display: none; position: absolute;
+      background: white; border: 2px solid #00205B; border-radius: 10px;
+      padding: 10px 14px; width: 200px; font-size: 13px; z-index: 50;
+      pointer-events: none; box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+    }
+    .tb-name  { font-weight: 600; color: #00205B; }
+    .tb-role  { color: #555; margin-top: 3px; font-size: 12px; }
+    .tb-state {
+      font-size: 11px; background: #dbeafe; color: #1e40af;
+      border-radius: 4px; padding: 2px 7px;
+      display: inline-block; margin-top: 6px;
+    }
+    .legend { display: flex; align-items: center; gap: 8px; margin-top: 10px; justify-content: center; font-size: 12px; color: #555; }
+    .legend-dot { width: 12px; height: 12px; background: #e63939; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 0 1.5px #e63939; }
+    footer { text-align: center; padding: 2rem; font-size: 12px; color: #888; }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>Royal Australian Air Force</h1>
-    <p>Officer Knowledge Hub • Complete Fleet Guide 2026</p>
-  </header>
+<header>
+  <h1>Royal Australian Air Force</h1>
+  <p>Officer Knowledge Hub &bull; Complete Fleet Guide 2026</p>
+</header>
 
-  <nav>
-    <a href="#map">Bases Map</a>
-  </nav>
+<nav>
+  <a href="#map-section">Bases Map</a>
+</nav>
 
-  <div class="container">
-    <section id="map" class="map-section">
-      <h2>RAAF Main Bases – Interactive Map (Hover the red dots)</h2>
-      <div class="australia-map">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Australia_map.svg/1200px-Australia_map.svg.png" alt="Australia Map">
-
-        <div class="base-marker" style="top: 52%; left: 69%;"></div>
-        <div class="tooltip" style="top: 56%; left: 73%;">Amberley (QLD)<br>Strike & Mobility</div>
-
-        <div class="base-marker" style="top: 62%; left: 78%;"></div>
-        <div class="tooltip" style="top: 66%; left: 82%;">Williamtown (NSW)<br>Fighters</div>
-
-        <div class="base-marker" style="top: 35%; left: 73%;"></div>
-        <div class="tooltip" style="top: 39%; left: 77%;">Tindal (NT)<br>Fighters</div>
-
-        <div class="base-marker" style="top: 72%; left: 48%;"></div>
-        <div class="tooltip" style="top: 76%; left: 52%;">Edinburgh (SA)<br>Maritime Patrol</div>
+<div class="container">
+  <section id="map-section">
+    <p class="section-title">RAAF Main Bases — hover the red markers</p>
+    <div id="map-container">
+      <!--
+        If the Wikimedia image is blocked by your host's CSP, download the PNG from:
+        https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Australia_map.svg/1200px-Australia_map.svg.png
+        Save it as "australia_map.png" in the same folder and change the src below to "australia_map.png"
+      -->
+      <img
+        id="aus-map"
+        src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Australia_map.svg/1200px-Australia_map.svg.png"
+        alt="Map of Australia"
+      />
+      <div class="tooltip-box" id="tooltip">
+        <div class="tb-name" id="tt-name"></div>
+        <div class="tb-role" id="tt-role"></div>
+        <span class="tb-state" id="tt-state"></span>
       </div>
-    </section>
-  </div>
+    </div>
+    <div class="legend"><div class="legend-dot"></div> RAAF base</div>
+  </section>
+</div>
+
+<footer>RAAF Officer Prep Hub &bull; 2026 &bull; Unofficial reference only</footer>
+
+<script>
+  // px / py are percentages of the map image (left%, top%)
+  const bases = [
+    { name: 'RAAF Base Amberley',    role: 'Strike & mobility',         state: 'QLD', px: 83.5, py: 62   },
+    { name: 'RAAF Base Williamtown', role: 'Fighter operations',        state: 'NSW', px: 87,   py: 74   },
+    { name: 'RAAF Base Richmond',    role: 'Air mobility',              state: 'NSW', px: 85.5, py: 76   },
+    { name: 'RAAF Base Tindal',      role: 'Fighter operations',        state: 'NT',  px: 52,   py: 28   },
+    { name: 'RAAF Base Darwin',      role: 'Northern air defence',      state: 'NT',  px: 50,   py: 19   },
+    { name: 'RAAF Base Edinburgh',   role: 'Maritime patrol & ISR',     state: 'SA',  px: 63,   py: 74   },
+    { name: 'RAAF Base Pearce',      role: 'Training & air defence',    state: 'WA',  px: 17,   py: 68   },
+    { name: 'RAAF Base Learmonth',   role: 'Bare base / deployable',    state: 'WA',  px: 10,   py: 38   },
+    { name: 'RAAF Base Townsville',  role: 'Airlift & support',         state: 'QLD', px: 76,   py: 42   },
+  ];
+
+  const container = document.getElementById('map-container');
+  const tooltip   = document.getElementById('tooltip');
+
+  function placeMarkers() {
+    document.querySelectorAll('.marker').forEach(m => m.remove());
+    const w = container.offsetWidth;
+    const h = container.offsetHeight;
+    bases.forEach(b => {
+      const el = document.createElement('div');
+      el.className = 'marker';
+      el.style.left = (b.px / 100 * w) + 'px';
+      el.style.top  = (b.py / 100 * h) + 'px';
+      el.addEventListener('mouseenter', () => {
+        document.getElementById('tt-name').textContent = b.name;
+        document.getElementById('tt-role').textContent = b.role;
+        document.getElementById('tt-state').textContent = b.state;
+        let left = (b.px / 100 * w) + 14;
+        let top  = (b.py / 100 * h) - 10;
+        if (left + 215 > w) left = (b.px / 100 * w) - 215;
+        tooltip.style.left = left + 'px';
+        tooltip.style.top  = top  + 'px';
+        tooltip.style.display = 'block';
+      });
+      el.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+      container.appendChild(el);
+    });
+  }
+
+  const img = document.getElementById('aus-map');
+  img.addEventListener('load', placeMarkers);
+  if (img.complete) placeMarkers();
+  window.addEventListener('resize', placeMarkers);
+</script>
+
 </body>
 </html>
