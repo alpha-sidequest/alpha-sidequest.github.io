@@ -38,3 +38,69 @@ Tips:
 Once the photos are added to the images/ folder with the exact filenames above, all six leadership cards will display correctly.
 
 These six people represent the key civilian and military leaders you should be able to discuss in a defence interview.
+
+================================================================================
+NEW: Navy & Army Leadership Photos (added 2026)
+================================================================================
+
+You now need additional official photos for the expanded Ranks & Leadership section.
+
+ROYAL AUSTRALIAN NAVY (6 photos required)
+--------------------------------------------
+1. Chief of Navy
+   Filename: matthew-buckley.jpg
+   Recommended: Official RAN portrait of Vice Admiral Matthew Buckley AM CSC RAN
+
+2. Commander Australian Fleet
+   Filename: chris-smith-ran.jpg
+   Recommended: Official RAN portrait of Rear Admiral Chris Smith AM CSM RAN
+
+3. Warrant Officer of the Navy
+   Filename: andrew-bertoncin.jpg
+   Recommended: Official RAN portrait of Warrant Officer Andrew “Bert” Bertoncin OAM
+
+4. Deputy Chief of Navy
+   Filename: david-greaves-ran.jpg
+   Recommended: Official RAN portrait of Rear Admiral David Greaves AM CSC RAN
+
+5. Head of Navy Capability
+   Filename: rachel-durbin.jpg
+   Recommended: Official RAN portrait of Rear Admiral Rachel Durbin CSC RAN
+
+6. Head of Navy Engineering
+   Filename: jonathan-earley.jpg
+   Recommended: Official RAN portrait of Rear Admiral Jonathan Earley AM RAN
+
+AUSTRALIAN ARMY (6 photos required)
+--------------------------------------------
+1. Chief of Army
+   Filename: susan-coyle.jpg
+   Recommended: Official Army portrait of Lieutenant General Susan Coyle AM CSC DSM
+
+2. Deputy Chief of Army
+   Filename: chris-smith-army.jpg
+   Recommended: Official Army portrait of Major General Chris Smith DSC AM CSC
+
+3. Regimental Sergeant Major of the Army
+   Filename: kim-felmingham.jpg
+   Recommended: Official Army portrait of Warrant Officer Kim Felmingham NSC OAM
+
+4. Chief of Personnel (joint but Army background)
+   Filename: natasha-fox.jpg
+   Recommended: Official ADF/Army portrait of Lieutenant General Natasha Fox AO CSC
+
+5. Commander 1st Division
+   Filename: michael-nolan.jpg
+   Recommended: Official Army portrait of Major General Michael Nolan AM CSC DSM
+
+6. Head of Army Capability
+   Filename: catherine-cox.jpg
+   Recommended: Official Army portrait of Major General Catherine Cox AM CSC
+
+TIPS FOR ALL NEW PHOTOS
+- Use high-resolution, official, professional head-and-shoulders or upper-body photos.
+- Crop to a nice portrait ratio (roughly 4:3 or 3:2 works well for the cards).
+- Keep file size reasonable (under 800KB each is fine).
+- Official Defence / Service imagery is strongly preferred for accuracy and credibility.
+
+Once the photos are added with the exact filenames above, all 18 leadership cards (6 joint/Air Force + 6 Navy + 6 Army) will display correctly.

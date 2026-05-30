@@ -165,7 +165,7 @@ nav {
 }
 
 .nav-brand {
-  display: flex; align-items: center; gap: 12px;
+  display: flex; align-items: center; gap: 10px;
   padding: 14px 0; margin-right: 2rem;
   text-decoration: none;
   cursor: pointer;
@@ -175,15 +175,22 @@ nav {
   color: var(--gold);
 }
 
-.nav-roundel {
-  width: 40px; height: 40px;
-  border-radius: 50%;
-  border: 2px solid var(--gold);
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 11px; font-weight: 700;
-  color: var(--gold); letter-spacing: 0.05em;
+.nav-brand:hover .nav-logo {
+  color: var(--gold-light);
+  transform: scale(1.03);
 }
+
+/* Custom ADF Forge logo mark (anvil + hammer) */
+.nav-logo {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  color: var(--gold);
+  transition: color 0.2s ease, transform 0.2s ease;
+  display: block;
+}
+
+/* Old roundel removed — replaced with custom ADF Forge anvil + hammer logo */
 
 .nav-title {
   font-family: 'Rajdhani', sans-serif;
@@ -277,11 +284,92 @@ nav {
     repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(201,168,76,0.04) 60px);
 }
 
+/* Cinematic Space Hero */
+.hero.cinematic {
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  padding: 45px 2rem 30px;
+  background-image: url('images/battle_sea.jpg') !important;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+/* Subtle overlay — keeps Navy battlespace image bright and dramatic */
+.hero.cinematic::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(3, 8, 18, 0.16) 0%,
+    rgba(3, 8, 18, 0.28) 50%,
+    rgba(3, 8, 18, 0.42) 100%
+  );
+  z-index: 1;
+}
+
 .hero-inner { 
   max-width: 1100px; 
   margin: 0 auto; 
   position: relative; 
   text-align: center;
+}
+
+.hero.cinematic .hero-inner {
+  text-align: left;
+  padding-left: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Stats row left-aligned under title when using cinematic battle background */
+.hero.cinematic .hero-stats {
+  justify-content: flex-start;
+}
+
+.hero-bg-container {
+  display: none; /* Animation disabled - using static background */
+}
+
+.hero-bg-container img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.8s ease-in-out;
+  pointer-events: none;
+}
+
+.hero-bg-container img.active,
+.hero-bg-container img:first-child {
+  opacity: 1;
+}
+
+/* Force full brightness on hero text — static Navy background, no dimming */
+.hero.cinematic h1,
+.hero.cinematic .hero-desc,
+.hero.cinematic .hero-stats {
+  opacity: 1 !important;
+  transition: none !important;
+  filter: none !important;
+}
+
+/* Extra pop over busy battle image */
+.hero.cinematic h1 {
+  text-shadow: 0 3px 14px rgba(0, 0, 0, 0.65);
+}
+.hero.cinematic .hero-desc {
+  color: #f5f5f5;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
+  white-space: nowrap;
+  font-size: 18.5px;
+  max-width: 820px;
 }
 
 .hero-eyebrow {
@@ -308,11 +396,16 @@ nav {
 .hero h1 span { color: var(--gold); }
 
 .hero-desc {
-  font-size: 16px;
-  color: var(--text-muted);
-  line-height: 1.65;
-  max-width: 720px;
-  margin: 0 auto 8px;
+  font-family: Georgia, 'Playfair Display', 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 19px;
+  color: #d4d4d4;
+  line-height: 1.35;
+  max-width: 780px;
+  margin: 12px 0 28px 0;
+  letter-spacing: 0.3px;
+  opacity: 1 !important;
+  white-space: nowrap;
 }
 
 .hero-stats {
@@ -386,18 +479,12 @@ nav {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
-.feature-card-icon {
-  font-size: 22px;
-  margin-bottom: 10px;
-  color: var(--gold);
-}
-
 .feature-card-title {
   font-family: 'Rajdhani', sans-serif;
   font-size: 18px;
   font-weight: 700;
   color: var(--gold);
-  margin-bottom: 6px;
+  margin-bottom: 10px;
   letter-spacing: 0.02em;
 }
 
@@ -1503,6 +1590,21 @@ section.active { display: block; }
   .hero-stats { gap: 24px; flex-wrap: wrap; }
   .section-wrap { padding: 32px 1rem 60px; }
   .aircraft-grid { grid-template-columns: 1fr; }
+}
+
+/* Keep slogan on a single line on desktop/laptop views */
+@media (max-width: 1100px) {
+  .hero-desc {
+    font-size: 17px;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-desc {
+    white-space: normal;
+    max-width: 100%;
+    font-size: 16px;
+  }
 }
 
 /* ============================================
@@ -2618,3 +2720,5 @@ section.active { display: block; }
 }
 
 
+
+/* Legacy duplicate rule removed — brightness now handled above with correct selectors */

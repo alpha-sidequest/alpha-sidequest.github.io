@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RAAF Knowledge Hub</title>
+  <title>ADF Forge</title>
 
   <!-- Google Fonts -->
   <!-- Rajdhani is now self-hosted (see fonts/ folder + styles.css) -->
@@ -30,8 +30,26 @@
 <!-- NAV -->
 <nav>
   <a class="nav-brand" href="#" onclick="showSection('home'); return false;">
-    <div class="nav-roundel">RAAF</div>
-    <div class="nav-title"><span>RAAF</span> Knowledge Hub</div>
+    <svg class="nav-logo" width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
+      <!-- Subtle dark backing with gold border -->
+      <rect x="1" y="1" width="30" height="30" rx="5" fill="var(--navy)" stroke="currentColor" stroke-width="1.1"/>
+      
+      <!-- Anvil base -->
+      <rect x="5.5" y="21.2" width="21" height="4" rx="0.8" fill="currentColor"/>
+      
+      <!-- Anvil top / working face -->
+      <rect x="4.5" y="16" width="22.5" height="5.8" rx="1" fill="currentColor"/>
+      
+      <!-- Anvil horn (left) -->
+      <path d="M4.5 16 L1.2 19.3 L4.5 22.5 Z" fill="currentColor"/>
+      
+      <!-- Hammer handle -->
+      <line x1="19.2" y1="13.8" x2="27" y2="7.8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+      
+      <!-- Hammer head (striking face) -->
+      <rect x="24.2" y="5.8" width="7.5" height="3.7" rx="0.8" fill="currentColor" transform="rotate(-36 27.8 7.8)"/>
+    </svg>
+    <div class="nav-title"><span>ADF</span> Forge</div>
   </a>
   <div class="nav-links">
     <span class="nav-link" data-section="bases">RAAF Bases</span>
@@ -66,31 +84,31 @@
 
 <!-- HOME / OVERVIEW -->
 <section id="home" class="active">
-  <div class="hero">
-    <div class="hero-inner">
-      <div class="hero-eyebrow">Royal Australian Air Force</div>
-      <h1>RAAF<br><span>Knowledge Hub</span></h1>
+    <div class="hero cinematic">
+        <div id="hero-bg-container" class="hero-bg-container"></div>
+        <div class="hero-inner">
+
+      <h1>ADF<br><span>Forge</span></h1>
       <p class="hero-desc">
-        A focused reference for RAAF bases, aircraft, fleet, weapons, operations, ranks and leadership — 
-        built to support defence interview preparation and professional study.
+        Air, Land, Sea, Space &amp; Cyber — forged for those who need to know it cold.
       </p>
 
       <div class="hero-stats">
         <div>
           <div class="hero-stat-num">11</div>
-          <div class="hero-stat-label">RAAF Bases</div>
+          <div class="hero-stat-label">Air Bases</div>
         </div>
         <div>
-          <div class="hero-stat-num">20+</div>
-          <div class="hero-stat-label">Aircraft &amp; UAVs</div>
+          <div class="hero-stat-num">25+</div>
+          <div class="hero-stat-label">Aircraft</div>
         </div>
         <div>
-          <div class="hero-stat-num">12</div>
+          <div class="hero-stat-num">15+</div>
           <div class="hero-stat-label">Naval Vessels</div>
         </div>
         <div>
-          <div class="hero-stat-num">27</div>
-          <div class="hero-stat-label">Weapons &amp; Munitions</div>
+          <div class="hero-stat-num">30+</div>
+          <div class="hero-stat-label">Army Vehicles</div>
         </div>
         <div>
           <div class="hero-stat-num">110</div>
@@ -106,7 +124,7 @@
         What’s Inside
       </h2>
       <p style="color: var(--text-muted); font-size: 15px; max-width: 720px; line-height: 1.6;">
-        A structured, easy-to-navigate compendium covering the full spectrum of RAAF knowledge required for defence interviews.
+        A tri-service reference covering the full Australian battlespace — Air Force, Navy, Army, and Adversary forces.
       </p>
     </div>
 
@@ -114,7 +132,6 @@
 
       <!-- Bases -->
       <div class="feature-card" data-section="bases">
-        <div class="feature-card-icon">🗺️</div>
         <div class="feature-card-title">RAAF Bases</div>
         <div class="feature-card-desc">
           Interactive map of all 11 RAAF bases across Australia. Explore squadrons, aircraft types, and each base’s operational role.
@@ -124,7 +141,6 @@
 
       <!-- Operations -->
       <div class="feature-card" data-section="operations">
-        <div class="feature-card-icon">🌏</div>
         <div class="feature-card-title">Global Operations</div>
         <div class="feature-card-desc">
           Current and recent ADF deployments worldwide. Interactive world map with mission objectives and deployed assets.
@@ -134,7 +150,6 @@
 
       <!-- Air Force -->
       <div class="feature-card" data-section="airforce">
-        <div class="feature-card-icon">✈️</div>
         <div class="feature-card-title">Air Force</div>
         <div class="feature-card-desc">
           In-depth profiles of the current RAAF fixed-wing fleet, UAVs and rotary wing assets. Systems, weapons, sensors and capabilities explained clearly.
@@ -144,7 +159,6 @@
 
       <!-- Navy -->
       <div class="feature-card" data-section="navy">
-        <div class="feature-card-icon">🚢</div>
         <div class="feature-card-title">Navy</div>
         <div class="feature-card-desc">
           Major Royal Australian Navy surface combatants, submarines, support vessels and organic helicopters.
@@ -154,7 +168,6 @@
 
       <!-- Army -->
       <div class="feature-card" data-section="army">
-        <div class="feature-card-icon">🚙</div>
         <div class="feature-card-title">Army</div>
         <div class="feature-card-desc">
           Key Australian Army vehicles plus Army Aviation helicopters, along with the most important Chinese and Russian armoured threats.
@@ -164,7 +177,6 @@
 
       <!-- Weapons -->
       <div class="feature-card" data-section="weapons">
-        <div class="feature-card-icon">💥</div>
         <div class="feature-card-title">Weapons & Munitions</div>
         <div class="feature-card-desc">
           Detailed profiles of RAAF air-to-air, air-to-surface, and maritime weapons with guidance systems, employment considerations, and plain-English explanations.
@@ -174,7 +186,6 @@
 
       <!-- Ranks & Leadership (combined) -->
       <div class="feature-card" data-section="ranks-leadership">
-        <div class="feature-card-icon">🎖️</div>
         <div class="feature-card-title">Ranks &amp; Leadership</div>
         <div class="feature-card-desc">
           Complete RAAF rank structure plus the official ADF leadership philosophy, 10 Leadership Principles, Mission Command, and Defence Values.
@@ -184,7 +195,6 @@
 
       <!-- Pre-entry Fitness (PFA) -->
       <div class="feature-card" data-section="pfa">
-        <div class="feature-card-icon">🏋️</div>
         <div class="feature-card-title">Pre-entry Fitness (PFA)</div>
         <div class="feature-card-desc">
           Minimum fitness standards for Navy, Army, Air Force, Officers and Special Forces entry (male &amp; female requirements).
@@ -194,7 +204,6 @@
 
       <!-- National Defence -->
       <div class="feature-card" data-section="national-defence">
-        <div class="feature-card-icon">🛡️</div>
         <div class="feature-card-title">National Defence</div>
         <div class="feature-card-desc">
           Australia’s strategic framework: the 2023 Defence Strategic Review, Strategy of Denial, and the 2024 & 2026 National Defence Strategies.
@@ -204,7 +213,6 @@
 
       <!-- Cyberspace -->
       <div class="feature-card" data-section="cyberspace">
-        <div class="feature-card-icon">🖥️</div>
         <div class="feature-card-title">Cyberspace</div>
         <div class="feature-card-desc">
           The cyber domain in ADF operations, with deep focus on the Cyber Warfare Officer role, plus intersections with Space Operations and Air Intelligence.
@@ -214,7 +222,6 @@
 
       <!-- Study Tools -->
       <div class="feature-card" data-section="study-tools">
-        <div class="feature-card-icon">🧠</div>
         <div class="feature-card-title">Study Tools</div>
         <div class="feature-card-desc">
           Flashcards, quizzes, and active recall exercises drawing from the entire site.
@@ -224,7 +231,6 @@
 
       <!-- Glossary -->
       <div class="feature-card" data-section="glossary">
-        <div class="feature-card-icon">📖</div>
         <div class="feature-card-title">Glossary</div>
         <div class="feature-card-desc">
           Master glossary of key terms, acronyms, and concepts with clear definitions and “why it matters for interviews” context.
@@ -234,7 +240,6 @@
 
       <!-- Interview Prep -->
       <div class="feature-card" data-section="interview-prep">
-        <div class="feature-card-icon">🎯</div>
         <div class="feature-card-title">Interview Prep</div>
         <div class="feature-card-desc">
           Role-specific guidance for Cyber Warfare Officer, Space Operations Officer, and Air Intelligence Officer. Model answers, salaries, training pipelines.
@@ -828,7 +833,7 @@
   <div class="section-wrap">
     <div class="section-header">
       <h2>Ranks &amp; Leadership</h2>
-      <p>The RAAF rank structure together with the official ADF leadership philosophy (ADF-P-0), values, and principles.</p>
+      <p>Tri-service rank structures (RAAF, RAN, Army) together with the official ADF leadership philosophy (ADF-P-0), values, principles, and current senior leaders across the force.</p>
     </div>
 
     <!-- Ranks content -->
@@ -950,10 +955,247 @@
       </table>
     </div>
 
+    <!-- NAVY RANKS -->
+    <div class="ranks-block">
+      <h3>Royal Australian Navy – Commissioned Officers</h3>
+      <table class="ranks-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Abbreviation</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Admiral</td>
+            <td>ADM</td>
+            <td>Four-star rank. The highest active rank in the RAN, normally held by the Chief of the Defence Force when a Navy officer is appointed to the role.</td>
+          </tr>
+          <tr>
+            <td>Vice Admiral</td>
+            <td>VADM</td>
+            <td>Three-star rank. The professional head of the Navy (Chief of Navy) normally holds this rank. Senior strategic and operational leadership position.</td>
+          </tr>
+          <tr>
+            <td>Rear Admiral</td>
+            <td>RADM</td>
+            <td>Two-star rank. Commands major formations (e.g. Fleet Command), holds key joint appointments, or serves as Deputy Chief of Navy or Head of Navy Capability.</td>
+          </tr>
+          <tr>
+            <td>Commodore</td>
+            <td>CDRE</td>
+            <td>One-star rank. Commands major task groups, flotillas, or holds senior staff appointments in Navy Headquarters and joint commands.</td>
+          </tr>
+          <tr>
+            <td>Captain</td>
+            <td>CAPT</td>
+            <td>Commands major warships (e.g. Hobart-class destroyers, Canberra-class LHDs) or holds significant headquarters and capability roles. Equivalent to Group Captain / Colonel.</td>
+          </tr>
+          <tr>
+            <td>Commander</td>
+            <td>CMDR</td>
+            <td>Commands frigates, submarines, or major shore establishments. A critical middle-senior leadership rank in both operational and staff roles.</td>
+          </tr>
+          <tr>
+            <td>Lieutenant Commander</td>
+            <td>LCDR</td>
+            <td>Executive officer on major ships, commands minor war vessels, or serves as a principal warfare officer and staff specialist.</td>
+          </tr>
+          <tr>
+            <td>Lieutenant</td>
+            <td>LEUT</td>
+            <td>Experienced junior officer. Often a bridge watchkeeper, department head on smaller vessels, or specialist officer in aviation or submarines.</td>
+          </tr>
+          <tr>
+            <td>Sub Lieutenant</td>
+            <td>SBLT</td>
+            <td>Junior officer who has completed initial training. Common rank for new entrants from the Australian Defence Force Academy or direct entry.</td>
+          </tr>
+          <tr>
+            <td>Midshipman</td>
+            <td>MIDN</td>
+            <td>The entry-level officer rank for officer cadets at the Royal Australian Naval College and ADFA midshipmen.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ranks-block">
+      <h3>Royal Australian Navy – Other Ranks (Enlisted)</h3>
+      <table class="ranks-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Abbreviation</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Warrant Officer of the Navy</td>
+            <td>WO-N</td>
+            <td>The single most senior enlisted member in the RAN. Principal advisor to the Chief of Navy on all matters affecting sailors.</td>
+          </tr>
+          <tr>
+            <td>Warrant Officer</td>
+            <td>WO</td>
+            <td>The most senior non-commissioned rank. Holds significant leadership, training, and disciplinary responsibilities across ships and establishments.</td>
+          </tr>
+          <tr>
+            <td>Chief Petty Officer</td>
+            <td>CPO</td>
+            <td>Senior technical and supervisory specialist. Often a divisional senior sailor or senior instructor in key trades.</td>
+          </tr>
+          <tr>
+            <td>Petty Officer</td>
+            <td>PO</td>
+            <td>Key non-commissioned leader. Leads teams of sailors, supervises technical work, and holds important instructional and divisional roles.</td>
+          </tr>
+          <tr>
+            <td>Leading Seaman</td>
+            <td>LS</td>
+            <td>Experienced sailor who has demonstrated competence. Often a team leader, watch supervisor, or specialist operator.</td>
+          </tr>
+          <tr>
+            <td>Able Seaman</td>
+            <td>AB</td>
+            <td>Fully qualified sailor in their primary qualification. The core of the Navy’s workforce at sea and ashore.</td>
+          </tr>
+          <tr>
+            <td>Seaman</td>
+            <td>SMN</td>
+            <td>Entry-level rank for sailors after initial recruit training at HMAS Cerberus. Foundation of the enlisted workforce.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ARMY RANKS -->
+    <div class="ranks-block">
+      <h3>Australian Army – Commissioned Officers</h3>
+      <table class="ranks-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Abbreviation</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>General</td>
+            <td>GEN</td>
+            <td>Four-star rank. The highest active rank in the Army, normally held by the Chief of the Defence Force when an Army officer is in the role.</td>
+          </tr>
+          <tr>
+            <td>Lieutenant General</td>
+            <td>LTGEN</td>
+            <td>Three-star rank. The professional head of the Army (Chief of Army) normally holds this rank. Provides strategic leadership for the Army.</td>
+          </tr>
+          <tr>
+            <td>Major General</td>
+            <td>MAJGEN</td>
+            <td>Two-star rank. Commands divisions, holds key joint appointments, or serves as Deputy Chief of Army or Head of Army Capability.</td>
+          </tr>
+          <tr>
+            <td>Brigadier</td>
+            <td>BRIG</td>
+            <td>One-star rank. Commands brigades, major training establishments, or holds senior staff roles in Army Headquarters and joint commands.</td>
+          </tr>
+          <tr>
+            <td>Colonel</td>
+            <td>COL</td>
+            <td>Commands major units or holds significant headquarters appointments. Equivalent to Group Captain / Captain (RAN).</td>
+          </tr>
+          <tr>
+            <td>Lieutenant Colonel</td>
+            <td>LTCOL</td>
+            <td>Commands battalions or regiments. A critical command and staff rank at the heart of Army operations and capability.</td>
+          </tr>
+          <tr>
+            <td>Major</td>
+            <td>MAJ</td>
+            <td>Company commander, operations officer, or senior staff officer. Key middle-management leadership role.</td>
+          </tr>
+          <tr>
+            <td>Captain</td>
+            <td>CAPT</td>
+            <td>Experienced junior officer. Commands a platoon or troop and holds important sub-unit leadership and staff appointments.</td>
+          </tr>
+          <tr>
+            <td>Lieutenant</td>
+            <td>LT</td>
+            <td>Junior officer who has completed initial training. Leads a platoon or troop in combat and training.</td>
+          </tr>
+          <tr>
+            <td>Second Lieutenant</td>
+            <td>2LT</td>
+            <td>The entry-level commissioned officer rank upon graduation from the Royal Military College – Duntroon or officer commissioning course.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ranks-block">
+      <h3>Australian Army – Other Ranks (Enlisted)</h3>
+      <table class="ranks-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Abbreviation</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Regimental Sergeant Major of the Army</td>
+            <td>RSM-A</td>
+            <td>The single most senior enlisted member in the Australian Army. Principal advisor to the Chief of Army on all matters affecting soldiers.</td>
+          </tr>
+          <tr>
+            <td>Warrant Officer Class One</td>
+            <td>WO1</td>
+            <td>The most senior non-commissioned rank. Holds significant leadership, training, and regimental responsibilities (e.g. RSM of a unit).</td>
+          </tr>
+          <tr>
+            <td>Warrant Officer Class Two</td>
+            <td>WO2</td>
+            <td>Senior technical and supervisory specialist. Often a Company Sergeant Major or senior instructor.</td>
+          </tr>
+          <tr>
+            <td>Staff Sergeant</td>
+            <td>SSGT</td>
+            <td>Senior non-commissioned officer. Holds key supervisory, technical, and administrative leadership roles.</td>
+          </tr>
+          <tr>
+            <td>Sergeant</td>
+            <td>SGT</td>
+            <td>Key non-commissioned leader. Commands sections, supervises soldiers, and holds important instructional and team leadership positions.</td>
+          </tr>
+          <tr>
+            <td>Corporal</td>
+            <td>CPL</td>
+            <td>First level of non-commissioned officer. Leads small teams (sections) and is responsible for the welfare, training, and discipline of junior soldiers.</td>
+          </tr>
+          <tr>
+            <td>Lance Corporal</td>
+            <td>LCPL</td>
+            <td>Junior non-commissioned officer. Assists the section commander and develops leadership skills.</td>
+          </tr>
+          <tr>
+            <td>Private</td>
+            <td>PTE</td>
+            <td>Entry-level rank for soldiers after initial recruit training at Kapooka (or trade-specific equivalents: Gunner, Sapper, Trooper, Signaller, etc.).</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
     <!-- Senior Leadership Bios -->
     <div class="leadership-block">
       <h3>Current Senior Leadership</h3>
-      <p class="leadership-intro">Key civilian and military leaders responsible for the Australian Defence Force and the Royal Australian Air Force (as of 2026).</p>
+      <p class="leadership-intro">Key civilian and military leaders responsible for the Australian Defence Force and the Royal Australian Air Force (as of 2026). See Navy and Army sections below for the other services.</p>
 
       <div class="leadership-grid">
 
@@ -1038,6 +1280,182 @@
       </div>
 
       <p class="leadership-note">Photos: Add high-quality official images to the <code>images/</code> folder. See <code>images/adf-leadership-photos.txt</code> for recommendations for the Leadership section.</p>
+    </div>
+
+    <!-- NAVY SENIOR LEADERSHIP -->
+    <div class="leadership-block">
+      <h3>Royal Australian Navy – Current Senior Leadership</h3>
+      <p class="leadership-intro">Key leaders responsible for the Royal Australian Navy (as of 2026). These are the officers and senior sailors you should be able to discuss in detail during interview.</p>
+
+      <div class="leadership-grid">
+
+        <!-- Navy 1 -->
+        <div class="leadership-card">
+          <div class="leader-photo">
+            <img src="images/matthew-buckley.jpg" alt="Vice Admiral Matthew Buckley AM CSC RAN">
+          </div>
+          <div class="leader-info">
+            <div class="leader-rank">Vice Admiral</div>
+            <div class="leader-name">Matthew Buckley AM CSC RAN</div>
+            <div class="leader-title">Chief of Navy</div>
+            <p class="leader-bio">Vice Admiral Matthew Buckley assumed the role of Chief of Navy in July 2026. A submariner by background with deep expertise in nuclear-powered submarine capability (AUKUS), he is responsible for the overall command, readiness, and future direction of the Royal Australian Navy.</p>
+          </div>
+        </div>
+
+        <!-- Navy 2 -->
+        <div class="leadership-card">
+          <div class="leader-photo">
+            <img src="images/chris-smith-ran.jpg" alt="Rear Admiral Chris Smith AM CSM RAN">
+          </div>
+          <div class="leader-info">
+            <div class="leader-rank">Rear Admiral</div>
+            <div class="leader-name">Chris Smith AM CSM RAN</div>
+            <div class="leader-title">Commander Australian Fleet</div>
+            <p class="leader-bio">Rear Admiral Chris Smith is responsible to the Chief of Navy for the generation, sustainment, and operational command of the RAN’s fleet. He oversees all major surface combatants, submarines, amphibious forces, and maritime aviation assets at sea.</p>
+          </div>
+        </div>
+
+        <!-- Navy 3 -->
+        <div class="leadership-card">
+          <div class="leader-photo">
+            <img src="images/andrew-bertoncin.jpg" alt="Warrant Officer of the Navy Andrew Bertoncin OAM">
+          </div>
+          <div class="leader-info">
+            <div class="leader-rank">Warrant Officer of the Navy</div>
+            <div class="leader-name">Andrew “Bert” Bertoncin OAM</div>
+            <div class="leader-title">WO-N</div>
+            <p class="leader-bio">Warrant Officer Andrew Bertoncin is the most senior enlisted sailor in the Royal Australian Navy. He serves as the principal advisor to the Chief of Navy on all matters affecting sailors and represents the enlisted workforce at the highest levels of Defence.</p>
+          </div>
+        </div>
+
+        <!-- Navy 4 -->
+        <div class="leadership-card">
+          <div class="leader-photo">
+            <img src="images/david-greaves-ran.jpg" alt="Rear Admiral David Greaves AM CSC RAN">
+          </div>
+          <div class="leader-info">
+            <div class="leader-rank">Rear Admiral</div>
+            <div class="leader-name">David Greaves AM CSC RAN</div>
+            <div class="leader-title">Deputy Chief of Navy</div>
+            <p class="leader-bio">Rear Admiral David Greaves manages Navy Headquarters and is responsible for Navy’s workforce, training, doctrine, and corporate governance. He plays a central role in implementing the Navy’s contribution to the National Defence Strategy.</p>
+          </div>
+        </div>
+
+        <!-- Navy 5 -->
+        <div class="leadership-card">
+          <div class="leader-photo">
+            <img src="images/rachel-durbin.jpg" alt="Rear Admiral Rachel Durbin CSC RAN">
+          </div>
+          <div class="leader-info">
+            <div class="leader-rank">Rear Admiral</div>
+            <div class="leader-name">Rachel Durbin CSC RAN</div>
+            <div class="leader-title">Head of Navy Capability</div>
+            <p class="leader-bio">Rear Admiral Rachel Durbin leads the development and acquisition of future Navy capabilities, including the AUKUS submarine program, Hunter-class frigates, and major maritime strike systems. A key voice in long-term force structure planning.</p>
+          </div>
+        </div>
+
+        <!-- Navy 6 -->
+        <div class="leadership-card">
+          <div class="leader-photo">
+            <img src="images/jonathan-earley.jpg" alt="Rear Admiral Jonathan Earley AM RAN">
+          </div>
+          <div class="leader-info">
+            <div class="leader-rank">Rear Admiral</div>
+            <div class="leader-name">Jonathan Earley AM RAN</div>
+            <div class="leader-title">Head of Navy Engineering</div>
+            <p class="leader-bio">Rear Admiral Jonathan Earley is responsible for the engineering and technical integrity of the fleet. He oversees the Navy’s engineering workforce, sustainment of current platforms, and integration of new technologies across surface, subsurface, and aviation domains.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ARMY SENIOR LEADERSHIP -->
+    <div class="leadership-block">
+      <h3>Australian Army – Current Senior Leadership</h3>
+      <p class="leadership-intro">Key leaders responsible for the Australian Army (as of 2026). These are the officers and senior soldiers you should be prepared to discuss during interview.</p>
+
+      <div class="leadership-grid">
+
+        <!-- Army 1 -->
+        <div class="leadership-card">
+          <div class="leader-photo">
+            <img src="images/susan-coyle.jpg" alt="Lieutenant General Susan Coyle AM CSC DSM">
+          </div>
+          <div class="leader-info">
+            <div class="leader-rank">Lieutenant General</div>
+            <div class="leader-name">Susan Coyle AM CSC DSM</div>
+            <div class="leader-title">Chief of Army</div>
+            <p class="leader-bio">Lieutenant General Susan Coyle was appointed Chief of Army in July 2026, the first woman to hold the position. She brings extensive operational and joint experience, including command of Forces Command and Joint Task Force 633 in the Middle East.</p>
+          </div>
+        </div>
+
+        <!-- Army 2 -->
+        <div class="leadership-card">
+          <div class="leader-photo">
+            <img src="images/chris-smith-army.jpg" alt="Major General Chris Smith DSC AM CSC">
+          </div>
+          <div class="leader-info">
+            <div class="leader-rank">Major General</div>
+            <div class="leader-name">Chris Smith DSC AM CSC</div>
+            <div class="leader-title">Deputy Chief of Army</div>
+            <p class="leader-bio">Major General Chris Smith is responsible for the day-to-day management of Army Headquarters and the delivery of Army’s contribution to joint capability. He plays a central role in modernisation and workforce initiatives.</p>
+          </div>
+        </div>
+
+        <!-- Army 3 -->
+        <div class="leadership-card">
+          <div class="leader-photo">
+            <img src="images/kim-felmingham.jpg" alt="Warrant Officer Kim Felmingham NSC OAM">
+          </div>
+          <div class="leader-info">
+            <div class="leader-rank">Regimental Sergeant Major of the Army</div>
+            <div class="leader-name">Kim Felmingham NSC OAM</div>
+            <div class="leader-title">RSM-A</div>
+            <p class="leader-bio">Warrant Officer Kim Felmingham is the most senior enlisted soldier in the Australian Army. She advises the Chief of Army on all matters affecting soldiers and represents the voice of the enlisted workforce at the highest levels.</p>
+          </div>
+        </div>
+
+        <!-- Army 4 -->
+        <div class="leadership-card">
+          <div class="leader-photo">
+            <img src="images/natasha-fox.jpg" alt="Lieutenant General Natasha Fox AO CSC">
+          </div>
+          <div class="leader-info">
+            <div class="leader-rank">Lieutenant General</div>
+            <div class="leader-name">Natasha Fox AO CSC</div>
+            <div class="leader-title">Chief of Personnel</div>
+            <p class="leader-bio">Lieutenant General Natasha Fox leads the ADF’s personnel function, including recruitment, retention, welfare, and the profession of arms. A highly respected logistician and leader with deep experience across joint and Army appointments.</p>
+          </div>
+        </div>
+
+        <!-- Army 5 -->
+        <div class="leadership-card">
+          <div class="leader-photo">
+            <img src="images/michael-nolan.jpg" alt="Major General Michael Nolan AM CSC DSM">
+          </div>
+          <div class="leader-info">
+            <div class="leader-rank">Major General</div>
+            <div class="leader-name">Michael Nolan AM CSC DSM</div>
+            <div class="leader-title">Commander 1st Division</div>
+            <p class="leader-bio">Major General Michael Nolan commands the Army’s primary high-readiness formation. He is responsible for preparing and certifying Army’s combat brigades and specialist units for operations and major exercises.</p>
+          </div>
+        </div>
+
+        <!-- Army 6 -->
+        <div class="leadership-card">
+          <div class="leader-photo">
+            <img src="images/catherine-cox.jpg" alt="Major General Catherine Cox AM CSC">
+          </div>
+          <div class="leader-info">
+            <div class="leader-rank">Major General</div>
+            <div class="leader-name">Catherine Cox AM CSC</div>
+            <div class="leader-title">Head of Army Capability</div>
+            <p class="leader-bio">Major General Catherine Cox leads the development of future Army capability, including the acquisition of new armoured vehicles, long-range fires (HIMARS), and the integration of autonomous and robotic systems into the land force.</p>
+          </div>
+        </div>
+
+      </div>
     </div>
 
     <!-- ADF Leadership Doctrine -->
@@ -2541,5 +2959,21 @@
 <script src="data.js"></script>
 <script src="script.js"></script>
 
+<script>
+  // Force hero text to full brightness (in case old animation left inline styles)
+  window.addEventListener('load', function() {
+    const elements = [
+      document.getElementById('hero-title'),
+      document.getElementById('hero-slogan'),
+      document.getElementById('hero-stats')
+    ];
+    elements.forEach(el => {
+      if (el) {
+        el.style.opacity = '1';
+        el.style.transition = 'none';
+      }
+    });
+  });
+</script>
 </body>
 </html>

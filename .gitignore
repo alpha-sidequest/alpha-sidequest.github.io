@@ -15,3 +15,11 @@ Thumbs.db
 *~
 *.tmp
 *.bak
+
+# Large generated battle scene images (not needed in git)
+images/battle_*.jpg
+images/space-background.jpg
+
+# Old broken script backups
+script.js.before-*
+script.js.broken-*
