@@ -1,0 +1,40 @@
+RAAF Knowledge Hub - Leadership Photos for Ranks Section
+=======================================================
+
+The "Current Senior Leadership" section now includes six important officials. You will need official photos for all of them.
+
+Required images (place inside the images/ folder):
+
+1. Minister for Defence
+   Filename: richard-marles.jpg
+   Recommended source: Official Australian Government / Department of Defence portrait
+
+2. Chief of the Defence Force
+   Filename: david-johnston.jpg
+   Recommended source: Official Defence portrait of Admiral David Johnston AC RAN
+
+3. Chief of Air Force
+   Filename: stephen-chappell.jpg
+   Recommended source: Official RAAF portrait of Air Marshal Stephen Chappell
+
+4. Deputy Chief of Air Force
+   Filename: steve-pesce.jpg
+   Recommended source: Official RAAF portrait of Air Vice-Marshal Steve Pesce AM
+
+5. Air Commander Australia
+   Filename: harvey-reynolds.jpg
+   Recommended source: Official RAAF portrait of Air Vice-Marshal Harvey Reynolds AM
+
+6. Warrant Officer of the Air Force
+   Filename: ralph-clifton.jpg
+   Recommended source: Official RAAF portrait of WOFF-AF Ralph Clifton
+
+Tips:
+- Use high-resolution, official, professional head-and-shoulders or upper-body photos.
+- Crop to a nice portrait ratio (roughly 4:3 or 3:2 works well).
+- Keep file size reasonable (under 800KB each is fine).
+- Official Defence / RAAF imagery is strongly preferred for accuracy.
+
+Once the photos are added to the images/ folder with the exact filenames above, all six leadership cards will display correctly.
+
+These six people represent the key civilian and military leaders you should be able to discuss in a defence interview.

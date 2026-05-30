@@ -1,0 +1,17 @@
+# Mac system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
+
+# Editor / IDE folders
+.vscode/
+.idea/
+
+# Log files
+*.log
+
+# Temporary / backup files
+*~
+*.tmp
+*.bak

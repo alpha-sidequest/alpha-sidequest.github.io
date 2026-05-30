@@ -1,0 +1,45 @@
+RAAF Knowledge Hub - Map Background Sources
+============================================
+
+We are switching from hand-drawn SVG "bubbles" to real map images as backgrounds.
+This will look much more professional and geographically accurate.
+
+### Australia Map
+
+Recommended file:
+- Filename to save as: australia-map.svg
+
+Direct download link (clean blank political map with state borders):
+https://upload.wikimedia.org/wikipedia/commons/c/c2/Australia_states_blank.svg
+
+Alternative (ultra-simplified outline only):
+https://upload.wikimedia.org/wikipedia/commons/9/99/Australia_Locator_Blank.svg
+
+Recommendation: Use the first one (Australia_states_blank.svg). It has state borders which will help with accurate base placement.
+
+### World Map
+
+Recommended file:
+- Filename to save as: world-map.svg
+
+Direct download link (simplified blank world map, no borders, clean):
+https://upload.wikimedia.org/wikipedia/commons/8/8e/BlankMap_World_simple.svg
+
+Alternative (also very clean):
+https://upload.wikimedia.org/wikipedia/commons/a/ac/Simplified_blank_world_map_without_Antartica_(no_borders).svg
+
+Recommendation: Use the first one (BlankMap_World_simple.svg).
+
+---
+
+Instructions:
+1. Download the two files above.
+2. Save them with the exact names:
+   - australia-map.svg
+   - world-map.svg
+3. Place them inside the `images/` folder (same place as your aircraft photos).
+4. Let me know once they are there.
+
+After that, I will rewrite the two map sections in the HTML to use these real maps as backgrounds and accurately position all the markers on top.
+
+This approach will look significantly better than the current drawn paths.

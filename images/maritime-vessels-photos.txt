@@ -1,0 +1,35 @@
+RAAF Knowledge Hub - Maritime Vessels Photos
+==============================================
+
+This section covers major Royal Australian Navy vessels that RAAF maritime crews (especially P-8A Poseidon, MH-60R, and MQ-4C Triton) need to know.
+
+Recommended images to add (place in images/ folder):
+
+1. HMAS Hobart (Hobart-class Destroyer)
+   Filename: hobart.jpg
+   Best source: Official Defence imagery of HMAS Hobart at sea
+
+2. HMAS Anzac (Anzac-class Frigate)
+   Filename: anzac.jpg
+   Best source: Official RAN photo of an Anzac-class frigate
+
+3. HMAS Collins (Collins-class Submarine)
+   Filename: collins.jpg
+   Best source: Official photo of a Collins-class submarine on the surface
+
+4. HMAS Canberra (Canberra-class LHD)
+   Filename: canberra.jpg
+   Best source: Official photo of HMAS Canberra or Adelaide with helicopters on deck
+
+Additional useful images (optional but recommended):
+- Supply-class replenishment ship (HMAS Supply or Stalwart)
+- HMAS Choules (Bay-class LSD)
+- Good side/profile views of Hobart-class and Anzac-class for recognition training
+
+Tips:
+- Use official Defence / Navy imagery where possible.
+- Good clear photos from the side or three-quarter angles work best for recognition.
+- Keep file sizes reasonable (under 800KB).
+- Prioritise recent, high-quality images.
+
+Once added, the maritime cards will look much more professional and consistent with the Aircraft section.

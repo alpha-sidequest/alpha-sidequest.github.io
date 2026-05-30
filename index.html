@@ -1,0 +1,2545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RAAF Knowledge Hub</title>
+
+  <!-- Google Fonts -->
+  <!-- Rajdhani is now self-hosted (see fonts/ folder + styles.css) -->
+
+  <!-- Our styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- TOOLTIP (for map hover) -->
+<div class="map-tooltip" id="mapTooltip">
+  <div class="map-tooltip-name" id="tooltipName"></div>
+  <div class="map-tooltip-sub" id="tooltipSub"></div>
+</div>
+
+<!-- AIRCRAFT MODAL -->
+<div class="modal-overlay" id="aircraftModal">
+  <div class="modal" id="modalContent">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div id="modalInner"></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#" onclick="showSection('home'); return false;">
+    <div class="nav-roundel">RAAF</div>
+    <div class="nav-title"><span>RAAF</span> Knowledge Hub</div>
+  </a>
+  <div class="nav-links">
+    <span class="nav-link" data-section="bases">RAAF Bases</span>
+    <span class="nav-link" data-section="operations">Operations</span>
+    <span class="nav-link" data-section="airforce">Air Force</span>
+    <span class="nav-link" data-section="navy">Navy</span>
+    <span class="nav-link" data-section="army">Army</span>
+    <span class="nav-link" data-section="weapons">Weapons</span>
+    <span class="nav-link" data-section="ranks-leadership">Ranks &amp; Leadership</span>
+    <span class="nav-link" data-section="pfa">Pre-entry Fitness (PFA)</span>
+    <span class="nav-link" data-section="national-defence">National Defence</span>
+    <span class="nav-link" data-section="cyberspace">Cyberspace</span>
+    <span class="nav-link" data-section="study-tools">Study Tools</span>
+    <span class="nav-link" data-section="glossary">Glossary</span>
+    <span class="nav-link" data-section="interview-prep">Interview Prep</span>
+  </div>
+  <div class="nav-search">
+    <input type="text" id="globalSearch" placeholder="Search everything...">
+    <div id="searchResults" class="search-results"></div>
+  </div>
+
+  <!-- Theme Switcher -->
+  <div class="theme-switcher">
+    <button id="themeToggle" class="theme-btn" title="Click to cycle themes (or press T)" aria-label="Change theme">
+      <span class="theme-icon">🎨</span>
+    </button>
+    <span id="currentThemeName" class="theme-name">Default</span>
+  </div>
+
+  <div class="nav-badge">Unclassified</div>
+</nav>
+
+<!-- HOME / OVERVIEW -->
+<section id="home" class="active">
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-eyebrow">Royal Australian Air Force</div>
+      <h1>RAAF<br><span>Knowledge Hub</span></h1>
+      <p class="hero-desc">
+        A focused reference for RAAF bases, aircraft, fleet, weapons, operations, ranks and leadership — 
+        built to support defence interview preparation and professional study.
+      </p>
+
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-num">11</div>
+          <div class="hero-stat-label">RAAF Bases</div>
+        </div>
+        <div>
+          <div class="hero-stat-num">20+</div>
+          <div class="hero-stat-label">Aircraft &amp; UAVs</div>
+        </div>
+        <div>
+          <div class="hero-stat-num">12</div>
+          <div class="hero-stat-label">Naval Vessels</div>
+        </div>
+        <div>
+          <div class="hero-stat-num">27</div>
+          <div class="hero-stat-label">Weapons &amp; Munitions</div>
+        </div>
+        <div>
+          <div class="hero-stat-num">110</div>
+          <div class="hero-stat-label">Glossary Terms</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-wrap overview-features" style="padding-top: 24px;">
+    <div style="margin-bottom: 16px;">
+      <h2 style="font-family: 'Rajdhani', sans-serif; font-size: 20px; color: var(--gold); margin-bottom: 8px;">
+        What’s Inside
+      </h2>
+      <p style="color: var(--text-muted); font-size: 15px; max-width: 720px; line-height: 1.6;">
+        A structured, easy-to-navigate compendium covering the full spectrum of RAAF knowledge required for defence interviews.
+      </p>
+    </div>
+
+    <div class="feature-cards">
+
+      <!-- Bases -->
+      <div class="feature-card" data-section="bases">
+        <div class="feature-card-icon">🗺️</div>
+        <div class="feature-card-title">RAAF Bases</div>
+        <div class="feature-card-desc">
+          Interactive map of all 11 RAAF bases across Australia. Explore squadrons, aircraft types, and each base’s operational role.
+        </div>
+        <div class="feature-card-link">Explore bases →</div>
+      </div>
+
+      <!-- Operations -->
+      <div class="feature-card" data-section="operations">
+        <div class="feature-card-icon">🌏</div>
+        <div class="feature-card-title">Global Operations</div>
+        <div class="feature-card-desc">
+          Current and recent ADF deployments worldwide. Interactive world map with mission objectives and deployed assets.
+        </div>
+        <div class="feature-card-link">View operations →</div>
+      </div>
+
+      <!-- Air Force -->
+      <div class="feature-card" data-section="airforce">
+        <div class="feature-card-icon">✈️</div>
+        <div class="feature-card-title">Air Force</div>
+        <div class="feature-card-desc">
+          In-depth profiles of the current RAAF fixed-wing fleet, UAVs and rotary wing assets. Systems, weapons, sensors and capabilities explained clearly.
+        </div>
+        <div class="feature-card-link">View air force →</div>
+      </div>
+
+      <!-- Navy -->
+      <div class="feature-card" data-section="navy">
+        <div class="feature-card-icon">🚢</div>
+        <div class="feature-card-title">Navy</div>
+        <div class="feature-card-desc">
+          Major Royal Australian Navy surface combatants, submarines, support vessels and organic helicopters.
+        </div>
+        <div class="feature-card-link">View navy →</div>
+      </div>
+
+      <!-- Army -->
+      <div class="feature-card" data-section="army">
+        <div class="feature-card-icon">🚙</div>
+        <div class="feature-card-title">Army</div>
+        <div class="feature-card-desc">
+          Key Australian Army vehicles plus Army Aviation helicopters, along with the most important Chinese and Russian armoured threats.
+        </div>
+        <div class="feature-card-link">View army →</div>
+      </div>
+
+      <!-- Weapons -->
+      <div class="feature-card" data-section="weapons">
+        <div class="feature-card-icon">💥</div>
+        <div class="feature-card-title">Weapons & Munitions</div>
+        <div class="feature-card-desc">
+          Detailed profiles of RAAF air-to-air, air-to-surface, and maritime weapons with guidance systems, employment considerations, and plain-English explanations.
+        </div>
+        <div class="feature-card-link">View weapons →</div>
+      </div>
+
+      <!-- Ranks & Leadership (combined) -->
+      <div class="feature-card" data-section="ranks-leadership">
+        <div class="feature-card-icon">🎖️</div>
+        <div class="feature-card-title">Ranks &amp; Leadership</div>
+        <div class="feature-card-desc">
+          Complete RAAF rank structure plus the official ADF leadership philosophy, 10 Leadership Principles, Mission Command, and Defence Values.
+        </div>
+        <div class="feature-card-link">Explore ranks &amp; leadership →</div>
+      </div>
+
+      <!-- Pre-entry Fitness (PFA) -->
+      <div class="feature-card" data-section="pfa">
+        <div class="feature-card-icon">🏋️</div>
+        <div class="feature-card-title">Pre-entry Fitness (PFA)</div>
+        <div class="feature-card-desc">
+          Minimum fitness standards for Navy, Army, Air Force, Officers and Special Forces entry (male &amp; female requirements).
+        </div>
+        <div class="feature-card-link">View PFA requirements →</div>
+      </div>
+
+      <!-- National Defence -->
+      <div class="feature-card" data-section="national-defence">
+        <div class="feature-card-icon">🛡️</div>
+        <div class="feature-card-title">National Defence</div>
+        <div class="feature-card-desc">
+          Australia’s strategic framework: the 2023 Defence Strategic Review, Strategy of Denial, and the 2024 & 2026 National Defence Strategies.
+        </div>
+        <div class="feature-card-link">View strategy →</div>
+      </div>
+
+      <!-- Cyberspace -->
+      <div class="feature-card" data-section="cyberspace">
+        <div class="feature-card-icon">🖥️</div>
+        <div class="feature-card-title">Cyberspace</div>
+        <div class="feature-card-desc">
+          The cyber domain in ADF operations, with deep focus on the Cyber Warfare Officer role, plus intersections with Space Operations and Air Intelligence.
+        </div>
+        <div class="feature-card-link">Explore Cyberspace →</div>
+      </div>
+
+      <!-- Study Tools -->
+      <div class="feature-card" data-section="study-tools">
+        <div class="feature-card-icon">🧠</div>
+        <div class="feature-card-title">Study Tools</div>
+        <div class="feature-card-desc">
+          Flashcards, quizzes, and active recall exercises drawing from the entire site.
+        </div>
+        <div class="feature-card-link">Practice →</div>
+      </div>
+
+      <!-- Glossary -->
+      <div class="feature-card" data-section="glossary">
+        <div class="feature-card-icon">📖</div>
+        <div class="feature-card-title">Glossary</div>
+        <div class="feature-card-desc">
+          Master glossary of key terms, acronyms, and concepts with clear definitions and “why it matters for interviews” context.
+        </div>
+        <div class="feature-card-link">Browse glossary →</div>
+      </div>
+
+      <!-- Interview Prep -->
+      <div class="feature-card" data-section="interview-prep">
+        <div class="feature-card-icon">🎯</div>
+        <div class="feature-card-title">Interview Prep</div>
+        <div class="feature-card-desc">
+          Role-specific guidance for Cyber Warfare Officer, Space Operations Officer, and Air Intelligence Officer. Model answers, salaries, training pipelines.
+        </div>
+        <div class="feature-card-link">Prepare for interview →</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- BASES SECTION -->
+<section id="bases">
+  <div class="section-wrap">
+    <div class="section-header">
+      <h2>RAAF <span>Bases</span></h2>
+      <p>Click any base marker on the map to see its squadrons, aircraft and role. Aircraft names link to the Aircraft section for full details.</p>
+    </div>
+
+    <div class="map-layout">
+      <!-- Australia Map -->
+      <div class="map-container">
+        <svg id="australia-svg" viewBox="0 0 800 700" xmlns="http://www.w3.org/2000/svg">
+          <!-- Clean vector Australia map background (rolled back from topographic JPG) -->
+          <rect width="800" height="700" fill="#0A1628"/>
+          <image href="images/australia-map.svg" width="800" height="700" preserveAspectRatio="xMidYMid meet"/>
+
+          <!-- Learmonth WA (Exmouth peninsula, far west coast) -->
+          <g class="base-dot" data-base="learmonth" onclick="selectBase('learmonth',event)">
+            <circle class="outer" cx="100" cy="215" r="9" fill="#4A9EDB" opacity="0.7"/>
+            <circle class="inner" cx="100" cy="215" r="5" fill="#4A9EDB" stroke="#FFFFFF" stroke-width="1"/>
+          </g>
+
+          <!-- Pearce WA (near Perth, southwest coast) -->
+          <g class="base-dot" data-base="pearce" onclick="selectBase('pearce',event)">
+            <circle class="outer" cx="49" cy="431" r="9" fill="#4A9EDB" opacity="0.7"/>
+            <circle class="inner" cx="49" cy="431" r="5" fill="#4A9EDB" stroke="#FFFFFF" stroke-width="1"/>
+          </g>
+
+          <!-- Darwin NT (northernmost) -->
+          <g class="base-dot" data-base="darwin" onclick="selectBase('darwin',event)">
+            <circle class="outer" cx="360" cy="39" r="9" fill="#E05A40" opacity="0.75"/>
+            <circle class="inner" cx="360" cy="39" r="5" fill="#E05A40" stroke="#FFFFFF" stroke-width="1.2"/>
+          </g>
+
+          <!-- Tindal NT (Katherine area) - placed south of Darwin per forgrok6 reference -->
+          <g class="base-dot" data-base="tindal" onclick="selectBase('tindal',event)">
+            <circle class="outer" cx="385" cy="125" r="9" fill="#E05A40" opacity="0.75"/>
+            <circle class="inner" cx="385" cy="125" r="5" fill="#E05A40" stroke="#FFFFFF" stroke-width="1.2"/>
+          </g>
+
+          <!-- Townsville QLD (northeast coast) - adjusted relative to Amberley per forgrok6 -->
+          <g class="base-dot" data-base="townsville" onclick="selectBase('townsville',event)">
+            <circle class="outer" cx="595" cy="205" r="9" fill="#C9A84C" opacity="0.75"/>
+            <circle class="inner" cx="595" cy="205" r="5" fill="#C9A84C" stroke="#FFFFFF" stroke-width="1.2"/>
+          </g>
+
+          <!-- Amberley QLD (near Ipswich/Brisbane) - nudged for better coastal alignment -->
+          <g class="base-dot" data-base="amberley" onclick="selectBase('amberley',event)">
+            <circle class="outer" cx="592" cy="328" r="9" fill="#E05A40" opacity="0.75"/>
+            <circle class="inner" cx="592" cy="328" r="5" fill="#E05A40" stroke="#FFFFFF" stroke-width="1.2"/>
+          </g>
+
+          <!-- Richmond NSW (NW of Sydney, inland from Williamtown per forgrok6) -->
+          <g class="base-dot" data-base="richmond" onclick="selectBase('richmond',event)">
+            <circle class="outer" cx="555" cy="415" r="9" fill="#2EC4A0" opacity="0.75"/>
+            <circle class="inner" cx="555" cy="415" r="5" fill="#2EC4A0" stroke="#FFFFFF" stroke-width="1.2"/>
+          </g>
+
+          <!-- Williamtown NSW (near Newcastle, on/very close to coast) - corrected based on Google Maps reference -->
+          <g class="base-dot" data-base="williamtown" onclick="selectBase('williamtown',event)">
+            <circle class="outer" cx="608" cy="408" r="9" fill="#E05A40" opacity="0.7"/>
+            <circle class="inner" cx="608" cy="408" r="5" fill="#E05A40" stroke="#FFFFFF" stroke-width="1"/>
+          </g>
+
+          <!-- Fairbairn ACT (Canberra) - placed south of Sydney area per forgrok6 reference -->
+          <g class="base-dot" data-base="fairbairn" onclick="selectBase('fairbairn',event)">
+            <circle class="outer" cx="555" cy="485" r="9" fill="#C9A84C" opacity="0.75"/>
+            <circle class="inner" cx="555" cy="485" r="5" fill="#C9A84C" stroke="#FFFFFF" stroke-width="1.2"/>
+          </g>
+
+          <!-- Edinburgh SA (north of Adelaide - 1" south-east from previous) -->
+          <g class="base-dot" data-base="edinburgh" onclick="selectBase('edinburgh',event)">
+            <circle class="outer" cx="500" cy="477" r="9" fill="#4A9EDB" opacity="0.75"/>
+            <circle class="inner" cx="500" cy="477" r="5" fill="#4A9EDB" stroke="#FFFFFF" stroke-width="1.2"/>
+          </g>
+
+          <!-- East Sale VIC (Gippsland) - corrected for consistent east coast alignment -->
+          <g class="base-dot" data-base="eastsale" onclick="selectBase('eastsale',event)">
+            <circle class="outer" cx="590" cy="565" r="9" fill="#9B59B6" opacity="0.75"/>
+            <circle class="inner" cx="590" cy="565" r="5" fill="#9B59B6" stroke="#FFFFFF" stroke-width="1.2"/>
+          </g>
+
+          <!-- Labels (moved in lockstep with their dots) -->
+          <!-- Stronger visibility for colorful topographic background: thicker stroke + brighter fill -->
+          <text x="62" y="222" font-family="Rajdhani,sans-serif" font-size="13" fill="#FFFFFF" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" stroke-opacity="0.85">Learmonth</text>
+          <text x="12" y="444" font-family="Rajdhani,sans-serif" font-size="13" fill="#FFFFFF" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" stroke-opacity="0.85">Pearce</text>
+          <text x="308" y="35" font-family="Rajdhani,sans-serif" font-size="13" fill="#FFFFFF" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" stroke-opacity="0.85">Darwin</text>
+          <text x="333" y="121" font-family="Rajdhani,sans-serif" font-size="13" fill="#FFFFFF" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" stroke-opacity="0.85">Tindal</text>
+          <text x="600" y="198" font-family="Rajdhani,sans-serif" font-size="13" fill="#FFFFFF" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" stroke-opacity="0.85">Townsville</text>
+          <text x="597" y="322" font-family="Rajdhani,sans-serif" font-size="13" fill="#FFFFFF" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" stroke-opacity="0.85">Amberley</text>
+          <text x="560" y="410" font-family="Rajdhani,sans-serif" font-size="13" fill="#FFFFFF" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" stroke-opacity="0.85">Richmond</text>
+          <text x="613" y="402" font-family="Rajdhani,sans-serif" font-size="13" fill="#FFFFFF" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" stroke-opacity="0.85">Williamtown</text>
+          <text x="560" y="480" font-family="Rajdhani,sans-serif" font-size="13" fill="#FFFFFF" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" stroke-opacity="0.85">Fairbairn</text>
+          <text x="507" y="472" font-family="Rajdhani,sans-serif" font-size="13" fill="#FFFFFF" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" stroke-opacity="0.85">Edinburgh</text>
+          <text x="595" y="560" font-family="Rajdhani,sans-serif" font-size="13" fill="#FFFFFF" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" stroke-opacity="0.85">East Sale</text>
+        </svg>
+
+        <div class="map-legend">
+          <div class="legend-item"><div class="legend-dot combat"></div> Combat</div>
+          <div class="legend-item"><div class="legend-dot maritime"></div> Maritime / ISR</div>
+          <div class="legend-item"><div class="legend-dot transport"></div> Transport</div>
+          <div class="legend-item"><div class="legend-dot training"></div> Training</div>
+          <div class="legend-item"><div class="legend-dot mixed"></div> Mixed / HQ</div>
+        </div>
+      </div>
+
+      <!-- Side panel -->
+      <div class="base-panel">
+        <div class="base-panel-placeholder" id="basePlaceholder">
+          <div class="icon">📍</div>
+          <p>Click a base marker on the map to view squadrons and aircraft details</p>
+        </div>
+        <div class="base-card" id="baseCard"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OPERATIONS SECTION (moved next to Bases) -->
+<section id="operations">
+  <div class="section-wrap">
+    <div class="section-header">
+      <h2>ADF International <span>Operations</span></h2>
+      <p>Current and recent ADF deployments worldwide. Click a card or map marker to see mission details, deployed assets and objectives.</p>
+    </div>
+
+    <div class="world-map-wrap">
+      <svg id="world-svg" viewBox="0 0 900 460" xmlns="http://www.w3.org/2000/svg">
+        <rect width="900" height="460" fill="#0A1628"/>
+        <!-- Real world map as background -->
+        <image href="images/world-map.svg" width="900" height="460" preserveAspectRatio="xMidYMid meet"/>
+
+        <!-- Operation Markers - all shifted +70 SVG units right (≈ 1 inch on 16" MacBook Pro screen) so they better align with the continents -->
+
+        <!-- Operation Accordion - UAE (Al Minhad Air Base) -->
+        <g class="op-dot" data-op="accordion" onclick="selectOp('accordion',event)">
+          <circle class="op-ring" cx="545" cy="155" r="8" fill="#C9A84C" opacity="0.3"/>
+          <circle cx="545" cy="155" r="4" fill="#C9A84C"/>
+        </g>
+
+        <!-- Operation Gateway - Malaysia / Butterworth area -->
+        <g class="op-dot" data-op="gateway" onclick="selectOp('gateway',event)">
+          <circle class="op-ring" cx="685" cy="215" r="8" fill="#4A9EDB" opacity="0.3"/>
+          <circle cx="685" cy="215" r="4" fill="#4A9EDB"/>
+        </g>
+
+        <!-- Operation Resolute - Australia (broad maritime borders, centered on continent) -->
+        <g class="op-dot" data-op="resolute" onclick="selectOp('resolute',event)">
+          <circle class="op-ring" cx="680" cy="325" r="8" fill="#2EC4A0" opacity="0.3"/>
+          <circle cx="680" cy="325" r="4" fill="#2EC4A0"/>
+        </g>
+
+        <!-- Operation Solania - Pacific (near Solomon Islands / PNG area) -->
+        <g class="op-dot" data-op="solania" onclick="selectOp('solania',event)">
+          <circle class="op-ring" cx="825" cy="285" r="8" fill="#4A9EDB" opacity="0.3"/>
+          <circle cx="825" cy="285" r="4" fill="#4A9EDB"/>
+        </g>
+
+        <!-- Indo-Pacific Endeavour (broad regional - centered more on SE Asia / Timor area) -->
+        <g class="op-dot" data-op="ipe" onclick="selectOp('ipe',event)">
+          <circle class="op-ring" cx="700" cy="265" r="8" fill="#9B59B6" opacity="0.3"/>
+          <circle cx="700" cy="265" r="4" fill="#9B59B6"/>
+        </g>
+
+        <!-- Operation Hydranth - Red Sea -->
+        <g class="op-dot" data-op="hydranth" onclick="selectOp('hydranth',event)">
+          <circle class="op-ring" cx="525" cy="165" r="8" fill="#E05A40" opacity="0.3"/>
+          <circle cx="525" cy="165" r="4" fill="#E05A40"/>
+        </g>
+
+        <!-- Operation Kudu - Europe / UK training support -->
+        <g class="op-dot" data-op="kudu" onclick="selectOp('kudu',event)">
+          <circle class="op-ring" cx="475" cy="105" r="8" fill="#E05A40" opacity="0.3"/>
+          <circle cx="475" cy="105" r="4" fill="#E05A40"/>
+        </g>
+
+        <!-- Operation Manitou - Persian Gulf / Arabian Sea -->
+        <g class="op-dot" data-op="manitou" onclick="selectOp('manitou',event)">
+          <circle class="op-ring" cx="555" cy="182" r="8" fill="#C9A84C" opacity="0.3"/>
+          <circle cx="555" cy="182" r="4" fill="#C9A84C"/>
+        </g>
+      </svg>
+
+      <div style="padding:12px 16px;border-top:1px solid rgba(201,168,76,0.1);display:flex;gap:20px;font-size:12px;color:var(--text-muted)">
+        <span>● Click markers on map or cards below for details</span>
+      </div>
+    </div>
+
+    <div class="ops-grid" id="opsGrid"></div>
+  </div>
+</section>
+
+<!-- AIR FORCE SECTION -->
+<section id="airforce">
+  <div class="section-wrap">
+    <div class="section-header">
+      <h2>RAAF <span>Air Force</span></h2>
+      <p>Click any aircraft card for a full breakdown of weapons systems, sensors and technology — with plain-English explanations of all acronyms and codes. Adversary / Threat Aircraft are included at the bottom for recognition training.</p>
+    </div>
+
+    <div class="section-with-toc">
+      <nav class="section-toc" id="aircraftToc" aria-label="On this page">
+        <!-- Populated dynamically by script.js after buildAircraftGrid() -->
+      </nav>
+      <div class="section-main">
+        <div class="aircraft-grid" id="aircraftGrid"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NAVY SECTION -->
+<section id="navy">
+  <div class="section-wrap">
+      <div class="section-header">
+        <h2>Royal Australian Navy <span>Navy</span></h2>
+        <p>Major surface combatants, submarines, support ships and organic helicopters of the Royal Australian Navy. Critical knowledge for RAAF maritime roles (P-8A Poseidon, MH-60R Seahawk, MQ-4C Triton, etc.).</p>
+      </div>
+
+
+
+      <div class="fleet-grid maritime-grid">
+
+        <!-- Hobart Class -->
+        <div class="fleet-card" id="maritime-hobart" onclick="showMaritimeDetail('hobart')">
+          <div class="fleet-img-wrap">
+            <img src="images/hobart.jpg" alt="HMAS Hobart">
+            <span class="fleet-type-badge">Surface</span>
+          </div>
+          <div class="fleet-card-body">
+            <div class="fleet-designation">DDG</div>
+            <div class="fleet-name">Hobart Class</div>
+            <div class="fleet-role">Air Warfare Destroyer</div>
+            <div class="fleet-specs">7,000t • 28+ kts • Aegis + 48 VLS • MH-60R</div>
+            <div class="fleet-tags">
+              <span class="tag">Aegis</span>
+              <span class="tag">48 VLS</span>
+              <span class="tag">Area Air Defence</span>
+              <span class="tag">MH-60R</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Anzac Class -->
+        <div class="fleet-card" id="maritime-anzac" onclick="showMaritimeDetail('anzac')">
+          <div class="fleet-img-wrap">
+            <img src="images/anzac.jpg" alt="HMAS Anzac">
+            <span class="fleet-type-badge">Surface</span>
+          </div>
+          <div class="fleet-card-body">
+            <div class="fleet-designation">FFH</div>
+            <div class="fleet-name">Anzac Class</div>
+            <div class="fleet-role">Frigate</div>
+            <div class="fleet-specs">3,600t • 27 kts • CEAFAR2 • MU90 + Seahawk</div>
+            <div class="fleet-tags">
+              <span class="tag">CEAFAR2</span>
+              <span class="tag">ESSM</span>
+              <span class="tag">ASW</span>
+              <span class="tag">MH-60R</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Collins Class -->
+        <div class="fleet-card" id="maritime-collins" onclick="showMaritimeDetail('collins')">
+          <div class="fleet-img-wrap">
+            <img src="images/collins.jpg" alt="HMAS Collins">
+            <span class="fleet-type-badge">Submarine</span>
+          </div>
+          <div class="fleet-card-body">
+            <div class="fleet-designation">SSK</div>
+            <div class="fleet-name">Collins Class</div>
+            <div class="fleet-role">Diesel-Electric Submarine</div>
+            <div class="fleet-specs">3,100t • 21 kts sub • Mk 48 + Harpoon</div>
+            <div class="fleet-tags">
+              <span class="tag">Mk 48</span>
+              <span class="tag">Harpoon</span>
+              <span class="tag">Long Range</span>
+              <span class="tag">Stealthy</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Canberra Class -->
+        <div class="fleet-card" id="maritime-canberra" onclick="showMaritimeDetail('canberra')">
+          <div class="fleet-img-wrap">
+            <img src="images/canberra.jpg" alt="HMAS Canberra">
+            <span class="fleet-type-badge">Amphibious</span>
+          </div>
+          <div class="fleet-card-body">
+            <div class="fleet-designation">LHD</div>
+            <div class="fleet-name">Canberra Class</div>
+            <div class="fleet-role">Amphibious Assault Ship</div>
+            <div class="fleet-specs">27,500t • 20+ kts • 18 helos • Well dock</div>
+            <div class="fleet-tags">
+              <span class="tag">LHD</span>
+              <span class="tag">18 Helos</span>
+              <span class="tag">Well Dock</span>
+              <span class="tag">HADR</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Supply Class -->
+        <div class="fleet-card" id="maritime-supply" onclick="showMaritimeDetail('supply')">
+          <div class="fleet-img-wrap">
+            <img src="images/supply-class.jpg" alt="HMAS Supply">
+            <span class="fleet-type-badge">Support</span>
+          </div>
+          <div class="fleet-card-body">
+            <div class="fleet-designation">AOR</div>
+            <div class="fleet-name">Supply Class</div>
+            <div class="fleet-role">Replenishment Oiler</div>
+            <div class="fleet-specs">19,500t • 20 kts • RAS + Helo deck</div>
+            <div class="fleet-tags">
+              <span class="tag">AOR</span>
+              <span class="tag">RAS</span>
+              <span class="tag">Underway Replenishment</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Choules -->
+        <div class="fleet-card" id="maritime-choules" onclick="showMaritimeDetail('choules')">
+          <div class="fleet-img-wrap">
+            <img src="images/choules.jpg" alt="HMAS Choules">
+            <span class="fleet-type-badge">Amphibious</span>
+          </div>
+          <div class="fleet-card-body">
+            <div class="fleet-designation">LSD</div>
+            <div class="fleet-name">Choules Class</div>
+            <div class="fleet-role">Dock Landing Ship</div>
+            <div class="fleet-specs">16,000t • 18 kts • Well dock + Vehicles</div>
+            <div class="fleet-tags">
+              <span class="tag">LSD</span>
+              <span class="tag">Well Dock</span>
+              <span class="tag">Vehicles</span>
+              <span class="tag">HADR</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hunter Class -->
+        <div class="fleet-card" id="maritime-hunter" onclick="showMaritimeDetail('hunter')">
+          <div class="fleet-img-wrap">
+            <img src="images/hunter-class.jpg" alt="Hunter-class Frigate">
+            <span class="fleet-type-badge">Surface (Future)</span>
+          </div>
+          <div class="fleet-card-body">
+            <div class="fleet-designation">FFG (Future)</div>
+            <div class="fleet-name">Hunter Class</div>
+            <div class="fleet-role">Future Anti-Submarine Frigate</div>
+            <div class="fleet-specs">8,800t • 27+ kts • CEAFAR2 • Advanced ASW</div>
+            <div class="fleet-tags">
+              <span class="tag">ASW Optimised</span>
+              <span class="tag">CEAFAR2</span>
+              <span class="tag">32 VLS</span>
+              <span class="tag">MH-60R</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- AUKUS / Virginia -->
+        <div class="fleet-card" id="maritime-aukus" onclick="showMaritimeDetail('aukus')">
+          <div class="fleet-img-wrap">
+            <img src="images/virginia-class.jpg" alt="Virginia-class SSN">
+            <span class="fleet-type-badge">Submarine (Future)</span>
+          </div>
+          <div class="fleet-card-body">
+            <div class="fleet-designation">SSN (Future)</div>
+            <div class="fleet-name">Virginia-class + SSN-AUKUS</div>
+            <div class="fleet-role">Nuclear Attack Submarine</div>
+            <div class="fleet-specs">~7,800t • 25+ kts • Tomahawk + Advanced sensors</div>
+            <div class="fleet-tags">
+              <span class="tag">AUKUS</span>
+              <span class="tag">Tomahawk</span>
+              <span class="tag">SSN</span>
+              <span class="tag">Long Range</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Navy Helicopters subsection -->
+      <div class="aircraft-section-header" style="margin-top: 32px; margin-bottom: 12px;">
+        <h3>Navy Helicopters</h3>
+      </div>
+
+      <div class="fleet-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
+        <div class="fleet-card" id="navy-mh60r" onclick="showMaritimeDetail('mh60r')">
+          <div class="fleet-img-wrap">
+            <img src="images/mh60r.jpg" alt="MH-60R Seahawk Romeo">
+            <span class="fleet-type-badge">Navy Aviation</span>
+          </div>
+          <div class="fleet-card-body">
+            <div class="fleet-designation">MH-60R</div>
+            <div class="fleet-name">Seahawk 'Romeo'</div>
+            <div class="fleet-role">Multi-Role Shipborne Helicopter</div>
+            <div class="fleet-specs">270 km/h • Dipping Sonar + Hellfire + Mk 54</div>
+            <div class="fleet-tags">
+              <span class="tag">ASW</span>
+              <span class="tag">Hellfire</span>
+              <span class="tag">Dipping Sonar</span>
+              <span class="tag">RAN Aviation</span>
+            </div>
+          </div>
+        </div>
+      </div>   <!-- end of Navy Helicopters grid -->
+
+      <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--threat); margin: 40px 0 16px;">Adversary Recognition</h3>
+
+      <div class="fleet-grid">
+
+        <!-- Type 055 -->
+        <div class="fleet-card" id="maritime-type055" onclick="showMaritimeDetail('type055')">
+          <div class="fleet-img-wrap">
+            <img src="images/type-055.jpg" alt="Type 055 Destroyer">
+            <span class="fleet-type-badge adversary">Chinese DDG</span>
+          </div>
+          <div class="fleet-card-body">
+            <div class="fleet-designation">DDG (Adversary)</div>
+            <div class="fleet-name">Type 055 (Renhai)</div>
+            <div class="fleet-role">Chinese Destroyer / Cruiser</div>
+            <div class="fleet-specs">13,000t • 30+ kts • 112 VLS • YJ-21</div>
+            <div class="fleet-tags">
+              <span class="tag">112 VLS</span>
+              <span class="tag">YJ-21</span>
+              <span class="tag">Hypersonic</span>
+              <span class="tag">PLAN</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Type 052D -->
+        <div class="fleet-card" id="maritime-type052d" onclick="showMaritimeDetail('type052d')">
+          <div class="fleet-img-wrap">
+            <img src="images/type-052d.jpg" alt="Type 052D Destroyer">
+            <span class="fleet-type-badge adversary">Chinese DDG</span>
+          </div>
+          <div class="fleet-card-body">
+            <div class="fleet-designation">DDG (Adversary)</div>
+            <div class="fleet-name">Type 052D (Luyang III)</div>
+            <div class="fleet-role">Chinese Multi-role Destroyer</div>
+            <div class="fleet-specs">7,500t • 30+ kts • 64 VLS • YJ-18</div>
+            <div class="fleet-tags">
+              <span class="tag">64 VLS</span>
+              <span class="tag">YJ-18</span>
+              <span class="tag">Supersonic</span>
+              <span class="tag">PLAN</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Kilo -->
+        <div class="fleet-card" id="maritime-kilo" onclick="showMaritimeDetail('kilo')">
+          <div class="fleet-img-wrap">
+            <img src="images/kilo-class.jpg" alt="Kilo-class Submarine">
+            <span class="fleet-type-badge adversary">Russian SSK</span>
+          </div>
+          <div class="fleet-card-body">
+            <div class="fleet-designation">SSK (Adversary)</div>
+            <div class="fleet-name">Kilo / Improved Kilo</div>
+            <div class="fleet-role">Diesel-Electric Submarine</div>
+            <div class="fleet-specs">2,400t • Very quiet • Kalibr (some)</div>
+            <div class="fleet-tags">
+              <span class="tag">Very Quiet</span>
+              <span class="tag">Kalibr</span>
+              <span class="tag">Mine Layer</span>
+              <span class="tag">SSK</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gorshkov -->
+        <div class="fleet-card" id="maritime-gorshkov" onclick="showMaritimeDetail('gorshkov')">
+          <div class="fleet-img-wrap">
+            <img src="images/gorshkov-class.jpg" alt="Admiral Gorshkov-class Frigate">
+            <span class="fleet-type-badge adversary">Russian FFG</span>
+          </div>
+          <div class="fleet-card-body">
+            <div class="fleet-designation">FFG (Adversary)</div>
+            <div class="fleet-name">Admiral Gorshkov Class</div>
+            <div class="fleet-role">Russian Multi-role Frigate</div>
+            <div class="fleet-specs">5,400t • 29+ kts • 16 VLS • Kalibr / Tsirkon</div>
+            <div class="fleet-tags">
+              <span class="tag">Kalibr</span>
+              <span class="tag">Tsirkon</span>
+              <span class="tag">Hypersonic</span>
+              <span class="tag">Stealth</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+  </div>
+</section>
+
+<!-- ARMY SECTION -->
+<section id="army">
+  <div class="section-wrap">
+      <div class="section-header">
+        <h2>Australian Army <span>Army</span></h2>
+        <p>Key Australian Army ground vehicles and Army Aviation helicopters, plus adversary armoured threats. Essential knowledge for RAAF crews supporting joint operations.</p>
+      </div>
+
+      <div class="vehicles-grid" id="vehicles-grid">
+        <!-- Populated dynamically by JS -->
+      </div>
+
+      <p style="text-align:center; margin-top: 16px; font-size:13px; color:var(--text-dim);">
+        Adversary vehicles (China / Russia) shown below for threat recognition. More platforms will be added over time.
+      </p>
+  </div>
+</section>
+
+<!-- WEAPONS & MUNITIONS SECTION -->
+<section id="weapons">
+  <div class="section-wrap">
+    <div class="section-header">
+      <h2>Weapons &amp; Munitions</h2>
+      <p>Comprehensive coverage of Australian strike weapons, fleet vessel armament, air &amp; missile defence systems, and key adversary weapons. All entries include technical detail, employment context, and plain-English explanations.</p>
+    </div>
+
+
+
+    <!-- Australian Strike Weapons -->
+    <div style="margin: 32px 0 12px;">
+      <h3 style="color: var(--gold); font-size: 18px; margin-bottom: 6px;">Australian Strike Weapons</h3>
+      <p style="font-size: 13px; color: var(--text-dim); max-width: 720px; margin-bottom: 12px;">
+        Air-launched weapons employed by RAAF combat, maritime patrol, and rotary-wing aircraft. Includes air-to-air, precision strike, anti-ship, and ASW munitions.
+      </p>
+      <div id="australianStrikeGrid" class="weapons-grid">
+        <!-- Populated dynamically via buildWeaponsGrid() -->
+      </div>
+    </div>
+
+    <!-- Australian Fleet & Vessel Weaponry -->
+    <div style="margin: 32px 0 12px;">
+      <h3 style="color: var(--gold); font-size: 18px; margin-bottom: 6px;">Australian Fleet &amp; Vessel Weaponry</h3>
+      <p style="font-size: 13px; color: var(--text-dim); max-width: 720px; margin-bottom: 12px;">
+        Primary weapons carried by RAN surface combatants and submarines (guns, heavyweight torpedoes, ship-launched strike weapons).
+      </p>
+      <div id="australianFleetGrid" class="weapons-grid">
+        <!-- Populated dynamically via buildWeaponsGrid() -->
+      </div>
+    </div>
+
+    <!-- Fleet Air & Missile Defence Systems -->
+    <div style="margin: 32px 0 12px;">
+      <h3 style="color: var(--gold); font-size: 18px; margin-bottom: 6px;">Fleet Air &amp; Missile Defence Systems</h3>
+      <p style="font-size: 13px; color: var(--text-dim); max-width: 720px; margin-bottom: 12px;">
+        Ship-based surface-to-air missiles, active decoys, and point-defence systems that protect RAN task groups and high-value units.
+      </p>
+      <div id="defensiveGrid" class="weapons-grid">
+        <!-- Populated dynamically via buildWeaponsGrid() -->
+      </div>
+    </div>
+
+    <!-- Adversary Weapons & Defence Systems -->
+    <div style="margin: 32px 0 12px;">
+      <h3 style="color: #C0392B; font-size: 18px; margin-bottom: 6px;">Adversary Weapons &amp; Defence Systems</h3>
+      <p style="font-size: 13px; color: var(--text-dim); max-width: 720px; margin-bottom: 12px;">
+        Key Chinese and Russian air-to-air, anti-ship, cruise, and hypersonic weapons plus major naval SAM systems. Essential recognition knowledge for maritime and combat roles.
+      </p>
+      <div id="adversaryWeaponsGrid" class="weapons-grid">
+        <!-- Populated dynamically via buildWeaponsGrid() -->
+      </div>
+    </div>
+
+    <p style="margin-top: 28px; font-size: 13px; color: var(--text-dim); max-width: 720px;">
+      All information is drawn from open sources and structured for interview preparation. Click any card for full technical detail, guidance systems, and plain-English explanations.
+    </p>
+
+  </div>
+</section>
+
+<!-- RANKS SECTION -->
+<section id="ranks-leadership">
+  <div class="section-wrap">
+    <div class="section-header">
+      <h2>Ranks &amp; Leadership</h2>
+      <p>The RAAF rank structure together with the official ADF leadership philosophy (ADF-P-0), values, and principles.</p>
+    </div>
+
+    <!-- Ranks content -->
+
+    <!-- Officer Ranks -->
+    <div class="ranks-block">
+      <h3>Commissioned Officers</h3>
+      <table class="ranks-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Abbreviation</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Air Chief Marshal</td>
+            <td>ACM</td>
+            <td>The highest active rank in the RAAF. Equivalent to a four-star general. Currently held by the Chief of the Defence Force when an Air Force officer is appointed to the role.</td>
+          </tr>
+          <tr>
+            <td>Air Marshal</td>
+            <td>AM</td>
+            <td>Three-star rank. The professional head of the RAAF (Chief of Air Force) normally holds this rank. Senior strategic leadership position.</td>
+          </tr>
+          <tr>
+            <td>Air Vice-Marshal</td>
+            <td>AVM</td>
+            <td>Two-star rank. Senior officers who typically command major formations, serve as Deputy Chief of Air Force, or hold key joint appointments.</td>
+          </tr>
+          <tr>
+            <td>Air Commodore</td>
+            <td>AIRCDRE</td>
+            <td>One-star rank. Commands large bases or formations (e.g. Air Combat Group, Surveillance &amp; Response Group) and holds senior staff appointments.</td>
+          </tr>
+          <tr>
+            <td>Group Captain</td>
+            <td>GPCAPT</td>
+            <td>Commands major RAAF bases (e.g. Amberley, Williamtown) or holds significant headquarters roles. Equivalent to Colonel in the Army.</td>
+          </tr>
+          <tr>
+            <td>Wing Commander</td>
+            <td>WGCDR</td>
+            <td>Commands flying squadrons or large headquarters branches. A key middle-senior leadership rank.</td>
+          </tr>
+          <tr>
+            <td>Squadron Leader</td>
+            <td>SQNLDR</td>
+            <td>Commands smaller units or serves as executive officers. Experienced officers in operational and staff roles.</td>
+          </tr>
+          <tr>
+            <td>Flight Lieutenant</td>
+            <td>FLTLT</td>
+            <td>Experienced junior officer. Often a flight commander in a squadron or specialist staff officer.</td>
+          </tr>
+          <tr>
+            <td>Flying Officer</td>
+            <td>FLGOFF</td>
+            <td>Junior officer who has completed initial training and posting. Common rank for pilots and other aircrew early in their career.</td>
+          </tr>
+          <tr>
+            <td>Pilot Officer</td>
+            <td>PLTOFF</td>
+            <td>The entry-level commissioned officer rank upon graduation from the Air Force Academy or direct entry officer training.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Enlisted / Other Ranks -->
+    <div class="ranks-block">
+      <h3>Other Ranks (Enlisted)</h3>
+      <table class="ranks-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Abbreviation</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Warrant Officer of the Air Force</td>
+            <td>WOFF-AF</td>
+            <td>The single most senior enlisted member in the RAAF. Acts as the principal advisor to the Chief of Air Force on all matters concerning airmen and airwomen.</td>
+          </tr>
+          <tr>
+            <td>Warrant Officer</td>
+            <td>WOFF</td>
+            <td>The most senior non-commissioned rank. Holds significant leadership, training, and disciplinary responsibilities within units.</td>
+          </tr>
+          <tr>
+            <td>Flight Sergeant</td>
+            <td>FSGT</td>
+            <td>Senior non-commissioned officer. Often serves as a squadron warrant officer or in senior technical/supervisory roles.</td>
+          </tr>
+          <tr>
+            <td>Sergeant</td>
+            <td>SGT</td>
+            <td>Key non-commissioned leader. Commands sections, supervises junior ranks, and holds important technical or instructional positions.</td>
+          </tr>
+          <tr>
+            <td>Corporal</td>
+            <td>CPL</td>
+            <td>First level of non-commissioned officer. Leads small teams and is responsible for the welfare, training, and discipline of junior airmen.</td>
+          </tr>
+          <tr>
+            <td>Leading Aircraftman / Leading Aircraftwoman</td>
+            <td>LAC / LACW</td>
+            <td>Experienced aviator who has demonstrated competence in their trade. Often mentors newer personnel.</td>
+          </tr>
+          <tr>
+            <td>Aircraftman / Aircraftwoman</td>
+            <td>AC / ACW</td>
+            <td>Entry-level rank for enlisted personnel after initial recruit training. The foundation of the RAAF workforce.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Senior Leadership Bios -->
+    <div class="leadership-block">
+      <h3>Current Senior Leadership</h3>
+      <p class="leadership-intro">Key civilian and military leaders responsible for the Australian Defence Force and the Royal Australian Air Force (as of 2026).</p>
+
+      <div class="leadership-grid">
+
+        <!-- 1. Minister for Defence -->
+        <div class="leadership-card">
+          <div class="leader-photo">
+            <img src="images/richard-marles.jpg" alt="The Hon. Richard Marles MP">
+          </div>
+          <div class="leader-info">
+            <div class="leader-rank">Minister for Defence</div>
+            <div class="leader-name">The Hon. Richard Marles MP</div>
+            <div class="leader-title">Deputy Prime Minister of Australia</div>
+            <p class="leader-bio">Richard Marles has served as Australia’s Minister for Defence since June 2022. As Deputy Prime Minister he oversees the strategic direction of the Australian Defence Force, including the RAAF’s modernisation, capability acquisition, and alignment with the 2026 National Defence Strategy. He is responsible for defence policy, international engagement, and ensuring the ADF remains a credible and capable force in the Indo-Pacific.</p>
+          </div>
+        </div>
+
+        <!-- 2. Chief of the Defence Force -->
+        <div class="leadership-card">
+          <div class="leader-photo">
+            <img src="images/david-johnston.jpg" alt="Admiral David Johnston AC RAN">
+          </div>
+          <div class="leader-info">
+            <div class="leader-rank">Admiral</div>
+            <div class="leader-name">David Johnston AC RAN</div>
+            <div class="leader-title">Chief of the Defence Force</div>
+            <p class="leader-bio">Admiral David Johnston has been Chief of the Defence Force since July 2024. As the most senior military officer in Australia, he provides direct military advice to the Minister and Government, and is responsible for the command and control of the entire Australian Defence Force across Navy, Army and Air Force.</p>
+          </div>
+        </div>
+
+        <!-- 3. Chief of Air Force -->
+        <div class="leadership-card">
+          <div class="leader-photo">
+            <img src="images/stephen-chappell.jpg" alt="Air Marshal Stephen Chappell">
+          </div>
+          <div class="leader-info">
+            <div class="leader-rank">Air Marshal</div>
+            <div class="leader-name">Stephen Chappell, DSC, CSC, OAM</div>
+            <div class="leader-title">Chief of Air Force</div>
+            <p class="leader-bio">Air Marshal Stephen Chappell was appointed Chief of Air Force in July 2024. He is the professional head of the Royal Australian Air Force and is responsible for the operational effectiveness, readiness, and future capability of Australia’s air power. A highly experienced fighter pilot and senior commander, he previously held key appointments including Commander Air Combat Group.</p>
+          </div>
+        </div>
+
+        <!-- 4. Deputy Chief of Air Force -->
+        <div class="leadership-card">
+          <div class="leader-photo">
+            <img src="images/steve-pesce.jpg" alt="Air Vice-Marshal Steve Pesce AM">
+          </div>
+          <div class="leader-info">
+            <div class="leader-rank">Air Vice-Marshal</div>
+            <div class="leader-name">Steve Pesce AM</div>
+            <div class="leader-title">Deputy Chief of Air Force</div>
+            <p class="leader-bio">Air Vice-Marshal Steve Pesce assumed the role of Deputy Chief of Air Force in January 2026. He manages Air Force Headquarters and is responsible for air power doctrine, enterprise strategy, workforce management, corporate governance, and organisational culture across the RAAF.</p>
+          </div>
+        </div>
+
+        <!-- 5. Air Commander Australia -->
+        <div class="leadership-card">
+          <div class="leader-photo">
+            <img src="images/harvey-reynolds.jpg" alt="Air Vice-Marshal Harvey Reynolds AM">
+          </div>
+          <div class="leader-info">
+            <div class="leader-rank">Air Vice-Marshal</div>
+            <div class="leader-name">Harvey Reynolds AM</div>
+            <div class="leader-title">Air Commander Australia</div>
+            <p class="leader-bio">Air Vice-Marshal Harvey Reynolds became Air Commander Australia in April 2026. He is responsible to the Chief of Air Force for preparing and commanding the RAAF’s operational air combat forces, including oversight of all Force Element Groups that generate and deliver air power.</p>
+          </div>
+        </div>
+
+        <!-- 6. Warrant Officer of the Air Force -->
+        <div class="leadership-card">
+          <div class="leader-photo">
+            <img src="images/ralph-clifton.jpg" alt="Warrant Officer of the Air Force Ralph Clifton">
+          </div>
+          <div class="leader-info">
+            <div class="leader-rank">Warrant Officer of the Air Force</div>
+            <div class="leader-name">Ralph Clifton</div>
+            <div class="leader-title">WOFF-AF</div>
+            <p class="leader-bio">WOFF-AF Ralph Clifton is the most senior enlisted member in the Royal Australian Air Force. Appointed in December 2022, he serves as the principal advisor to the Chief of Air Force on all matters affecting airmen and airwomen, and acts as the voice of the enlisted workforce at the highest levels.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <p class="leadership-note">Photos: Add high-quality official images to the <code>images/</code> folder. See <code>images/adf-leadership-photos.txt</code> for recommendations for the Leadership section.</p>
+    </div>
+
+    <!-- ADF Leadership Doctrine -->
+    <div class="leadership-doctrine" style="max-width: 860px; margin: 48px auto 0; padding: 0 12px;">
+      <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 20px; font-size: 22px; text-align: center;">
+        ADF Leadership Doctrine
+      </h3>
+
+      <!-- Core Model -->
+      <div style="margin-bottom: 32px;">
+        <h4 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 10px; font-size: 17px;">The ADF Leadership Model</h4>
+        <p style="color: var(--text-muted); margin-bottom: 12px; font-size: 14.5px;">Effective ADF leaders combine three interdependent elements:</p>
+        <div class="info-grid">
+          <div class="info-grid-item">
+            <dt>Character</dt>
+            <dd>Who you are when no one is watching. Built on moral courage, integrity, and living the Defence values.</dd>
+          </div>
+          <div class="info-grid-item">
+            <dt>Professional Competence</dt>
+            <dd>Mastery of your trade, understanding of the wider context, and the ability to apply knowledge and skills under pressure.</dd>
+          </div>
+          <div class="info-grid-item">
+            <dt>Human Understanding</dt>
+            <dd>Self-awareness and insight into what motivates and affects others.</dd>
+          </div>
+        </div>
+      </div>
+
+      <!-- Defence Values -->
+      <div style="margin-bottom: 34px;">
+        <h4 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 10px; font-size: 17px;">The Five Defence Values</h4>
+        <p style="color: var(--text-muted); margin-bottom: 12px; font-size: 14px;">These values underpin everything the ADF does. Leaders are expected to model them.</p>
+        <div class="info-grid">
+          <div class="info-grid-item"><dt>Service</dt><dd>Selflessness — placing the security and interests of the nation and its people ahead of your own.</dd></div>
+          <div class="info-grid-item"><dt>Courage</dt><dd>The strength to do and say what is right, especially when difficult (physical and moral).</dd></div>
+          <div class="info-grid-item"><dt>Respect</dt><dd>Valuing others and treating them with dignity. Requires humility and fairness.</dd></div>
+          <div class="info-grid-item"><dt>Integrity</dt><dd>Consistency between what you think, say, and do. Being honest with yourself and others.</dd></div>
+          <div class="info-grid-item"><dt>Excellence</dt><dd>Striving to be the best you can be — professionally and personally — every day.</dd></div>
+        </div>
+      </div>
+
+      <!-- 10 Leadership Principles -->
+      <div style="margin-bottom: 34px;">
+        <h4 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 10px; font-size: 17px;">The 10 ADF Leadership Principles</h4>
+        <p style="color: var(--text-muted); margin-bottom: 10px; font-size: 14px;">A practical framework for self-assessment and development at every level.</p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px 18px; font-size:14px; color:var(--text-muted);">
+          <div><strong>1.</strong> Know yourself and seek self-improvement</div>
+          <div><strong>2.</strong> Be proficient — Master your trade and understand the broader context</div>
+          <div><strong>3.</strong> Seek and accept responsibility</div>
+          <div><strong>4.</strong> Lead by example</div>
+          <div><strong>5.</strong> Provide direction and keep your team informed</div>
+          <div><strong>6.</strong> Know and care for your people</div>
+          <div><strong>7.</strong> Develop the potential of your people</div>
+          <div><strong>8.</strong> Make sound and timely decisions</div>
+          <div><strong>9.</strong> Build the team and challenge its abilities</div>
+          <div><strong>10.</strong> Communicate effectively</div>
+        </div>
+      </div>
+
+      <!-- Mission Command -->
+      <div style="margin-bottom: 34px;">
+        <h4 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 10px; font-size: 17px;">Mission Command</h4>
+        <p style="color: var(--text-muted); line-height: 1.6; margin-bottom: 10px;">
+          The ADF’s preferred command philosophy — <strong>centralised intent and decentralised execution</strong>. Leaders provide clear purpose and intent (the “what” and “why”); competent subordinates decide “how”.
+        </p>
+        <div class="info-grid" style="margin-top:8px;">
+          <div class="info-grid-item"><dt>Mutual trust</dt><dd>Built on shared values</dd></div>
+          <div class="info-grid-item"><dt>Shared understanding</dt><dd>Common picture of the situation</dd></div>
+          <div class="info-grid-item"><dt>Clear commander’s intent</dt><dd>The “what” and “why”</dd></div>
+          <div class="info-grid-item"><dt>Mission-style orders</dt><dd>Focus on what/why, not excessive “how”</dd></div>
+          <div class="info-grid-item"><dt>Disciplined initiative</dt><dd>Subordinates act within intent</dd></div>
+          <div class="info-grid-item"><dt>Prudent risk management</dt><dd>Calculated, not reckless</dd></div>
+          <div class="info-grid-item"><dt>Verification &amp; feedback</dt><dd>Continuous alignment</dd></div>
+        </div>
+      </div>
+
+      <!-- Leadership Styles -->
+      <div style="margin-bottom: 34px;">
+        <h4 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 10px; font-size: 17px;">Leadership Styles in Context</h4>
+        <p style="color: var(--text-muted); margin-bottom: 10px; font-size: 14px;">Effective leaders adapt their style while remaining anchored in Defence values:</p>
+        <div class="info-grid">
+          <div class="info-grid-item"><dt>Transformational</dt><dd>Inspires and motivates toward a shared vision (highly valued in the ADF).</dd></div>
+          <div class="info-grid-item"><dt>Transactional</dt><dd>Clear tasks, rewards, and accountability — useful in high-tempo or training environments.</dd></div>
+          <div class="info-grid-item"><dt>Servant Leadership</dt><dd>Prioritises growth and wellbeing of people (aligns with “know and care for your people”).</dd></div>
+          <div class="info-grid-item"><dt>Authoritative / Directive</dt><dd>Necessary in crisis or when speed and clarity are critical.</dd></div>
+          <div class="info-grid-item"><dt>Participative / Democratic</dt><dd>Useful when time allows and team buy-in is important.</dd></div>
+        </div>
+      </div>
+
+      <!-- Developing Leaders -->
+      <div style="margin-bottom: 28px;">
+        <h4 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 10px; font-size: 17px;">Developing Leaders</h4>
+        <p style="color: var(--text-muted); margin-bottom: 8px; font-size: 14px;">The ADF believes leadership can and must be developed through:</p>
+        <div class="info-grid">
+          <div class="info-grid-item"><dt>Education</dt><dd>Formal courses and professional military education</dd></div>
+          <div class="info-grid-item"><dt>Experience</dt><dd>Challenging appointments and operational service</dd></div>
+          <div class="info-grid-item"><dt>Self-development</dt><dd>Reflection, reading, seeking feedback, deliberate practice</dd></div>
+        </div>
+        <p style="color: var(--text-muted); font-size: 13.5px; margin-top: 10px;">Good leaders invest in developing their people and preparing their successors.</p>
+      </div>
+
+      <!-- Official Reference -->
+      <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);">
+        <p style="color: var(--text-muted); font-size: 13.5px; margin: 0;">
+          Primary reference: 
+          <a href="https://theforge.defence.gov.au/sites/default/files/2021-06/adf-philosophical-doctrine-adf-leadership.pdf" target="_blank" style="color: var(--accent-blue);">ADF-P-0 ADF Leadership (Philosophical Doctrine, Edition 3, 2021)</a>
+        </p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- PRE-ENTRY FITNESS ASSESSMENT (PFA) SECTION -->
+<section id="pfa">
+  <div class="section-wrap">
+    <div class="section-header">
+      <h2>Pre-entry Fitness Assessment <span>(PFA)</span></h2>
+      <p>The ADF Pre-entry Fitness Assessment is the minimum physical standard required to join the Australian Defence Force. Standards vary by service and role. These are the current public minimum requirements (as of 2025).</p>
+    </div>
+
+    <div style="max-width: 1100px; margin: 0 auto;">
+
+      <!-- Important Notes -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 32px;">
+        <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 10px;">Important Notes</h3>
+        <div class="key-fact"><strong>Minimum Standards Only</strong><span>These are entry gates. Actual training at Kapooka, 1RTU Wagga etc. is significantly more demanding.</span></div>
+        <div class="key-fact"><strong>PFA Timing</strong><span>You must pass the PFA (usually within 6 weeks prior to enlistment or appointment day).</span></div>
+        <div class="key-fact"><strong>BMI Range</strong><span>Most roles require BMI 18.5–32.9. Measured at medical and on entry day. Values outside may need review or waiver.</span></div>
+        <div class="key-fact"><strong>Technique &amp; Apps</strong><span>Poor form fails repetitions. Use the official <strong>ADF Active / ADF Ready app</strong> for technique videos and personalised programs.</span></div>
+        <div class="key-fact" style="border-bottom:none; padding-bottom:0; margin-bottom:0;"><strong>Verify Latest</strong><span>Standards change. Always check <a href="https://www.adfcareers.gov.au/careers/joining/fitness-requirements" target="_blank" style="color: var(--accent-blue);">adfcareers.gov.au</a> or your recruiter.</span></div>
+      </div>
+
+      <!-- Navy -->
+      <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin: 32px 0 12px;">Royal Australian Navy (RAN)</h3>
+      <table class="pfa-table">
+        <thead>
+          <tr>
+            <th>Test</th>
+            <th>Male</th>
+            <th>Female</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Sit-ups (feet held, 1 min)</td>
+            <td>20</td>
+            <td>20</td>
+            <td>Standard requirement</td>
+          </tr>
+          <tr>
+            <td>Beep Test (20m shuttle)</td>
+            <td>Level 6.0</td>
+            <td>Level 5.5</td>
+            <td>Most common aerobic test</td>
+          </tr>
+          <tr>
+            <td>2.4 km Run (alternative)</td>
+            <td>~14:00</td>
+            <td>~16:00</td>
+            <td>Alternative to beep test</td>
+          </tr>
+          <tr>
+            <td>Push-ups</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Not required for general entry</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Army -->
+      <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin: 40px 0 12px;">Australian Army</h3>
+      
+      <h4 style="margin: 20px 0 10px; color: var(--text);">Combat Roles, Infantry &amp; Officer Entry (Higher Standard)</h4>
+      <table class="pfa-table">
+        <thead>
+          <tr>
+            <th>Test</th>
+            <th>Male</th>
+            <th>Female</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Push-ups (1 min)</td>
+            <td>15</td>
+            <td>8</td>
+            <td>Full range of motion required</td>
+          </tr>
+          <tr>
+            <td>Sit-ups (feet held, 1 min)</td>
+            <td>45</td>
+            <td>45</td>
+            <td>Higher standard for combat roles</td>
+          </tr>
+          <tr>
+            <td>Beep Test (20m shuttle)</td>
+            <td>Level 7.5</td>
+            <td>Level 7.5</td>
+            <td>Gender neutral for this standard</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4 style="margin: 24px 0 10px; color: var(--text);">Combat Support &amp; General Entry Roles (Lower Standard)</h4>
+      <table class="pfa-table">
+        <thead>
+          <tr>
+            <th>Test</th>
+            <th>Male</th>
+            <th>Female</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Push-ups (1 min)</td>
+            <td>8</td>
+            <td>4</td>
+            <td>Lower requirement</td>
+          </tr>
+          <tr>
+            <td>Sit-ups (feet held, 1 min)</td>
+            <td>20</td>
+            <td>20</td>
+            <td>Standard for support roles</td>
+          </tr>
+          <tr>
+            <td>Beep Test (20m shuttle)</td>
+            <td>Level 6.1</td>
+            <td>Level 6.1</td>
+            <td>Gender neutral</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Air Force -->
+      <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin: 40px 0 12px;">Royal Australian Air Force (RAAF)</h3>
+
+      <h4 style="margin: 20px 0 10px; color: var(--text);">General Entry Roles (Most Positions)</h4>
+      <table class="pfa-table">
+        <thead>
+          <tr>
+            <th>Test</th>
+            <th>Male</th>
+            <th>Female</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Sit-ups (feet held, 1 min)</td>
+            <td>20</td>
+            <td>20</td>
+            <td>Standard requirement</td>
+          </tr>
+          <tr>
+            <td>Beep Test (20m shuttle)</td>
+            <td>Level 6.1</td>
+            <td>Level 5.1</td>
+            <td>Most common test</td>
+          </tr>
+          <tr>
+            <td>Push-ups</td>
+            <td>—</td>
+            <td>—</td>
+            <td>Not generally required</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4 style="margin: 24px 0 10px; color: var(--text);">Ground Defence Officer</h4>
+      <table class="pfa-table">
+        <thead>
+          <tr>
+            <th>Test</th>
+            <th>Male / Female</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Push-ups (1 min)</td>
+            <td>10</td>
+            <td>Same standard for both</td>
+          </tr>
+          <tr>
+            <td>Sit-ups (feet held, 1 min)</td>
+            <td>20</td>
+            <td>Standard</td>
+          </tr>
+          <tr>
+            <td>Beep Test (20m shuttle)</td>
+            <td>Level 6.5</td>
+            <td>Higher than general entry</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Special Forces -->
+      <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin: 40px 0 12px;">Special Forces (Pre-entry Minimum)</h3>
+      <p style="color: var(--text-muted); margin-bottom: 12px;">These are the minimum standards to be eligible for Special Forces Entry Test (SFET). Actual selection standards are significantly higher.</p>
+      
+      <table class="pfa-table">
+        <thead>
+          <tr>
+            <th>Test</th>
+            <th>Minimum (Male &amp; Female)</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Push-ups</td>
+            <td>40</td>
+            <td>Full range, good technique</td>
+          </tr>
+          <tr>
+            <td>Sit-ups (feet held)</td>
+            <td>60</td>
+            <td>High volume required</td>
+          </tr>
+          <tr>
+            <td>Beep Test (20m shuttle)</td>
+            <td>Level 10.1</td>
+            <td>Very high standard</td>
+          </tr>
+          <tr>
+            <td>Pull-ups (Over-grasp heaves)</td>
+            <td>6</td>
+            <td>Strict technique</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="margin-top: 32px; padding: 16px; background: rgba(192, 57, 43, 0.1); border: 1px solid var(--threat); border-radius: 6px;">
+        <p style="color: var(--text-muted); font-size: 14px; margin: 0;">
+          <strong>Note for Special Forces:</strong> These figures are the formal pre-entry gate. Successful candidates are typically performing well above these numbers (e.g. 50+ push-ups, 12+ pull-ups, beep test 12+). Special Forces selection involves far more than the PFA, including loaded marches, swimming, and mental resilience testing under extreme fatigue.
+        </p>
+      </div>
+
+      <p style="margin-top: 28px; font-size: 13px; color: var(--text-dim);">
+        Data compiled from official ADF Careers sources (adfcareers.gov.au). Standards are subject to change. Always confirm directly with Defence Force Recruiting before training.
+      </p>
+
+    </div>
+  </div>
+</section>
+
+<!-- NATIONAL DEFENCE SECTION -->
+<section id="national-defence">
+  <div class="section-wrap">
+    <div class="section-header">
+      <h2>National Defence</h2>
+      <p>Australia’s evolving strategic framework — from the 2023 Defence Strategic Review to the current 2026 National Defence Strategy.</p>
+    </div>
+
+    <div style="max-width: 860px;">
+
+      <!-- Strategic Context -->
+      <div class="highlight-box" style="margin-bottom: 28px;">
+        <p style="margin:0; color: var(--text-muted);">
+          Australia faces its most challenging strategic environment since the Second World War. Major power competition in the Indo-Pacific has intensified, with reduced warning time for potential conflict. The 2023 Defence Strategic Review (DSR) was the catalyst for a fundamental rethink of Australia’s defence planning.
+        </p>
+      </div>
+
+      <!-- Core Concepts -->
+      <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin: 8px 0 12px;">Core Concepts</h3>
+      <div class="info-grid">
+        <div class="info-grid-item">
+          <dt>National Defence</dt>
+          <dd>A whole-of-nation approach. Defence is no longer viewed as the responsibility of the military alone — it requires the integration of diplomacy, industry, science, technology, and national resilience.</dd>
+        </div>
+        <div class="info-grid-item">
+          <dt>Strategy of Denial</dt>
+          <dd>The central strategic idea: to deter an adversary from projecting military force into Australia’s region by making the costs and risks of aggression too high.</dd>
+        </div>
+      </div>
+
+      <!-- 2023 DSR -->
+      <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin: 28px 0 12px;">2023 Defence Strategic Review (DSR)</h3>
+      <p style="color: var(--text-muted); margin-bottom: 12px;">An independent review commissioned by the Albanese Government. Released April 2023 — it fundamentally changed how Australia thinks about defence.</p>
+      
+      <div class="content-grid-2">
+        <div class="tool-category">
+          <h4>Key Shifts Recommended</h4>
+          <ul>
+            <li>Move from a “balanced force” to a “focused force” optimised for the Indo-Pacific</li>
+            <li>Adopt Strategy of Denial as the foundation of defence planning</li>
+            <li>Significantly improve long-range strike, munitions stocks, and northern basing</li>
+            <li>Accelerate capability delivery and accept more risk in acquisition</li>
+          </ul>
+        </div>
+        <div class="tool-category">
+          <h4>Government’s Six Priority Areas</h4>
+          <ol style="margin:0; padding-left:20px; line-height:1.65;">
+            <li>AUKUS nuclear-powered submarines</li>
+            <li>Long-range strike and sovereign munitions production</li>
+            <li>Northern basing and posture</li>
+            <li>Workforce growth and retention</li>
+            <li>Rapid adoption of disruptive technologies (led to ASCA)</li>
+            <li>Deepening regional partnerships</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Evolution of Strategy -->
+      <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin: 32px 0 12px;">Evolution of the National Defence Strategy</h3>
+      
+      <div class="info-grid">
+        <div class="info-grid-item">
+          <dt>2024 National Defence Strategy</dt>
+          <dd>Government’s first formal National Defence Strategy. Translated the 2023 DSR into official policy. Adopted <strong>National Defence</strong> and <strong>Strategy of Denial</strong> as the strategic framework. Confirmed the shift to a focused, integrated force. Marked the start of a biennial strategy cycle.</dd>
+        </div>
+        <div class="info-grid-item">
+          <dt>2026 National Defence Strategy (Current)</dt>
+          <dd>Describes an even more dangerous environment than 2024. Places significantly greater emphasis on <strong>self-reliance</strong> and sovereign industrial capacity. Incorporates lessons from Ukraine and the Middle East. Further accelerates priority capabilities and strengthens focus on national resilience and civil preparedness.</dd>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CYBERSPACE SECTION -->
+<!-- CYBERSPACE SECTION -->
+<section id="cyberspace">
+  <div class="section-wrap">
+    <div class="section-header">
+      <h2>Cyberspace <span>in the ADF</span></h2>
+      <p>Australian military cyber capabilities, current threats, preparedness, AI’s impact on cybersecurity, and sovereign AI infrastructure — essential knowledge for Cyber Warfare Officer applicants.</p>
+    </div>
+
+    <div class="section-with-toc">
+      <nav class="section-toc" aria-label="Quick navigation">
+        <ul>
+          <li><a href="#cyber-threats" data-scroll-to="cyber-threats">Threat Landscape</a></li>
+          <li><a href="#cyber-preventions" data-scroll-to="cyber-preventions">Successful Preventions</a></li>
+          <li><a href="#cyber-capabilities" data-scroll-to="cyber-capabilities">ADF Cyber Capabilities</a></li>
+          <li><a href="#cyber-ai" data-scroll-to="cyber-ai">AI in Cybersecurity</a></li>
+          <li><a href="#cyber-infra" data-scroll-to="cyber-infra">Sovereign AI Infrastructure</a></li>
+          <li><a href="#cyber-contracts" data-scroll-to="cyber-contracts">Key Contracts</a></li>
+          <li><a href="#cyber-ai-use" data-scroll-to="cyber-ai-use">AI Use Cases</a></li>
+          <li><a href="#cyber-supply" data-scroll-to="cyber-supply">Supply Chain Risks</a></li>
+          <li><a href="#cyber-palantir" data-scroll-to="cyber-palantir">Palantir &amp; Platforms</a></li>
+          <li><a href="#cyber-tools" data-scroll-to="cyber-tools">Tools &amp; Training</a></li>
+        </ul>
+      </nav>
+      <div class="section-main" style="max-width: 1000px;">
+
+      <!-- 1. CURRENT THREAT LANDSCAPE -->
+      <div style="margin-bottom: 44px;">
+        <h3 id="cyber-threats" style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 12px; font-size: 20px;">Current Cyber Threat Landscape</h3>
+        
+        <div class="highlight-box">
+          <p style="color: var(--text-muted); margin: 0;">
+            Australia faces one of the most persistent and sophisticated state-sponsored cyber threat environments in the world. State actors (overwhelmingly linked to China) are responsible for the majority of serious incidents affecting government and critical infrastructure.
+          </p>
+        </div>
+
+        <p style="color: var(--text-muted); margin: 16px 0 12px;">
+          Chinese state-sponsored actors (primarily Ministry of State Security) represent the most significant and enduring cyber threat to Australia. Their operations are patient, highly resourced, and aligned with long-term strategic goals.
+        </p>
+
+        <h4 style="color: var(--gold); margin: 18px 0 12px; font-size: 15px;">Key Chinese Groups Targeting Australia</h4>
+
+        <!-- APT40 -->
+        <div class="threat-card">
+          <h4>APT40 (Leviathan / Kryptonite Panda)</h4>
+          <p>One of the most active groups against Australian networks. Linked to the Hainan State Security Department (Ministry of State Security).</p>
+          <ul>
+            <li><strong>Focus:</strong> Maritime, defence industry, engineering, aerospace, and government entities.</li>
+            <li><strong>Known Successes Against Australia:</strong> Multiple compromises of Australian defence contractors and maritime research organisations (2018–2024). Intellectual property theft from shipbuilding and underwater systems programs.</li>
+            <li><strong>Vulnerabilities Exploited:</strong> Rapid exploitation of public-facing vulnerabilities (e.g., Microsoft Exchange, VPN appliances), supply-chain compromise via third-party vendors, and living-off-the-land techniques.</li>
+            <li><strong>Damages:</strong> Theft of sensitive defence technology and research data over multi-year periods. Persistent access in some networks for 12+ months.</li>
+          </ul>
+          <div class="highlight-box" style="margin-top:12px; padding:10px 14px; background: rgba(192,57,43,0.08);">
+            <strong>Threat Assessment: Critical</strong><br>
+            Highest volume and most consistent threat to Australian defence and maritime sectors. Demonstrated ability to rapidly weaponise new vulnerabilities and maintain long-term persistence.
+          </div>
+        </div>
+
+        <!-- Salt Typhoon -->
+        <div class="threat-card">
+          <h4>Salt Typhoon (Telecom Espionage)</h4>
+          <p>Specialises in compromising telecommunications providers to gain persistent access to backbone and edge networks.</p>
+          <ul>
+            <li><strong>Known Successes:</strong> 2024–2025 activity observed targeting Australian telecommunications infrastructure. Similar campaigns successfully compromised major US and European telcos.</li>
+            <li><strong>Vulnerabilities Exploited:</strong> Router and edge device vulnerabilities, weak segmentation between management and customer networks, and supply-chain attacks on networking equipment.</li>
+            <li><strong>Damages:</strong> Potential access to call records, subscriber data, and the ability to enable future communications interception at scale.</li>
+          </ul>
+          <div class="highlight-box" style="margin-top:12px; padding:10px 14px; background: rgba(192,57,43,0.08);">
+            <strong>Threat Assessment: High</strong><br>
+            Direct risk to Australia’s critical communications infrastructure. Pre-positioning in telcos enables both espionage and potential wartime disruption.
+          </div>
+        </div>
+
+        <!-- Volt Typhoon (highest threat) -->
+        <div class="threat-card" style="border-left-color: #c0392b; background: rgba(192,57,43,0.06);">
+          <h4 style="color:#c0392b;">Volt Typhoon (Pre-positioning)</h4>
+          <p>Assessed as preparing for potential disruptive or destructive attacks in a future conflict scenario.</p>
+          <ul>
+            <li><strong>Known Successes Against Australia:</strong> 2023–2025 ASD assessments confirmed Chinese state actors had gained access to multiple Australian critical infrastructure networks (energy, water, transport, and ports) using Volt Typhoon tactics.</li>
+            <li><strong>Vulnerabilities Exploited:</strong> Living-off-the-land (PowerShell, WMI, native admin tools), unpatched internet-facing devices, weak network segmentation, and supply-chain compromise of operational technology (OT) vendors.</li>
+            <li><strong>Damages:</strong> Long-term persistence (in some cases years) with the ability to map networks, identify control systems, and potentially cause disruption to essential services during a crisis. No public destructive attacks yet, but clear pre-positioning.</li>
+          </ul>
+          <div class="highlight-box" style="margin-top:12px; padding:10px 14px; background: rgba(192,57,43,0.12); border-left-color:#c0392b;">
+            <strong>Threat Assessment: Critical</strong><br>
+            Highest strategic concern. Not about theft — this is preparation for wartime effects against Australian society and military mobilisation.
+          </div>
+        </div>
+
+        <!-- APT41 -->
+        <div class="threat-card">
+          <h4>APT41 (Double Dragon)</h4>
+          <p>MSS-linked group with both state espionage and financially motivated operations.</p>
+          <ul>
+            <li><strong>Known Successes:</strong> Supply-chain attacks and telecommunications targeting against Australian organisations (including healthcare and government contractors).</li>
+            <li><strong>Vulnerabilities Exploited:</strong> Software supply chain (SolarWinds-style tactics observed globally), zero-day exploitation, and credential harvesting.</li>
+            <li><strong>Damages:</strong> Theft of sensitive data and deployment of ransomware in some cases for financial gain alongside espionage.</li>
+          </ul>
+          <div class="highlight-box" style="margin-top:12px; padding:10px 14px; background: rgba(192,57,43,0.08);">
+            <strong>Threat Assessment: High</strong><br>
+            Dual mission makes attribution and response more complex. High volume of activity against Australian targets.
+          </div>
+        </div>
+
+        <h4 style="color: var(--gold); margin: 20px 0 8px; font-size: 15px;">Russia</h4>
+        <div class="threat-card">
+          <h4>Sandworm (Voodoo Bear / APT44) – GRU</h4>
+          <p>Russian military intelligence unit responsible for destructive attacks globally (NotPetya, Ukraine power grid attacks).</p>
+          <ul>
+            <li><strong>Known Activity Against Australia:</strong> Increased espionage and disruptive probing of Australian government and defence networks since 2022 (post-Ukraine invasion). Some successful initial access via spear-phishing and supply-chain attacks on third-party vendors.</li>
+            <li><strong>Vulnerabilities Exploited:</strong> Phishing, exploitation of public vulnerabilities in internet-facing services, and living-off-the-land.</li>
+            <li><strong>Damages:</strong> Theft of sensitive government and defence information. Limited public disruptive effects in Australia to date.</li>
+          </ul>
+          <div class="highlight-box" style="margin-top:12px; padding:10px 14px; background: rgba(192,57,43,0.08);">
+            <strong>Threat Assessment: High</strong><br>
+            Capable of high-impact disruptive attacks (demonstrated globally). Currently more focused on espionage against Australia but retains destructive capability.
+          </div>
+        </div>
+
+        <div class="threat-card">
+          <h4>Cozy Bear (APT29) – SVR</h4>
+          <p>Russian foreign intelligence service focused on long-term espionage.</p>
+          <ul>
+            <li><strong>Known Activity:</strong> Targeting of Australian government agencies, universities, and think tanks. Some successful access to sensitive research and policy information.</li>
+            <li><strong>Vulnerabilities:</strong> Spear-phishing, exploitation of cloud misconfigurations, and supply-chain attacks.</li>
+          </ul>
+          <div class="highlight-box" style="margin-top:12px; padding:10px 14px; background: rgba(192,57,43,0.08);">
+            <strong>Threat Assessment: Medium-High</strong><br>
+            Patient, high-skill espionage actor. Less likely to cause immediate disruption than Sandworm but excellent at long-term intelligence collection.
+          </div>
+        </div>
+
+        <h4 style="color: var(--gold); margin: 20px 0 8px; font-size: 15px;">North Korea</h4>
+        <div class="threat-card">
+          <h4>Lazarus Group (APT38 / Hidden Cobra)</h4>
+          <p>North Korea’s most capable and aggressive cyber unit. Responsible for major bank heists and crypto theft worldwide.</p>
+          <ul>
+            <li><strong>Known Activity Against Australia:</strong> Multiple attempts and some successes against Australian crypto exchanges and financial entities for funding. Espionage targeting of defence research and technology companies.</li>
+            <li><strong>Vulnerabilities Exploited:</strong> Sophisticated social engineering, supply-chain attacks on software vendors, and exploitation of cryptocurrency platforms.</li>
+            <li><strong>Damages:</strong> Financial losses in the millions (globally) and theft of sensitive defence-related intellectual property.</li>
+          </ul>
+          <div class="highlight-box" style="margin-top:12px; padding:10px 14px; background: rgba(192,57,43,0.08);">
+            <strong>Threat Assessment: Medium-High</strong><br>
+            Highly motivated by financial gain to fund the regime. Increasing capability in espionage. Less focused on Australia than China but still a credible threat to financial and research sectors.
+          </div>
+        </div>
+
+        <h4 style="color: var(--gold); margin: 20px 0 8px; font-size: 15px;">Iran</h4>
+        <div class="threat-card">
+          <h4>APT33 (Elfin) and Charming Kitten</h4>
+          <p>Iranian state-sponsored groups focused on espionage and disruptive attacks against Western and regional adversaries.</p>
+          <ul>
+            <li><strong>Known Activity Against Australia:</strong> Limited high-profile successes publicly attributed. Primarily opportunistic espionage against government, energy, and research targets. Some hacktivist-style defacements and data leaks during periods of tension.</li>
+            <li><strong>Vulnerabilities Exploited:</strong> Spear-phishing, exploitation of known vulnerabilities in web applications, and credential stuffing.</li>
+            <li><strong>Damages:</strong> Theft of sensitive information and minor disruptive effects. Lower capability and focus on Australia compared to China or Russia.</li>
+          </ul>
+          <div class="highlight-box" style="margin-top:12px; padding:10px 14px; background: rgba(192,57,43,0.08);">
+            <strong>Threat Assessment: Medium</strong><br>
+            Capable but currently lower priority threat to Australia. More focused on the Middle East and the United States. Could increase activity during periods of geopolitical tension.
+          </div>
+        </div>
+
+        <div class="highlight-box">
+          <strong>Why this matters for a Cyber Warfare Officer:</strong><br>
+          These are not random criminals — they are state intelligence services running long-term campaigns against Australia’s defence industry and critical systems. A good CWO understands both the technical tradecraft <em>and</em> the strategic intent behind these operations, and knows which threats require immediate effects vs long-term intelligence preparation.
+        </div>
+      </div>
+
+      <!-- NEW: Known Successful Preventions & Mitigations -->
+      <div id="cyber-preventions" style="margin-bottom: 44px;">
+        <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 12px; font-size: 20px;">Known Successful Preventions &amp; Mitigations</h3>
+
+        <div class="highlight-box">
+          <p style="color: var(--text-muted); margin: 0;">
+            While these actors are highly capable, several defensive measures have repeatedly proven effective at detecting, evicting, or preventing their operations against Australian networks.
+          </p>
+        </div>
+
+        <h4 style="color: var(--gold); margin: 20px 0 10px; font-size: 15px;">Against Chinese Pre-Positioning (Volt Typhoon-Style)</h4>
+        <div class="info-grid">
+          <div class="info-grid-item">
+            <dt>Network Segmentation &amp; Zero Trust</dt>
+            <dd>Multiple Australian organisations detected and evicted Chinese actors after implementing strict segmentation between IT and OT networks. Lateral movement was blocked even after initial compromise of internet-facing systems.</dd>
+          </div>
+          <div class="info-grid-item">
+            <dt>Living-Off-The-Land Detection</dt>
+            <dd>ASD and partners have reported successful detection of Volt Typhoon activity through behavioural analytics looking for unusual use of PowerShell, WMI, and native admin tools — techniques these actors rely on to stay stealthy.</dd>
+          </div>
+          <div class="info-grid-item">
+            <dt>Rapid Patching of Edge Devices</dt>
+            <dd>Organisations that maintained aggressive patching cycles for VPNs, firewalls, and remote access gateways significantly reduced initial access opportunities. Many Chinese campaigns begin with known vulnerabilities in these devices.</dd>
+          </div>
+        </div>
+
+        <h4 style="color: var(--gold); margin: 20px 0 10px; font-size: 15px;">Against APT40 &amp; Supply-Chain Attacks</h4>
+        <div class="info-grid">
+          <div class="info-grid-item">
+            <dt>Essential Eight Maturity</dt>
+            <dd>Australian organisations at higher Essential Eight maturity levels have repeatedly detected and blocked APT40’s rapid exploitation attempts. Application control and patching have been particularly effective at stopping their “smash and grab” style operations.</dd>
+          </div>
+          <div class="info-grid-item">
+            <dt>Third-Party &amp; Supply Chain Scrutiny</dt>
+            <dd>After several high-profile compromises through defence contractors and vendors, increased vendor security assessments and SBOM requirements have reduced successful supply-chain intrusions by groups like APT41.</dd>
+          </div>
+          <div class="info-grid-item">
+            <dt>Multi-Factor Authentication + Monitoring</dt>
+            <dd>Mandatory MFA combined with monitoring for unusual authentication patterns has stopped many credential-harvesting campaigns that APT40 relies on heavily.</dd>
+          </div>
+        </div>
+
+        <h4 style="color: var(--gold); margin: 20px 0 10px; font-size: 15px;">Against Russian, North Korean &amp; Iranian Actors</h4>
+        <div class="info-grid">
+          <div class="info-grid-item">
+            <dt>Email Security &amp; User Awareness</dt>
+            <dd>Strong email filtering combined with regular phishing simulations has significantly reduced successful initial access by Russian GRU-linked groups and North Korean Lazarus operators, who still rely heavily on spear-phishing.</dd>
+          </div>
+          <div class="info-grid-item">
+            <dt>Cloud Configuration Hardening</dt>
+            <dd>Many Russian and Iranian espionage attempts target misconfigured cloud environments. Organisations that implemented strict conditional access, logging, and least-privilege principles have successfully detected and blocked these campaigns.</dd>
+          </div>
+          <div class="info-grid-item">
+            <dt>Crypto &amp; Financial Sector Defences</dt>
+            <dd>Australian financial and crypto entities that adopted advanced transaction monitoring and multi-layered wallet security have successfully thwarted multiple North Korean Lazarus attempts to steal funds.</dd>
+          </div>
+        </div>
+
+        <div class="highlight-box">
+          <strong>Key Lesson for Cyber Warfare Officers:</strong><br>
+          The most effective defences against these sophisticated state actors are often the same basic controls applied rigorously: patching, segmentation, application control, MFA, and behavioural detection. The difference between success and failure is usually speed of detection and the ability to limit an attacker’s freedom of movement once they are inside the network.
+        </div>
+      </div>
+
+      <!-- 2. ADF CYBER CAPABILITIES -->
+      <div style="margin-bottom: 44px;">
+        <h3 id="cyber-capabilities" style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 12px; font-size: 20px;">ADF Cyber Capabilities &amp; Structure</h3>
+
+        <p style="color: var(--text-muted); line-height: 1.65; max-width: 72ch;">
+          Cyber is formally the <strong>fifth domain</strong> of warfare for the ADF. The key structural change occurred in 2024 with the establishment of <strong>Cyber Command</strong> within the Joint Capabilities Group.
+        </p>
+
+        <div class="info-grid" style="margin-top: 18px;">
+          <div class="info-grid-item">
+            <dt>Cyber Command</dt>
+            <dd>Established March 2024. Responsible for generating and sustaining ADF cyber warfighting capability and integrating cyber effects across all domains.</dd>
+          </div>
+          <div class="info-grid-item">
+            <dt>Joint Cyber Unit</dt>
+            <dd>Core tri-service unit delivering joint cyberspace operations.</dd>
+          </div>
+          <div class="info-grid-item">
+            <dt>No. 462 Squadron (REDFIN)</dt>
+            <dd>RAAF’s specialist electronic warfare and cyber unit at RAAF Base Edinburgh. Provides discovery, exploitation, and defensive cyber capabilities.</dd>
+          </div>
+          <div class="info-grid-item">
+            <dt>138 Signal Squadron (Army)</dt>
+            <dd>Army’s dedicated cyber warfare squadron.</dd>
+          </div>
+          <div class="info-grid-item">
+            <dt>Fleet Cyber Unit (Navy)</dt>
+            <dd>Royal Australian Navy component.</dd>
+          </div>
+          <div class="info-grid-item">
+            <dt>Project REDSPICE</dt>
+            <dd>Flagship ~$10B program over a decade to expand ASD/ADF offensive cyber, persistent hunt teams, and global reach.</dd>
+          </div>
+        </div>
+
+        <h4 style="color: var(--gold); margin: 22px 0 10px; font-size: 15px;">REDSPICE – Concrete Capability Effects</h4>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="num">3×</div><div class="label">Offensive cyber effect capacity</div></div>
+          <div class="stat-card"><div class="num">2×</div><div class="label">Persistent hunt teams (24/7)</div></div>
+          <div class="stat-card"><div class="num">~1,900</div><div class="label">New ASD &amp; Defence roles</div></div>
+          <div class="stat-card"><div class="num">4×</div><div class="label">Increase in overseas presence</div></div>
+          <div class="stat-card"><div class="num">$5B</div><div class="label">Industry opportunities in cyber/ICT</div></div>
+        </div>
+      </div>
+
+      <!-- 3. AI IMPACT -->
+      <div style="margin-bottom: 44px;">
+        <h3 id="cyber-ai" style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 12px; font-size: 20px;">AI and Its Impact on Cybersecurity</h3>
+        
+        <p style="color: var(--text-muted); margin-bottom: 14px;">
+          Artificial Intelligence is fundamentally changing both offensive and defensive cyber operations.
+        </p>
+        
+        <div class="content-grid-2">
+          <div class="tool-category">
+            <h4>⚔️ Offensive Use of AI (Adversaries)</h4>
+            <ul>
+              <li>Automated vulnerability discovery at massive scale</li>
+              <li>AI-generated polymorphic malware that evades detection</li>
+              <li>Deepfake-enabled social engineering &amp; influence ops</li>
+              <li>Autonomous cyber weapons that adapt in real time</li>
+            </ul>
+          </div>
+          <div class="tool-category">
+            <h4>🛡️ Defensive Use of AI (ADF/ASD)</h4>
+            <ul>
+              <li>Real-time threat detection at machine speed</li>
+              <li>Automated incident response via SOAR platforms</li>
+              <li>AI-powered threat hunting across huge datasets</li>
+              <li>Adversarial AI defence &amp; model hardening</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="tip-box">
+          <p style="margin:0; color: var(--text-muted); font-size:14px;">
+            The ADF and ASD are actively adopting AI for defence while preparing for an environment where adversaries use AI-enabled tools as standard.
+          </p>
+        </div>
+      </div>
+
+      <!-- 4. SOVEREIGN AI INFRASTRUCTURE -->
+      <div style="margin-bottom: 44px;">
+        <h3 id="cyber-infra" style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 12px; font-size: 20px;">Australia’s Sovereign AI Infrastructure</h3>
+        <p style="color: var(--text-muted); margin-bottom: 14px;">Major investments to reduce reliance on foreign providers for classified national security workloads.</p>
+
+        <div class="infra-card">
+          <div class="location">Edinburgh, South Australia</div>
+          <h4>Defence Supercomputing Capability (DSTG)</h4>
+          <p>Full Operational Capability April 2025. Significant GPU capacity for AI/ML, modelling &amp; simulation, and classified workloads. ITAR-compliant for Five Eyes interoperability.</p>
+        </div>
+        <div class="infra-card">
+          <div class="location">Sydney, NSW</div>
+          <h4>Cisco Secure AI Factory</h4>
+          <p>Launched 2026 with 1,024 NVIDIA Blackwell Ultra GPUs. Sovereign “AI factory” for government and high-security workloads (Cisco + Sharon AI + NVIDIA).</p>
+        </div>
+        <div class="infra-card">
+          <div class="location">Classified / Sovereign</div>
+          <h4>AWS Top Secret Cloud</h4>
+          <p>Multi-billion dollar partnership with ASD and Defence for classified AI and cloud workloads.</p>
+        </div>
+        <div class="infra-card">
+          <div class="location">Air-gapped Hyperscale</div>
+          <h4>Google Sovereign Cloud</h4>
+          <p>Air-gapped hyperscale capability being developed for classified Australian government use.</p>
+        </div>
+      </div>
+
+      <!-- 5. KEY CONTRACTS &amp; PLATFORMS -->
+      <div style="margin-bottom: 44px;">
+        <h3 id="cyber-contracts" style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 12px; font-size: 20px;">Key Government &amp; Defence Contracts</h3>
+
+        <div class="info-grid">
+          <div class="info-grid-item">
+            <dt>NVIDIA</dt>
+            <dd>GPUs power almost every major sovereign AI platform in Australia. Defence/ASD workloads rely heavily on the CUDA ecosystem.</dd>
+          </div>
+          <div class="info-grid-item">
+            <dt>Cisco + Sharon AI + NVIDIA</dt>
+            <dd>2026 contract for the Secure AI Factory Sydney (1,024 Blackwell GPUs).</dd>
+          </div>
+          <div class="info-grid-item">
+            <dt>Microsoft</dt>
+            <dd>Multi-billion dollar investment in sovereign AI/cloud + Microsoft-ASD Cyber Shield program.</dd>
+          </div>
+          <div class="info-grid-item">
+            <dt>AWS</dt>
+            <dd>Significant sovereign cloud contracts for classified Defence and intelligence workloads.</dd>
+          </div>
+          <div class="info-grid-item">
+            <dt>Fivecast (Australian)</dt>
+            <dd>AI-powered OSINT and threat detection platform. Contracts with Defence and US agencies.</dd>
+          </div>
+          <div class="info-grid-item">
+            <dt>CrowdStrike</dt>
+            <dd>AI-accelerated endpoint detection in partnership with NVIDIA. Widely used across government and critical infrastructure.</dd>
+          </div>
+        </div>
+
+        <div class="highlight-box">
+          <strong>Key takeaway for applicants:</strong> Australia is deliberately building sovereign AI and cyber capability through domestic industry, trusted Five Eyes partners, and major tech companies. Understanding who is building what, where, and why demonstrates strategic awareness beyond pure technical skill.
+        </div>
+      </div>
+
+      <!-- 6. SPECIFIC AI USE CASES -->
+      <div style="margin-bottom: 44px;">
+        <h3 id="cyber-ai-use" style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 12px; font-size: 20px;">Specific AI Use Cases in Cyber Operations</h3>
+        
+        <div class="content-grid-2">
+          <div class="tool-category">
+            <h4>Offensive / Adversary Use Cases</h4>
+            <ul>
+              <li>Automated large-scale vulnerability discovery &amp; weaponisation</li>
+              <li>AI-generated polymorphic malware that mutates to evade detection</li>
+              <li>Autonomous cyber agents for multi-stage intrusions with minimal oversight</li>
+              <li>Deepfake voice/video for targeted spear-phishing at scale</li>
+              <li>AI-assisted targeting &amp; effects planning (fusing OSINT + technical data)</li>
+            </ul>
+          </div>
+          <div class="tool-category">
+            <h4>Defensive / ADF Use Cases</h4>
+            <ul>
+              <li>Real-time behavioural analytics to detect novel intrusions (faster than humans)</li>
+              <li>Automated containment &amp; response via SOAR (reducing dwell time from days to minutes)</li>
+              <li>AI-powered threat hunting across massive log/graph datasets</li>
+              <li>Adversarial robustness testing of own AI systems (red-teaming ML models)</li>
+              <li>Automated malware reverse-engineering &amp; attribution support</li>
+              <li>Generative AI for rapid scenario &amp; tabletop exercise generation</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. SUPPLY CHAIN RISKS -->
+      <div style="margin-bottom: 44px;">
+        <h3 id="cyber-supply" style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 12px; font-size: 20px;">Supply Chain Risks</h3>
+        <div class="threat-box">
+          <p style="margin:0 0 10px;">One of the most significant and under-appreciated risks in modern cyber operations.</p>
+          <div class="key-fact"><strong>Hardware &amp; Firmware</strong><span>Backdoors or compromised firmware in networking gear, servers, and IoT used across Defence and critical infrastructure.</span></div>
+          <div class="key-fact"><strong>Software Supply Chain</strong><span>SolarWinds-style attacks where trusted vendors are compromised to deliver malicious updates.</span></div>
+          <div class="key-fact"><strong>Foreign Cloud &amp; Chips</strong><span>Reliance on foreign providers creates chokepoints and legal exposure (e.g. US CLOUD Act).</span></div>
+          <div class="key-fact"><strong>Critical Minerals &amp; Semiconductors</strong><span>Manufacturing concentration (China/Taiwan) creates strategic vulnerability for future AI/cyber capability.</span></div>
+          <div class="key-fact"><strong>Third-Party Contractors</strong><span>Managed service providers often represent the weakest link in the defensive perimeter.</span></div>
+        </div>
+        <p style="color: var(--text-muted); font-size: 13.5px; margin-top: 8px;">
+          <strong>For CWO applicants:</strong> Demonstrating awareness of supply chain risk — and how sovereign initiatives mitigate it — is a strong indicator of strategic thinking.
+        </p>
+      </div>
+
+      <!-- 8. PALANTIR &amp; KEY PLATFORMS -->
+      <div style="margin-bottom: 44px;">
+        <h3 id="cyber-palantir" style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 12px; font-size: 20px;">Palantir and Other Key Technology Platforms</h3>
+
+        <div class="info-box">
+          <p style="margin:0 0 14px; color:var(--text-muted);"><strong>Palantir Technologies</strong> has multiple contracts with the Australian Department of Defence (cumulative value exceeding A$26 million since ~2013, with several large recent awards). Palantir staff are embedded inside Defence.</p>
+          
+          <div class="info-grid" style="margin:0;">
+            <div class="info-grid-item">
+              <dt>Industrial Intelligence Capability (IIC)</dt>
+              <dd>~$7.15M (2024–2027). Maps Australia’s defence industry base, supply chains, and vendor risk.</dd>
+            </div>
+            <div class="info-grid-item">
+              <dt>ICT System Platform</dt>
+              <dd>$7.6M (awarded 2026) with the Cyber Warfare Division — largest single Palantir contract with Defence to date.</dd>
+            </div>
+          </div>
+          <p style="margin:14px 0 0; font-size:14px; color:var(--text-muted);"><strong>Platforms in use:</strong> Palantir Foundry (core ontology &amp; data integration), Gotham, and AIP (Artificial Intelligence Platform).</p>
+        </div>
+
+        <p style="color: var(--text-muted); font-size: 14px; margin-top: 12px;">
+          Other major platforms: Microsoft Azure (sovereign cloud), AWS Top Secret Cloud, and various SIEM/SOAR solutions across the ADF and ASD.
+        </p>
+      </div>
+
+      <!-- 9. TOOLS &amp; TRAINING FOR CYBER WARFARE OFFICERS -->
+      <div>
+        <h3 id="cyber-tools" style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 12px; font-size: 20px;">Tools, Training Platforms &amp; Equipment for Cyber Warfare Officers</h3>
+
+        <div class="tool-category">
+          <h4>🎓 Primary Training Environments</h4>
+          <ul>
+            <li><strong>Persistent Cyber Training Environment (PCTE)</strong> — ADF’s main high-fidelity platform (developed with USCYBERCOM). Used for individual/team/collective training, red/blue exercises, and mission rehearsal. Now at Five Eyes level.</li>
+            <li><strong>Defence Cyber Range / CyberSim (No. 462 Squadron)</strong> — RAAF’s in-house simulation environment capable of replicating thousands of nodes and mission systems.</li>
+            <li><strong>Commercial/Partner Ranges</strong> — Elbit Systems (Cyberbit) ranges and FifthDomain sovereign platforms.</li>
+          </ul>
+        </div>
+
+        <div class="tool-category">
+          <h4>🔧 Typical Operational Tools &amp; Capabilities</h4>
+          <p style="color: var(--text-muted); font-size: 13.5px; margin-bottom: 8px;">While many specific tools are classified, Cyber Warfare Officers routinely work with:</p>
+          <div class="info-grid" style="margin-top:8px;">
+            <div class="info-grid-item"><dt>SIEM &amp; SOAR</dt><dd>Detection and automated response platforms</dd></div>
+            <div class="info-grid-item"><dt>Network Analysis</dt><dd>Packet capture (Wireshark and equivalents)</dd></div>
+            <div class="info-grid-item"><dt>Exploitation Frameworks</dt><dd>Adapted Kali Linux / custom toolkits</dd></div>
+            <div class="info-grid-item"><dt>Malware Analysis</dt><dd>Ghidra, IDA Pro, Volatility, etc.</dd></div>
+            <div class="info-grid-item"><dt>Threat Intelligence</dt><dd>MITRE ATT&amp;CK mapping tools</dd></div>
+            <div class="info-grid-item"><dt>Lab Environments</dt><dd>Virtualised/containerised safe testing</dd></div>
+            <div class="info-grid-item"><dt>Tactical Cyber Kits</dt><dd>Deployable kits for forward/austere ops</dd></div>
+          </div>
+        </div>
+
+        <div class="highlight-box">
+          <strong>Important for interviews:</strong> While technical tools matter, the real value a CWO brings is the ability to integrate cyber effects into joint operations and advise commanders on risk and opportunity in the cyber domain.
+        </div>
+      </div>
+
+      </div> <!-- /section-main -->
+    </div> <!-- /section-with-toc -->
+  </div>
+</section>
+
+<!-- GLOSSARY SECTION -->
+<section id="glossary">
+  <div class="section-wrap">
+    <div class="section-header">
+      <h2>ADF & RAAF <span>Glossary</span></h2>
+      <p>Essential acronyms, terms, and concepts for defence interviews. Search or browse — every entry includes why it matters in a real interview context.</p>
+    </div>
+
+    <div class="glossary-controls">
+      <input type="text" id="glossarySearch" placeholder="Search terms, acronyms or definitions..." onkeyup="filterGlossary()">
+      <div class="glossary-filters">
+        <span class="glossary-filter active" data-cat="all" onclick="filterGlossaryByCategory('all', this)">All</span>
+        <span class="glossary-filter" data-cat="sensors" onclick="filterGlossaryByCategory('sensors', this)">Sensors & Radar</span>
+        <span class="glossary-filter" data-cat="weapons" onclick="filterGlossaryByCategory('weapons', this)">Weapons & Munitions</span>
+        <span class="glossary-filter" data-cat="platforms" onclick="filterGlossaryByCategory('platforms', this)">Platforms</span>
+        <span class="glossary-filter" data-cat="doctrine" onclick="filterGlossaryByCategory('doctrine', this)">Doctrine & Strategy</span>
+        <span class="glossary-filter" data-cat="orgs" onclick="filterGlossaryByCategory('orgs', this)">Organisations</span>
+      </div>
+    </div>
+
+    <div id="glossaryGrid" class="glossary-grid">
+      <!-- Populated dynamically by script.js -->
+    </div>
+
+    <p style="margin-top: 24px; font-size: 13px; color: var(--text-dim);">
+      Can't find something? The glossary is designed to grow — let me know any terms you want added.
+    </p>
+  </div>
+</section>
+
+<!-- INTERVIEW PREPARATION SECTION -->
+<section id="interview-prep">
+  <div class="section-wrap">
+    <div class="section-header">
+      <h2>Interview Preparation</h2>
+      <p>Tailored preparation material for Cyber Warfare Officer, Space Operations Officer, and Air Intelligence Officer applications.</p>
+    </div>
+
+    <div style="max-width: 900px;">
+
+      <!-- Motivation -->
+      <div style="margin-bottom: 40px;">
+        <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 12px;">Motivation</h3>
+        <p style="color: var(--text-muted); margin-bottom: 12px;">You must be able to clearly articulate your motivations. Be ready to answer:</p>
+        <ul style="line-height: 1.7; color: var(--text-muted);">
+          <li>Why do you want to join the Australian Defence Force?</li>
+          <li>Why did you choose the Royal Australian Air Force and your specific job role(s)?</li>
+          <li>What qualities or experiences do you have that make you suitable for the roles you have selected?</li>
+        </ul>
+        <p style="color: var(--text-muted); font-size: 14px; margin-top: 10px;">
+          <strong>Tip:</strong> Be genuine, specific, and connect your personal values and background to service in the RAAF.
+        </p>
+      </div>
+
+      <!-- General ADF Knowledge -->
+      <div style="margin-bottom: 40px;">
+        <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 12px;">General ADF &amp; RAAF Knowledge</h3>
+        <ul style="line-height: 1.7; color: var(--text-muted);">
+          <li><strong>Defence Values:</strong> Service, Courage, Respect, Integrity, Excellence (CRIES)</li>
+          <li><strong>Current Chief of the Defence Force:</strong> Admiral David Johnston AC RAN (as of 2026)</li>
+          <li><strong>Chief of Air Force:</strong> Air Marshal Stephen Chappell</li>
+          <li><strong>Current Operations:</strong> Be prepared to discuss ongoing ADF operations (refer to the Operations section of this site)</li>
+          <li><strong>General Fleet Knowledge:</strong> High-level understanding of RAAF capabilities and platforms</li>
+          <li><strong>Fitness Requirements:</strong> Know the Pre-Enlistment Fitness Assessment standards and have practiced them</li>
+        </ul>
+      </div>
+
+      <!-- ADF Policies -->
+      <div style="margin-bottom: 40px;">
+        <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 12px;">ADF Policies &amp; Conditions</h3>
+        <p style="color: var(--text-muted); margin-bottom: 10px;">Be able to discuss the key policies below (found in the <em>Important Information for Candidates</em> booklet):</p>
+        <ul style="line-height: 1.7; color: var(--text-muted);">
+          <li>Drugs and Alcohol Policy</li>
+          <li>Military Discipline System &amp; Defence Force Discipline Act (DFDA)</li>
+          <li>Equality and Diversity</li>
+          <li>Unrestricted Service</li>
+          <li>Workplace Behaviour and Body Embellishment / Tattoo Policy</li>
+          <li>Operational Service requirements</li>
+        </ul>
+      </div>
+
+      <!-- Training Pathway -->
+      <div style="margin-bottom: 40px;">
+        <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 12px;">Training Pathway</h3>
+        <ul style="line-height: 1.7; color: var(--text-muted);">
+          <li><strong>Initial Military Training (IMT):</strong> 12 weeks at Officers' Training School (OTS), RAAF Base East Sale for most RAAF officer pathways</li>
+          <li><strong>Initial Employment Training (IET):</strong> Specific to your chosen role(s) — location and content</li>
+          <li><strong>Initial Minimum Period of Service (IMPS):</strong> Know the commitment for each role</li>
+          <li><strong>Posting Locations:</strong> Be familiar with likely bases for your chosen specialisation</li>
+        </ul>
+      </div>
+
+      <!-- Role-Specific Preparation -->
+      <div style="margin-bottom: 40px;">
+        <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 10px;">Role-Specific Preparation</h3>
+
+        <!-- Lightweight jump nav for the three main roles -->
+        <div style="margin-bottom: 14px; display: flex; flex-wrap: wrap; gap: 8px;" id="role-jump-nav">
+          <a href="#role-cyber" data-scroll-to="role-cyber" 
+             style="font-size: 13px; padding: 4px 10px; background: var(--navy-mid); border: 1px solid var(--border); border-radius: 4px; color: var(--gold); text-decoration: none;">Cyber Warfare Officer</a>
+          <a href="#role-space" data-scroll-to="role-space" 
+             style="font-size: 13px; padding: 4px 10px; background: var(--navy-mid); border: 1px solid var(--border); border-radius: 4px; color: var(--gold); text-decoration: none;">Space Operations Officer</a>
+          <a href="#role-intel" data-scroll-to="role-intel" 
+             style="font-size: 13px; padding: 4px 10px; background: var(--navy-mid); border: 1px solid var(--border); border-radius: 4px; color: var(--gold); text-decoration: none;">Air Intelligence Officer</a>
+        </div>
+
+        <!-- Cyber Warfare Officer -->
+        <div id="role-cyber" style="background: var(--navy-mid); border: 1px solid var(--border); border-radius: 8px; padding: 22px; margin-bottom: 24px;">
+          <h4 style="color: var(--gold); margin-bottom: 10px;">1. Cyber Warfare Officer (Cyberspace Warfare Officer) – Graduate Entry</h4>
+          
+          <div class="info-grid" style="margin-bottom:14px;">
+            <div class="info-grid-item">
+              <dt>Role Focus</dt>
+              <dd>Lead teams of Cyber Warfare Specialists in defensive cyberspace operations. Protect RAAF networks and integrate cyber effects into air &amp; joint operations.</dd>
+            </div>
+            <div class="info-grid-item">
+              <dt>Main Responsibilities</dt>
+              <dd>Threat hunting, incident response, network defence, vulnerability management, cyber advice to commanders, operational planning, workforce development.</dd>
+            </div>
+          </div>
+
+          <div class="tool-category" style="margin-bottom:14px;">
+            <h4>Equipment &amp; Systems</h4>
+            <p style="font-size:13.5px; margin:0;">Classified networks, SIEM, intrusion detection/prevention, digital forensics, secure comms. Strong networking + Windows/Linux knowledge essential. Much tooling remains classified.</p>
+          </div>
+
+          <div class="info-grid" style="margin-bottom:14px;">
+            <div class="info-grid-item">
+              <dt>Training Pathway</dt>
+              <dd><strong>IMT:</strong> 12 weeks OTS East Sale.<br><strong>IET:</strong> ~20 weeks (5–6 months) via Defence School of Space &amp; Cyber + No. 462 Sqn, Edinburgh SA.</dd>
+            </div>
+            <div class="info-grid-item">
+              <dt>Primary Posting</dt>
+              <dd>First tour almost always <strong>No. 462 Squadron, RAAF Base Edinburgh (SA)</strong>. Later rotations through Cyber Command, HQ, and capability roles. Growing flights in Canberra &amp; Williamtown.</dd>
+            </div>
+          </div>
+
+          <div class="key-fact"><strong>Salary (2026)</strong><span>≥ $97,168 p.a. + 16.4% super on completion of IMT + IET (ADFA graduate entry). Increases with rank/experience.</span></div>
+          <div class="key-fact"><strong>Day-to-Day Reality</strong><span>Secure facility, rotating shifts. Threat hunting, anomaly monitoring, incident response leadership, reporting, commander briefs, team development, and large cyber exercises. Mix of technical leadership + operational decision-making.</span></div>
+
+          <p style="color: var(--text-muted); font-size: 13.5px; margin: 10px 0 4px;"><strong>Key Interview Topics:</strong> Why cyber matters to air power • Defensive vs offensive effects • Sovereign capability importance • Leading technical specialists as a non-technical officer • Current threat actors.</p>
+        </div>
+
+        <!-- Space Operations Officer -->
+        <div id="role-space" style="background: var(--navy-mid); border: 1px solid var(--border); border-radius: 8px; padding: 22px; margin-bottom: 24px;">
+          <h4 style="color: var(--gold); margin-bottom: 10px;">2. Space Operations Officer</h4>
+
+          <p style="color: var(--text-muted); margin-bottom: 12px;"><strong>Role Overview</strong><br>
+          You will lead teams that generate and deliver space power to support ADF operations. This is a relatively new dedicated employment category (formalised in 2025–2026) as Australia builds sovereign space capability.</p>
+
+          <p style="color: var(--text-muted); margin-bottom: 12px;"><strong>Main Responsibilities</strong></p>
+          <ul style="color: var(--text-muted); line-height: 1.6; margin-bottom: 12px;">
+            <li>Planning and conducting space operations across satellite communications, space domain awareness, position/navigation/timing (PNT), missile warning, and space control.</li>
+            <li>Integrating space effects into air and joint operations.</li>
+            <li>Contributing to space situational awareness and the protection of Australian and allied space assets.</li>
+            <li>Leading space operations teams within Space Command.</li>
+          </ul>
+
+          <p style="color: var(--text-muted); margin-bottom: 12px;"><strong>Equipment &amp; Systems</strong><br>
+          You will work with satellite operations and tasking systems, space domain awareness sensors and software, satellite communications terminals, mission planning and analysis tools, and highly classified space command and control systems. Much of the equipment and capabilities are classified.</p>
+
+          <p style="color: var(--text-muted); margin-bottom: 12px;"><strong>Training Pathway</strong></p>
+          <ul style="color: var(--text-muted); line-height: 1.6; margin-bottom: 12px;">
+            <li><strong>Initial Military Training:</strong> 12 weeks at Officers' Training School (OTS), RAAF Base East Sale (standard for RAAF officer entry).</li>
+            <li><strong>Initial Employment Training:</strong> Specialist space training at the Defence School of Space and Cyber (HMAS Harman, Canberra). The first formal IET course was approximately 5 months long, covering satellite operations, space domain awareness, missile warning, and satellite communications.</li>
+          </ul>
+
+          <p style="color: var(--text-muted); margin-bottom: 12px;"><strong>Typical Posting Locations (Employment)</strong><br>
+          This is currently a very Canberra-centric role. Most officers are posted to <strong>Space Command</strong> units in the National Capital Region:
+          <br>• Australian Space Operations Centre (AUSSpOC) at Headquarters Joint Operations Command, Bungendore NSW
+          <br>• HMAS Harman (Canberra)
+          <br>As the capability grows, more distributed roles may appear, but for the foreseeable future the majority of positions will be in or around Canberra.</p>
+
+          <p style="color: var(--text-muted);"><strong>Key Interview Points</strong><br>
+          Be prepared to talk about why space is becoming a contested domain, Australia’s growing reliance on space capabilities, and the difference between space support and space control.</p>
+
+          <p style="color: var(--text-muted); margin-top: 10px;"><strong>Salary (as of 2026)</strong><br>
+          On completion of Initial Military Training and Employment Training, you will earn at least **$104,099 per annum** plus 16.4% superannuation.</p>
+
+          <p style="color: var(--text-muted); margin-top: 10px;"><strong>Day-to-Day / Week-to-Week Work</strong><br>
+          You will typically work in a secure operations centre environment. Daily tasks include monitoring space assets, conducting space domain awareness, planning satellite tasking, analysing threats to space systems, and briefing commanders on space effects. The role is heavily analytical and planning-focused, with a strong emphasis on integration with air and joint operations.</p>
+
+          <p style="color: var(--text-muted); margin-top: 10px;"><strong>Common Follow-up Questions</strong></p>
+          <ul style="color: var(--text-muted); font-size: 13px; line-height: 1.5; margin-top: 4px;">
+            <li>Why is space now considered a contested warfighting domain?</li>
+            <li>What are the main threats to Australia’s space capabilities?</li>
+            <li>How does space support air operations?</li>
+            <li>What do you understand by “space control”?</li>
+          </ul>
+        </div>
+
+        <!-- Air Intelligence Officer -->
+        <div id="role-intel" style="background: var(--navy-mid); border: 1px solid var(--border); border-radius: 8px; padding: 22px; margin-bottom: 20px;">
+          <h4 style="color: var(--gold); margin-bottom: 10px;">3. Air Intelligence Officer</h4>
+
+          <p style="color: var(--text-muted); margin-bottom: 12px;"><strong>Role Overview</strong><br>
+          You will provide critical intelligence support to air operations. This includes analysing adversary air capabilities, producing intelligence products, supporting targeting, and delivering situational awareness to aircrew and commanders at all levels.</p>
+
+          <p style="color: var(--text-muted); margin-bottom: 12px;"><strong>Main Responsibilities</strong></p>
+          <ul style="color: var(--text-muted); line-height: 1.6; margin-bottom: 12px;">
+            <li>Producing all-source intelligence analysis focused on air power (adversary aircraft, weapons, tactics, electronic warfare, etc.).</li>
+            <li>Supporting mission planning, targeting, and battle damage assessment.</li>
+            <li>Briefing aircrew and commanders on current threats and intelligence.</li>
+            <li>Working with ISR (Intelligence, Surveillance, Reconnaissance) assets and platforms.</li>
+            <li>Possible airborne roles on platforms such as the MC-55A Peregrine.</li>
+          </ul>
+
+          <p style="color: var(--text-muted); margin-bottom: 12px;"><strong>Equipment &amp; Systems</strong><br>
+          You will work with highly classified intelligence databases, imagery analysis and GEOINT tools, SIGINT analysis systems, mapping/GIS software, and real-time feeds from RAAF ISR platforms (E-7A Wedgetail, P-8A Poseidon, MQ-4C Triton, MC-55A Peregrine). Some Air Intelligence Officers are also qualified to fly as crew on the MC-55A Peregrine conducting airborne ISR and electronic intelligence missions.</p>
+
+          <p style="color: var(--text-muted); margin-bottom: 12px;"><strong>Training Pathway</strong></p>
+          <ul style="color: var(--text-muted); line-height: 1.6; margin-bottom: 12px;">
+            <li><strong>Initial Military Training:</strong> 12 weeks at Officers' Training School (OTS), RAAF Base East Sale (standard for RAAF officer entry).</li>
+            <li><strong>Initial Employment Training:</strong> Delivered at the Air Intelligence Training Unit (RAAF Base Edinburgh) and the Defence Force School of Intelligence (Canungra, QLD). Total duration is typically 6–9 months.</li>
+          </ul>
+
+          <p style="color: var(--text-muted); margin-bottom: 12px;"><strong>Typical Posting Locations (Employment)</strong><br>
+          First postings are commonly to:
+          <br>• <strong>No. 87 Squadron</strong> at RAAF Base Edinburgh (the RAAF’s main air intelligence unit)
+          <br>• Tactical Intelligence Flights supporting fighter, strike, or maritime squadrons at Williamtown, Amberley, or Tindal
+          <br>• Joint or headquarters intelligence roles in Canberra / Bungendore
+          <br>Later in your career you can expect a mix of squadron support, operational headquarters, exercises, and potential overseas postings or exchanges.</p>
+
+          <p style="color: var(--text-muted);"><strong>Key Interview Points</strong><br>
+          Be ready to explain the intelligence cycle, the difference between intelligence and information, and why good intelligence is critical to air power. Also be prepared to discuss why you want an intelligence role rather than a more “kinetic” flying or operations role.</p>
+
+          <p style="color: var(--text-muted); margin-top: 10px;"><strong>Salary (as of 2026)</strong><br>
+          On completion of your degree (if applicable), Initial Military Training, and Initial Employment Training, you will earn at least **$103,395 per annum** plus 16.4% superannuation (based on ADFA entry).</p>
+
+          <p style="color: var(--text-muted); margin-top: 10px;"><strong>Day-to-Day / Week-to-Week Work</strong><br>
+          A typical day involves monitoring current intelligence reporting, analysing adversary air activity, producing written assessments or verbal briefs, supporting mission planning, and maintaining threat libraries. You may also be involved in exercises, targeting processes, or providing real-time support to flying squadrons. The work is analytical, fast-paced, and often conducted in secure environments.</p>
+
+          <p style="color: var(--text-muted); margin-top: 10px;"><strong>Common Follow-up Questions</strong></p>
+          <ul style="color: var(--text-muted); font-size: 13px; line-height: 1.5; margin-top: 4px;">
+            <li>Can you walk us through the intelligence cycle?</li>
+            <li>What is the difference between intelligence and information?</li>
+            <li>Why do you want to be an Air Intelligence Officer rather than a pilot or other operational role?</li>
+            <li>How would you handle giving bad news or unwelcome intelligence to a commander?</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Officer Specific -->
+      <div style="margin-bottom: 40px;">
+        <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 12px;">Officer-Specific Topics</h3>
+        <ul style="line-height: 1.7; color: var(--text-muted);">
+          <li>Be prepared to discuss what <strong>Leadership</strong> means to you (refer to the Leadership section of this site).</li>
+          <li>Difference between <strong>Leadership</strong> and <strong>Management</strong>.</li>
+          <li>Different <strong>leadership styles</strong> and when each is appropriate.</li>
+          <li>Your personal experiences as a leader or supervisor (use the STAR method: Situation, Task, Action, Result).</li>
+          <li>Knowledge of the <strong>Officer Selection Board</strong> process.</li>
+        </ul>
+      </div>
+
+      <!-- Final Tips -->
+      <div style="margin-bottom: 40px;">
+        <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 12px;">Final Tips</h3>
+        <ul style="line-height: 1.7; color: var(--text-muted);">
+          <li>Dress in business attire unless otherwise directed.</li>
+          <li>Bring all required documents as listed in your Assessment Day email.</li>
+          <li>Show that you have researched the roles thoroughly and have realistic expectations.</li>
+          <li>Demonstrate that you have considered the impact of service on your personal life and have support networks in place.</li>
+        </ul>
+      </div>
+
+      <!-- Model Answers -->
+      <div>
+        <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 16px;">Model Answers to Common Interview Questions</h3>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Use these as a guide only. Your answers should be genuine and personalised with your own experiences and motivations.</p>
+
+        <div style="margin-bottom: 28px;">
+          <p style="color: var(--text); font-weight: 600; margin-bottom: 6px;">Why do you want to join the Australian Defence Force?</p>
+          <p style="color: var(--text-muted); line-height: 1.65;">
+            “I want to serve in the ADF because I believe in protecting Australia’s interests and contributing to something larger than myself. I’m particularly drawn to the RAAF because of its role in delivering air and space power in an increasingly complex Indo-Pacific region. I see service as both a privilege and a responsibility, and I want to apply my skills in a high-performance, values-driven organisation that makes a real difference to national security.”
+          </p>
+        </div>
+
+        <div style="margin-bottom: 28px;">
+          <p style="color: var(--text); font-weight: 600; margin-bottom: 6px;">Why did you choose the Royal Australian Air Force and these specific roles?</p>
+          <p style="color: var(--text-muted); line-height: 1.65;">
+            “I chose the RAAF because I’m fascinated by how air and space power enables joint operations and provides asymmetric advantage. I applied for Cyber Warfare Officer, Space Operations Officer, and Air Intelligence Officer because these three roles sit at the cutting edge of how the RAAF will operate in the future — in the cyber and space domains, supported by high-quality intelligence. They align with my interest in technology, complex problem-solving, and supporting operational decision-making at the highest levels.”
+          </p>
+        </div>
+
+        <div style="margin-bottom: 28px;">
+          <p style="color: var(--text); font-weight: 600; margin-bottom: 6px;">What qualities or experience make you suitable for these roles?</p>
+          <p style="color: var(--text-muted); line-height: 1.65;">
+            “I bring strong analytical and problem-solving skills, which are critical across all three roles. In my previous experience [insert relevant experience], I’ve developed the ability to synthesise complex information under time pressure and communicate it clearly — skills directly transferable to intelligence analysis, space operations planning, and cyber threat assessment. I’m also comfortable leading small teams and taking responsibility, which aligns with the expectations of an RAAF officer.”
+          </p>
+        </div>
+
+        <div style="margin-bottom: 28px;">
+          <p style="color: var(--text); font-weight: 600; margin-bottom: 6px;">What are the main responsibilities of your chosen roles?</p>
+          <p style="color: var(--text-muted); line-height: 1.65;">
+            For Cyber Warfare Officer: Leading defensive cyber operations and protecting RAAF networks and capabilities.<br>
+            For Space Operations Officer: Planning and conducting space operations that enable ADF missions across satellite communications, space domain awareness, and other space effects.<br>
+            For Air Intelligence Officer: Delivering timely, accurate intelligence to support air operations, targeting, and commander decision-making.
+          </p>
+        </div>
+
+        <div style="margin-bottom: 28px;">
+          <p style="color: var(--text); font-weight: 600; margin-bottom: 6px;">What is your Initial Minimum Period of Service (IMPS)?</p>
+          <p style="color: var(--text-muted); line-height: 1.65;">
+            For RAAF officer roles, the standard IMPS is typically 6 years after completion of Initial Employment Training. I understand this is a significant commitment and I have considered it carefully in the context of my long-term career goals.
+          </p>
+        </div>
+
+        <div style="margin-bottom: 28px;">
+          <p style="color: var(--text); font-weight: 600; margin-bottom: 6px;">Who is the Chief of the Defence Force and Chief of Air Force?</p>
+          <p style="color: var(--text-muted); line-height: 1.65;">
+            As of 2026, the Chief of the Defence Force is Admiral David Johnston AC RAN. The Chief of Air Force is Air Marshal Stephen Chappell DSC, CSC, OAM. I understand the importance of knowing the senior leadership of the organisation I wish to join.
+          </p>
+        </div>
+
+        <div style="margin-bottom: 28px;">
+          <p style="color: var(--text); font-weight: 600; margin-bottom: 6px;">How will you manage being away from home for extended periods?</p>
+          <p style="color: var(--text-muted); line-height: 1.65;">
+            I have discussed this with my family/partner and we have a clear support plan in place. This includes [briefly mention practical arrangements — e.g. family support network, financial planning, communication plans]. I understand that unrestricted service is a core requirement of being an RAAF officer and I am fully prepared to meet that commitment.
+          </p>
+        </div>
+
+        <div style="margin-bottom: 28px;">
+          <p style="color: var(--text); font-weight: 600; margin-bottom: 6px;">What is the difference between Leadership and Management?</p>
+          <p style="color: var(--text-muted); line-height: 1.65;">
+            Management is about processes, resources, and ensuring the organisation runs efficiently — doing things right. Leadership is about inspiring and influencing people toward a common purpose — doing the right things. In the ADF, officers must be both effective managers and inspiring leaders, particularly when leading people in high-risk or uncertain environments.
+          </p>
+        </div>
+
+        <div>
+          <p style="color: var(--text); font-weight: 600; margin-bottom: 6px;">Can you give an example of when you have demonstrated leadership?</p>
+          <p style="color: var(--text-muted); line-height: 1.65;">
+            [Use the STAR method: Situation – Task – Action – Result. Prepare 2–3 strong, genuine examples in advance that show leadership under pressure, developing others, or achieving results through a team.]
+          </p>
+        </div>
+
+        <!-- Differentiation between the three roles -->
+        <div style="margin-bottom: 28px;">
+          <p style="color: var(--text); font-weight: 600; margin-bottom: 6px;">Why have you applied for these three specific roles (Cyber, Space, and Air Intelligence)?</p>
+          <p style="color: var(--text-muted); line-height: 1.65;">
+            “These three roles represent the future of how the RAAF will deliver air power. Modern air operations are becoming increasingly dependent on the integration of cyber effects, space-based capabilities, and high-quality intelligence. I see strong synergy between them — good intelligence informs both cyber and space operations, while cyber and space capabilities are themselves critical enablers. Applying for all three demonstrates my genuine interest in the enabling domains that will define success in future conflicts, rather than being limited to traditional kinetic roles.”
+          </p>
+        </div>
+
+        <!-- Threat Awareness -->
+        <div style="margin-bottom: 28px;">
+          <p style="color: var(--text); font-weight: 600; margin-bottom: 6px;">What do you know about current threats in the cyber, space, or air domains?</p>
+          <p style="color: var(--text-muted); line-height: 1.65;">
+            “In the cyber domain, state actors continue to conduct sophisticated espionage and disruptive operations against government and critical infrastructure. In space, the development of anti-satellite weapons and counter-space capabilities by several nations is a serious concern given Australia’s heavy reliance on space for communications, navigation, and intelligence. In the air domain, the proliferation of advanced long-range strike and integrated air defence systems is eroding our traditional geographic advantage. These threats are exactly why the RAAF is investing so heavily in cyber, space, and intelligence capabilities.”
+          </p>
+        </div>
+
+        <!-- Why these roles instead of traditional ones -->
+        <div>
+          <p style="color: var(--text); font-weight: 600; margin-bottom: 6px;">Why these three roles instead of more traditional ones such as pilot or air combat officer?</p>
+          <p style="color: var(--text-muted); line-height: 1.65;">
+            “While I respect aircrew roles enormously, I am particularly drawn to the enabling functions that are becoming just as decisive as the platforms themselves. In a future high-end conflict, the ability to operate effectively in contested cyber and space environments, and to generate superior intelligence, will be critical to mission success. These roles allow me to contribute directly to the RAAF’s ability to fight and win using my strengths in technology, analysis, and strategic thinking.”
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- STUDY TOOLS SECTION (Flashcards + Quiz) - placed before Glossary for logical study flow -->
+<section id="study-tools">
+  <div class="section-wrap">
+    <div class="section-header">
+      <h2>Study <span>Tools</span></h2>
+      <p>Active recall practice. Everything is saved locally in your browser — your progress stays private on this device.</p>
+    </div>
+
+    <!-- Mode Switcher -->
+    <div class="study-mode-tabs">
+      <button class="study-tab active" onclick="switchStudyMode('flashcards', this)">Flashcards</button>
+      <button class="study-tab" onclick="switchStudyMode('quiz', this)">Quiz Mode</button>
+      <button class="study-tab" onclick="switchStudyMode('whoami', this)">Who Am I?</button>
+      <button class="study-tab" onclick="switchStudyMode('matching', this)">Matching Game</button>
+    </div>
+
+    <!-- FLASHCARDS MODE -->
+    <div id="flashcards-mode" class="study-mode-panel">
+      <div class="study-controls">
+        <label>Source:</label>
+        <select id="flashcardSource" onchange="loadNewFlashcardDeck()">
+          <option value="glossary">Glossary (Recommended)</option>
+          <option value="pfa">Pre-entry Fitness (PFA)</option>
+          <option value="ranks">Ranks</option>
+          <option value="leadership">Leadership</option>
+          <option value="weapons">Weapons & Munitions</option>
+          <option value="aircraft">Air Force</option>
+          <option value="navy">Navy</option>
+          <option value="army">Army (incl. Aviation)</option>
+          <option value="adversary-vehicles">Adversary Vehicles (China/Russia)</option>
+          <option value="adversary">Adversary Aircraft</option>
+          <option value="cyberspace">Cyberspace / Threat Landscape</option>
+          <option value="mixed">Mixed (All Sources)</option>
+        </select>
+
+        <button class="study-btn" onclick="flipFlashcard()">Flip Card</button>
+        <button class="study-btn" onclick="nextFlashcard()">Next Card</button>
+        <button class="study-btn" onclick="shuffleFlashcards()">Shuffle</button>
+        <button class="study-btn secondary" onclick="markFlashcardKnown()">Mark as Known</button>
+        <button class="study-btn secondary" onclick="resetFlashcardProgress()">Reset Progress</button>
+      </div>
+
+      <div class="flashcard-container">
+        <div id="flashcard" class="flashcard" onclick="flipFlashcard()">
+          <div class="flashcard-inner">
+            <div class="flashcard-front">
+              <div id="flashcard-front-content"></div>
+            </div>
+            <div class="flashcard-back">
+              <div id="flashcard-back-content"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="study-progress">
+        <div>Card <span id="flashcard-counter">1 / 1</span></div>
+        <div>Known: <span id="flashcard-known-count">0</span></div>
+        <div class="progress-bar"><div id="flashcard-progress-bar" class="progress-fill" style="width: 0%"></div></div>
+      </div>
+
+      <p style="font-size: 13px; color: var(--text-dim); margin-top: 12px;">
+        Tip: Use the arrow keys (← →) or click the card to flip. Mark items as "Known" to focus on what you still need to review.
+      </p>
+    </div>
+
+    <!-- QUIZ MODE -->
+    <div id="quiz-mode" class="study-mode-panel" style="display:none;">
+      <div class="study-controls">
+        <label>Quiz Type:</label>
+        <select id="quizType">
+          <option value="glossary">Glossary Definitions</option>
+          <option value="pfa">PFA Standards</option>
+          <option value="ranks">Ranks Knowledge</option>
+          <option value="leadership">Leadership Doctrine</option>
+          <option value="weapons">Weapons Identification</option>
+          <option value="aircraft">Air Force Roles</option>
+          <option value="navy">Navy Recognition</option>
+          <option value="army">Army (incl. Aviation)</option>
+          <option value="adversary-army">Adversary Army Vehicles</option>
+          <option value="adversary">Adversary Aircraft Recognition</option>
+          <option value="cyberspace">Cyberspace / Threat Landscape</option>
+          <option value="mixed">Mixed</option>
+        </select>
+
+        <label>Questions:</label>
+        <select id="quizLength">
+          <option value="5">5</option>
+          <option value="10" selected>10</option>
+          <option value="15">15</option>
+          <option value="20">20</option>
+        </select>
+
+        <button class="study-btn primary" onclick="startQuiz()">Start Quiz</button>
+        <button class="study-btn secondary" onclick="resetQuiz()">End Quiz</button>
+      </div>
+
+      <div id="quiz-area" style="display:none; max-width: 720px; margin: 0 auto;">
+        <div class="quiz-progress">
+          Question <span id="quiz-current">1</span> / <span id="quiz-total">10</span>
+          <span style="float:right">Score: <span id="quiz-score">0</span></span>
+        </div>
+
+        <div id="quiz-question" class="quiz-question"></div>
+
+        <div id="quiz-options" class="quiz-options"></div>
+
+        <div id="quiz-feedback" class="quiz-feedback" style="display:none;"></div>
+
+        <button id="quiz-next-btn" class="study-btn primary" style="display:none; margin-top:16px;" onclick="nextQuizQuestion()">Next Question</button>
+      </div>
+
+      <div id="quiz-results" style="display:none; text-align:center; max-width: 600px; margin: 40px auto;">
+        <h3 style="color: var(--gold); font-size: 28px;">Quiz Complete</h3>
+        <p style="font-size: 22px; margin: 16px 0;">Your score: <strong id="final-score"></strong></p>
+        <p id="score-message" style="color: var(--text-muted);"></p>
+        <button class="study-btn primary" onclick="startQuiz()">Try Again</button>
+      </div>
+    </div>
+
+    <!-- WHO AM I? MODE -->
+    <div id="whoami-mode" class="study-mode-panel" style="display:none;">
+      <div class="study-controls">
+        <label>Source:</label>
+        <select id="whoamiSource">
+          <option value="mixed">Mixed (All Sources)</option>
+          <option value="glossary">Glossary</option>
+          <option value="aircraft">Aircraft</option>
+          <option value="weapons">Weapons</option>
+          <option value="cyberspace">Cyberspace / Threats</option>
+          <option value="adversary">Adversary Aircraft</option>
+          <option value="leadership">Leadership</option>
+        </select>
+
+        <button class="study-btn primary" onclick="startWhoAmIGame()">Start New Round</button>
+        <button class="study-btn secondary" onclick="resetWhoAmIGame()">End Game</button>
+      </div>
+
+      <div id="whoami-game-area" style="display:none; max-width: 720px; margin: 0 auto;">
+        <div class="whoami-progress">
+          Item <span id="whoami-current">1</span> / <span id="whoami-total">10</span>
+          <span style="float:right">Correct: <span id="whoami-score">0</span></span>
+        </div>
+
+        <div class="whoami-clues">
+          <h4 style="color: var(--gold); margin-bottom: 12px;">Clues</h4>
+          <div id="whoami-clues-list"></div>
+        </div>
+
+        <div class="study-controls" style="margin-top: 20px; gap: 12px;">
+          <button id="whoami-reveal-btn" class="study-btn" onclick="revealNextWhoAmIClue()">Reveal Next Clue</button>
+          <button id="whoami-giveup-btn" class="study-btn secondary" onclick="showWhoAmIAnswer()" style="display:none;">Give Up &amp; Show Answer</button>
+        </div>
+
+        <div class="whoami-guess" style="margin-top: 24px;">
+          <input type="text" id="whoami-guess-input" placeholder="Type your guess here..." style="width: 60%; padding: 10px; font-size: 16px;">
+          <button class="study-btn primary" onclick="submitWhoAmIGuess()">Submit Guess</button>
+        </div>
+
+        <div id="whoami-feedback" class="quiz-feedback" style="display:none; margin-top: 20px;"></div>
+
+        <button id="whoami-next-btn" class="study-btn primary" style="display:none; margin-top:16px;" onclick="nextWhoAmIItem()">Next Item</button>
+      </div>
+    </div>
+
+    <!-- MATCHING GAME MODE -->
+    <div id="matching-mode" class="study-mode-panel" style="display:none;">
+      <div class="study-controls">
+        <label>Source:</label>
+        <select id="matchingSource">
+          <option value="mixed">Mixed (All Sources)</option>
+          <option value="glossary">Glossary</option>
+          <option value="aircraft">Aircraft</option>
+          <option value="weapons">Weapons</option>
+          <option value="cyberspace">Cyberspace / Threats</option>
+          <option value="adversary">Adversary Aircraft</option>
+          <option value="leadership">Leadership</option>
+          <option value="fleet">Fleet</option>
+        </select>
+
+        <button class="study-btn primary" onclick="startMatchingGame()">Start New Game</button>
+        <button class="study-btn secondary" onclick="endMatchingGame()">End Game</button>
+        <button class="study-btn" onclick="revealAllMatches()" id="matching-reveal-btn" style="display:none;">Reveal All Answers</button>
+      </div>
+
+      <div id="matching-game-area" style="display:none;">
+        <div class="matching-progress">
+          <span>Matched <strong id="matching-matched">0</strong> / <span id="matching-total">12</span></span>
+          <span style="margin-left: 24px;">Attempts: <strong id="matching-attempts">0</strong></span>
+          <span style="margin-left: 24px;">Accuracy: <strong id="matching-accuracy">—</strong></span>
+          <span style="float:right; color: var(--text-dim);">Time: <span id="matching-timer">0:00</span></span>
+        </div>
+
+        <div class="matching-board">
+          <div class="match-column">
+            <div class="match-column-header">Terms / Items</div>
+            <div id="matching-left" class="match-list"></div>
+          </div>
+          <div class="match-column">
+            <div class="match-column-header">Definitions / Roles</div>
+            <div id="matching-right" class="match-list"></div>
+          </div>
+        </div>
+
+        <div id="matching-feedback" class="quiz-feedback" style="display:none; margin-top: 20px;"></div>
+
+        <div id="matching-results" style="display:none; text-align:center; max-width: 620px; margin: 32px auto; padding: 24px; background: var(--surface); border: 2px solid var(--gold); border-radius: 10px;">
+          <h3 style="color: var(--gold); font-size: 26px; margin-bottom: 12px;">Game Complete</h3>
+          <p style="font-size: 20px; margin: 8px 0;">
+            You matched <strong id="matching-final-matched"></strong> / <span id="matching-final-total"></span>
+          </p>
+          <p style="font-size: 18px; color: var(--text-muted);">Final accuracy: <strong id="matching-final-accuracy" style="color: var(--gold);"></strong></p>
+          <p id="matching-final-message" style="margin-top: 12px; color: var(--text-muted);"></p>
+          <button class="study-btn primary" onclick="startMatchingGame()" style="margin-top: 16px;">Play Again</button>
+        </div>
+
+        <p style="font-size: 13px; color: var(--text-dim); margin-top: 16px;">
+          Click a term on the left, then its matching definition on the right. Correct pairs lock in green. Use "Reveal All Answers" anytime to study.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Load data first, then the logic -->
+<script src="data.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>

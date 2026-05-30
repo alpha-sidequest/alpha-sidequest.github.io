@@ -1,0 +1,84 @@
+RAAF Knowledge Hub - Aircraft Image Download List
+================================================
+
+Instructions:
+- Download each image using the direct link below.
+- Save it with the EXACT filename shown (case sensitive).
+- Put all files inside this "images" folder.
+
+---
+
+1. F-35A Lightning II
+   Filename: f35a.jpg
+   Link: https://upload.wikimedia.org/wikipedia/commons/a/ab/A35-023_after_being_refuelled_in_flight_during_Cope_North_2025.jpg
+
+2. F/A-18F Super Hornet
+   Filename: superhornet.jpg
+   Link: https://upload.wikimedia.org/wikipedia/commons/8/8f/F-A-18F_Super_Hornet_RAAF_1_Sqn_2013.jpg
+
+3. EA-18G Growler
+   Filename: growler.jpg
+   Link: https://upload.wikimedia.org/wikipedia/commons/0/0d/EA-18G_Growler_VAQ-132.jpg
+
+4. E-7A Wedgetail
+   Filename: wedgetail.jpg
+   Link: https://upload.wikimedia.org/wikipedia/commons/d/d2/A30-001_in_flight_over_the_United_States_in_April_2025.jpg
+
+5. P-8A Poseidon
+   Filename: poseidon.jpg
+   Link: https://upload.wikimedia.org/wikipedia/commons/e/e3/P-8A_Poseidon_aircraft_in_flight_%28cropped%29.jpg
+
+6. C-17A Globemaster III
+   Filename: c17.jpg
+   Link: https://upload.wikimedia.org/wikipedia/commons/3/35/Boeing_C-17A_Globemaster_III_RAAF.jpg
+
+7. C-130J Hercules
+   Filename: c130j.jpg
+   Link: https://upload.wikimedia.org/wikipedia/commons/d/d4/RAAF_Lockheed_C-130J_Hercules_executing_go-around.jpg
+
+8. C-27J Spartan
+   Filename: c27j.jpg
+   Link: https://upload.wikimedia.org/wikipedia/commons/8/8a/RAAF_C-27J_takes_off_from_Tinian_during_Cope_North_2022.jpg
+
+9. KC-30A MRTT
+   Filename: kc30a.jpg
+   Link: https://upload.wikimedia.org/wikipedia/commons/b/b0/KC-30A_MRTT_No33Sqn_2011.jpg
+
+10. MC-55A Peregrine
+    Filename: peregrine.jpg
+    Link: https://upload.wikimedia.org/wikipedia/commons/9/9e/Gulfstream_G550_N550GA.jpg
+
+11. PC-21
+    Filename: pc21.jpg
+    Link: https://upload.wikimedia.org/wikipedia/commons/8/80/Royal_Australian_Air_Force_%28A54-041%29_Pilatus_PC-21_taking_off_for_the_RAAF_Roulettes_display_at_the_2023_Australian_International_Airshow.jpg
+
+12. Hawk 127
+    Filename: hawk127.jpg
+    Link: https://upload.wikimedia.org/wikipedia/commons/4/41/BAe_Hawk_127_RAAF_(41153382535).jpg
+
+13. King Air 350
+    Filename: kingair.jpg
+    Link: https://upload.wikimedia.org/wikipedia/commons/e/e8/RAAF_Beechcraft_B300_King_Air_350_%28A32-351%29_at_YSWG.jpg
+
+14. Boeing 737 BBJ (VIP)
+    Filename: bbj.jpg
+    Link: https://upload.wikimedia.org/wikipedia/commons/f/fd/Royal_Australian_Air_Force_%28A36-002%29_Boeing_737-7DF_BBJ_taking_off_on_the_main_runway_at_the_Canberra_Airport_%281%29.jpg
+
+15. Dassault Falcon 7X (VIP)
+    Filename: falcon7x.jpg
+    Link: https://upload.wikimedia.org/wikipedia/commons/9/9e/Gulfstream_G550_N550GA.jpg
+    Note: This is a clean G550 photo as a placeholder. Replace later if you find a good Falcon 7X image.
+
+16. MQ-4C Triton
+    Filename: triton.jpg
+    Link: https://upload.wikimedia.org/wikipedia/commons/4/47/Side_view_of_A57-001_in_June_2024.jpg
+
+17. MQ-28A Ghost Bat
+    Filename: ghostbat.jpg
+    Link: https://upload.wikimedia.org/wikipedia/commons/4/4a/Boeing_MQ-28_Ghost_Bat_at_2023_Avalon_Airshow_%281%29.jpg
+
+---
+
+After downloading all files, open index.html to check if images appear.
+
+If any link stops working in the future, let me know and I can help find replacements.
