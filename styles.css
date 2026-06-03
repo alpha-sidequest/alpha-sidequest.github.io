@@ -2722,3 +2722,104 @@ section.active { display: block; }
 
 
 /* Legacy duplicate rule removed — brightness now handled above with correct selectors */
+
+/* ============================================
+   GLOSSARY / ACRONYM TOOLTIPS + CROSS-REFERENCES
+   Lightweight, vanilla, no external libs. Safe enhancement.
+   ============================================ */
+
+.glossary-term,
+.cross-ref {
+  border-bottom: 1px dotted var(--gold);
+  color: var(--gold-light);
+  cursor: help;
+  font-weight: 500;
+  transition: all 0.1s ease;
+  padding: 0 1px;
+}
+
+.cross-ref {
+  cursor: pointer;
+}
+
+.glossary-term:hover,
+.cross-ref:hover {
+  background: rgba(201, 168, 76, 0.1);
+  border-bottom-color: var(--gold);
+  color: var(--gold);
+}
+
+/* The floating tooltip bubble */
+#site-tooltip {
+  position: absolute;
+  z-index: 9999;
+  max-width: 320px;
+  background: #0A1628;
+  color: #F4F1E9;
+  border: 1px solid var(--gold);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.45;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  pointer-events: none;
+  display: none;
+  white-space: normal;
+}
+
+#site-tooltip .tooltip-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 4px;
+  display: block;
+}
+
+#site-tooltip .tooltip-def {
+  color: #E8E4D9;
+}
+
+#site-tooltip .tooltip-preview {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+#site-tooltip .tooltip-preview img {
+  width: 64px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+#site-tooltip .tooltip-preview .preview-text {
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+#site-tooltip .tooltip-preview .preview-text strong {
+  color: var(--gold);
+  display: block;
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+#site-tooltip .tooltip-click-hint {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* Make sure tooltips don't break existing layouts */
+.system-desc .glossary-term,
+.modal-desc .glossary-term,
+.layman-box .glossary-term {
+  font-size: inherit;
+}
