@@ -53,7 +53,7 @@ ROYAL AUSTRALIAN NAVY (6 photos required)
 
 2. Commander Australian Fleet
    Filename: chris-smith-ran.jpg
-   Recommended: Official RAN portrait of Rear Admiral Chris Smith AM CSM RAN
+   Recommended: Official RAN portrait of Rear Admiral Chris Smith AM CSM RAN (the chris-smith-ran.jpg version; there is a separate chris-smith-army.jpg for the Army leader)
 
 3. Warrant Officer of the Navy
    Filename: andrew-bertoncin.jpg
@@ -79,7 +79,7 @@ AUSTRALIAN ARMY (6 photos required)
 
 2. Deputy Chief of Army
    Filename: chris-smith-army.jpg
-   Recommended: Official Army portrait of Major General Chris Smith DSC AM CSC
+   Recommended: Official Army portrait of Major General Chris Smith DSC AM CSC (the chris-smith-army.jpg version; there is a separate chris-smith-ran.jpg for the Navy leader)
 
 3. Regimental Sergeant Major of the Army
    Filename: kim-felmingham.jpg
@@ -89,13 +89,13 @@ AUSTRALIAN ARMY (6 photos required)
    Filename: natasha-fox.jpg
    Recommended: Official ADF/Army portrait of Lieutenant General Natasha Fox AO CSC
 
-5. Commander 1st Division
-   Filename: michael-nolan.jpg
-   Recommended: Official Army portrait of Major General Michael Nolan AM CSC DSM
+5. Commander 1st (Australian) Division
+   Filename: ash-collingburn.jpg
+   Recommended: Official Army portrait of Major General Ash Collingburn AM DSM (current Commander 1st Division, assumed command December 2023)
 
-6. Head of Army Capability
-   Filename: catherine-cox.jpg
-   Recommended: Official Army portrait of Major General Catherine Cox AM CSC
+6. Head Land Capability
+   Filename: richard-vagg.jpg
+   Recommended: Official Army portrait of Major General Richard Vagg DSC (current Head Land Capability, assumed February 2023)
 
 TIPS FOR ALL NEW PHOTOS
 - Use high-resolution, official, professional head-and-shoulders or upper-body photos.
@@ -104,3 +104,33 @@ TIPS FOR ALL NEW PHOTOS
 - Official Defence / Service imagery is strongly preferred for accuracy and credibility.
 
 Once the photos are added with the exact filenames above, all 18 leadership cards (6 joint/Air Force + 6 Navy + 6 Army) will display correctly.
+
+================================================================================
+2026 UPDATE: Ranks & Leadership Restructure
+================================================================================
+- Ranks tables are now side-by-side comparative equivalents for Air Force / Navy / Army
+  (Officers and Enlisted/Other Ranks), with a dedicated "Miscellaneous Special Appointments"
+  section for WOFF-AF / WO-N / RSM-A and entry-level notes.
+
+- Leadership cards have been reorganised:
+  * New top "Defence Leadership (Joint & Ministerial)" section containing:
+      1. Minister for Defence (Richard Marles)
+      2. Chief of the Defence Force (Admiral David Johnston)
+  * Royal Australian Air Force section now contains exactly 6 RAAF-specific leaders
+    (Minister's original slot was moved; additional top AF officials added to complete the set of 6 so every service has 6).
+  * Navy and Army sections remain 6 each.
+
+NEW / UPDATED PHOTO REQUIREMENTS (add these two files):
+- Head of Air Capability (new AF leader #5)
+  Filename: nicolas-hogan.jpg
+  Recommended: Official RAAF portrait of Air Vice-Marshal Nicolas Hogan AM CSC (or equivalent senior 2-star officer photo)
+
+- Commander Air Combat Group (AF leader #6)
+  Filename: matthew-mccormack.jpg
+  Recommended: Official RAAF portrait of Air Commodore Matthew McCormack (Commander Air Combat Group as of early 2026 per public records)
+
+Note: If you have a different preferred 2-star RAAF leader for this slot (with a specific photo filename), provide the details and I will update the card and this file immediately. "James Holt" was a temporary placeholder name.
+
+Update the photos.txt list if actual names change. The two new images complete the RAAF set of 6 after the restructure.
+
+All cards should now render without broken images once the two new portraits are placed in images/.

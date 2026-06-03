@@ -1667,6 +1667,57 @@ section.active { display: block; }
   width: 110px;
 }
 
+/* Comparative side-by-side ranks tables (AF/Navy/Army equivalents) */
+.ranks-comparative {
+  font-size: 13.5px;
+}
+.ranks-comparative th {
+  font-size: 12px;
+  white-space: nowrap;
+}
+.ranks-comparative td:first-child {
+  font-weight: 700;
+  color: var(--gold);
+  white-space: nowrap;
+  width: 78px;
+  font-size: 12.5px;
+  vertical-align: top;
+}
+.ranks-comparative td:nth-child(2),
+.ranks-comparative td:nth-child(3),
+.ranks-comparative td:nth-child(4) {
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  width: 145px;
+  vertical-align: top;
+}
+/* Prevent old 3-col nth rules from overriding the comparative 5-col layout */
+.ranks-comparative td {
+  white-space: normal;
+}
+.ranks-comparative td:first-child,
+.ranks-comparative td:nth-child(2),
+.ranks-comparative td:nth-child(3),
+.ranks-comparative td:nth-child(4),
+.ranks-comparative td:nth-child(5) {
+  width: auto;
+}
+.rank-abbr {
+  font-family: 'Rajdhani', sans-serif;
+  color: var(--gold-light);
+  font-weight: 600;
+  font-size: 12px;
+  display: block;
+  margin-top: 1px;
+}
+.ranks-comparative td:last-child {
+  white-space: normal;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--text-muted);
+}
+
 /* Leadership Section */
 .leadership-block {
   margin-top: 60px;

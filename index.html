@@ -57,7 +57,7 @@
     <span class="nav-link" data-section="airforce">Air Force</span>
     <span class="nav-link" data-section="navy">Navy</span>
     <span class="nav-link" data-section="army">Army</span>
-    <span class="nav-link" data-section="weapons">Weapons</span>
+    <span class="nav-link" data-section="weapons">Weapons &amp; Systems</span>
     <span class="nav-link" data-section="ranks-leadership">Ranks &amp; Leadership</span>
     <span class="nav-link" data-section="pfa">Pre-entry Fitness (PFA)</span>
     <span class="nav-link" data-section="national-defence">National Defence</span>
@@ -177,7 +177,7 @@
 
       <!-- Weapons -->
       <div class="feature-card" data-section="weapons">
-        <div class="feature-card-title">Weapons & Munitions</div>
+        <div class="feature-card-title">Weapons & Systems</div>
         <div class="feature-card-desc">
           Detailed profiles of RAAF air-to-air, air-to-surface, and maritime weapons with guidance systems, employment considerations, and plain-English explanations.
         </div>
@@ -188,7 +188,7 @@
       <div class="feature-card" data-section="ranks-leadership">
         <div class="feature-card-title">Ranks &amp; Leadership</div>
         <div class="feature-card-desc">
-          Complete RAAF rank structure plus the official ADF leadership philosophy, 10 Leadership Principles, Mission Command, and Defence Values.
+          Tri-service rank structures (Air Force, Navy, Army) shown side-by-side with equivalents, plus ADF leadership philosophy, values, principles, Mission Command, and current senior leaders (6 per service + joint/ministerial).
         </div>
         <div class="feature-card-link">Explore ranks &amp; leadership →</div>
       </div>
@@ -767,57 +767,106 @@
   </div>
 </section>
 
-<!-- WEAPONS & MUNITIONS SECTION -->
+<!-- WEAPONS & SYSTEMS SECTION -->
 <section id="weapons">
   <div class="section-wrap">
     <div class="section-header">
-      <h2>Weapons &amp; Munitions</h2>
-      <p>Comprehensive coverage of Australian strike weapons, fleet vessel armament, air &amp; missile defence systems, and key adversary weapons. All entries include technical detail, employment context, and plain-English explanations.</p>
+      <h2>Weapons &amp; Systems</h2>
+      <p>Comprehensive coverage of Australian and adversary weapons (segregated by role: air-to-air, air-to-surface, surface-to-air, etc.) plus all sensors, radars, sonars, EW suites, avionics and other systems from RAAF aircraft, RAN vessels and Army platforms (segregated by type: radar, EO/IR, sonar, EW, etc.). All entries include technical detail, employment context, plain-English explanations, and cross-links to the platforms that use them.</p>
     </div>
 
 
 
-    <!-- Australian Strike Weapons -->
+    <!-- Air-to-Air Weapons -->
     <div style="margin: 32px 0 12px;">
-      <h3 style="color: var(--gold); font-size: 18px; margin-bottom: 6px;">Australian Strike Weapons</h3>
+      <h3 style="color: var(--gold); font-size: 18px; margin-bottom: 6px;">Air-to-Air Weapons</h3>
       <p style="font-size: 13px; color: var(--text-dim); max-width: 720px; margin-bottom: 12px;">
-        Air-launched weapons employed by RAAF combat, maritime patrol, and rotary-wing aircraft. Includes air-to-air, precision strike, anti-ship, and ASW munitions.
+        Beyond-visual-range and within-visual-range missiles for engaging enemy aircraft. Primarily RAAF air-to-air munitions.
       </p>
-      <div id="australianStrikeGrid" class="weapons-grid">
-        <!-- Populated dynamically via buildWeaponsGrid() -->
+      <div id="airToAirGrid" class="weapons-grid">
+        <!-- Populated dynamically -->
       </div>
     </div>
 
-    <!-- Australian Fleet & Vessel Weaponry -->
+    <!-- Air-to-Surface / Land & Maritime Strike Weapons -->
     <div style="margin: 32px 0 12px;">
-      <h3 style="color: var(--gold); font-size: 18px; margin-bottom: 6px;">Australian Fleet &amp; Vessel Weaponry</h3>
+      <h3 style="color: var(--gold); font-size: 18px; margin-bottom: 6px;">Air-to-Surface, Land &amp; Maritime Strike Weapons</h3>
       <p style="font-size: 13px; color: var(--text-dim); max-width: 720px; margin-bottom: 12px;">
-        Primary weapons carried by RAN surface combatants and submarines (guns, heavyweight torpedoes, ship-launched strike weapons).
+        Precision strike, anti-ship, land-attack and ASW weapons launched from RAAF fixed-wing and rotary aircraft.
       </p>
-      <div id="australianFleetGrid" class="weapons-grid">
-        <!-- Populated dynamically via buildWeaponsGrid() -->
+      <div id="airToSurfaceGrid" class="weapons-grid">
+        <!-- Populated dynamically -->
       </div>
     </div>
 
-    <!-- Fleet Air & Missile Defence Systems -->
+    <!-- Surface & Sub-Surface Weapons (Fleet & Vessel) -->
     <div style="margin: 32px 0 12px;">
-      <h3 style="color: var(--gold); font-size: 18px; margin-bottom: 6px;">Fleet Air &amp; Missile Defence Systems</h3>
+      <h3 style="color: var(--gold); font-size: 18px; margin-bottom: 6px;">Surface &amp; Sub-Surface Weapons (Fleet &amp; Vessel)</h3>
       <p style="font-size: 13px; color: var(--text-dim); max-width: 720px; margin-bottom: 12px;">
-        Ship-based surface-to-air missiles, active decoys, and point-defence systems that protect RAN task groups and high-value units.
+        Guns, missiles, torpedoes and strike weapons carried by RAN surface combatants and submarines.
       </p>
-      <div id="defensiveGrid" class="weapons-grid">
-        <!-- Populated dynamically via buildWeaponsGrid() -->
+      <div id="surfaceSubsurfaceGrid" class="weapons-grid">
+        <!-- Populated dynamically -->
       </div>
     </div>
 
-    <!-- Adversary Weapons & Defence Systems -->
+    <!-- Air & Missile Defence Systems -->
     <div style="margin: 32px 0 12px;">
-      <h3 style="color: #C0392B; font-size: 18px; margin-bottom: 6px;">Adversary Weapons &amp; Defence Systems</h3>
+      <h3 style="color: var(--gold); font-size: 18px; margin-bottom: 6px;">Air &amp; Missile Defence Systems</h3>
       <p style="font-size: 13px; color: var(--text-dim); max-width: 720px; margin-bottom: 12px;">
-        Key Chinese and Russian air-to-air, anti-ship, cruise, and hypersonic weapons plus major naval SAM systems. Essential recognition knowledge for maritime and combat roles.
+        Ship and ground-based surface-to-air missiles, decoys and point-defence systems.
+      </p>
+      <div id="defenceGrid" class="weapons-grid">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+
+    <!-- Adversary Weapons -->
+    <div style="margin: 32px 0 12px;">
+      <h3 style="color: #C0392B; font-size: 18px; margin-bottom: 6px;">Adversary Weapons</h3>
+      <p style="font-size: 13px; color: var(--text-dim); max-width: 720px; margin-bottom: 12px;">
+        Key Chinese and Russian air-to-air, anti-ship, cruise, hypersonic and ballistic weapons. Essential for threat recognition.
       </p>
       <div id="adversaryWeaponsGrid" class="weapons-grid">
-        <!-- Populated dynamically via buildWeaponsGrid() -->
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+
+    <!-- SYSTEMS: Sensors, Radars, EO/IR, Sonar, EW etc. -->
+    <div style="margin: 48px 0 12px; padding-top: 24px; border-top: 1px solid var(--border);">
+      <h3 style="color: var(--gold); font-size: 18px; margin-bottom: 6px;">Sensors &amp; Systems</h3>
+      <p style="font-size: 13px; color: var(--text-dim); max-width: 720px; margin-bottom: 12px;">
+        All radars, electro-optical/infrared cameras, sonars, electronic warfare suites, avionics, propulsion and support systems from RAAF aircraft, RAN vessels (including organic helicopters) and Army vehicles/platforms. Segregated by sensor/system type.
+      </p>
+
+      <!-- Radars -->
+      <div style="margin: 16px 0 8px;">
+        <h4 style="color: var(--gold-light); font-size: 15px; margin-bottom: 4px;">Radars (AESA, Phased Array, Surface Search, etc.)</h4>
+        <div id="radarSystemsGrid" class="weapons-grid"></div>
+      </div>
+
+      <!-- EO/IR & Cameras -->
+      <div style="margin: 16px 0 8px;">
+        <h4 style="color: var(--gold-light); font-size: 15px; margin-bottom: 4px;">EO/IR, Cameras &amp; Electro-Optical Systems</h4>
+        <div id="eoIrSystemsGrid" class="weapons-grid"></div>
+      </div>
+
+      <!-- Sonar & Acoustic -->
+      <div style="margin: 16px 0 8px;">
+        <h4 style="color: var(--gold-light); font-size: 15px; margin-bottom: 4px;">Sonar, Acoustic &amp; Underwater Sensors</h4>
+        <div id="sonarSystemsGrid" class="weapons-grid"></div>
+      </div>
+
+      <!-- EW, ESM, Jamming -->
+      <div style="margin: 16px 0 8px;">
+        <h4 style="color: var(--gold-light); font-size: 15px; margin-bottom: 4px;">Electronic Warfare, ESM, Jamming &amp; Countermeasures</h4>
+        <div id="ewSystemsGrid" class="weapons-grid"></div>
+      </div>
+
+      <!-- Avionics, Navigation, Other -->
+      <div style="margin: 16px 0 8px;">
+        <h4 style="color: var(--gold-light); font-size: 15px; margin-bottom: 4px;">Avionics, Navigation, Cockpit, Propulsion &amp; Support Systems</h4>
+        <div id="avionicsSystemsGrid" class="weapons-grid"></div>
       </div>
     </div>
 
@@ -833,373 +882,181 @@
   <div class="section-wrap">
     <div class="section-header">
       <h2>Ranks &amp; Leadership</h2>
-      <p>Tri-service rank structures (RAAF, RAN, Army) together with the official ADF leadership philosophy (ADF-P-0), values, principles, and current senior leaders across the force.</p>
+      <p>Tri-service rank structures with equivalents shown side-by-side (RAAF / RAN / Army), special/miscellaneous appointments, the official ADF leadership philosophy (ADF-P-0), Defence Values, 10 Leadership Principles, Mission Command, and current senior leaders (6 per service plus a dedicated Defence / Joint section).</p>
     </div>
 
-    <!-- Ranks content -->
+    <!-- Ranks content - restructured side-by-side equivalents per request -->
 
-    <!-- Officer Ranks -->
+    <!-- Comparative Officer Ranks (side-by-side equivalents) -->
     <div class="ranks-block">
-      <h3>Commissioned Officers</h3>
-      <table class="ranks-table">
+      <h3>Commissioned Officer Rank Equivalents</h3>
+      <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+      <table class="ranks-table ranks-comparative">
         <thead>
           <tr>
-            <th>Rank</th>
-            <th>Abbreviation</th>
-            <th>Description</th>
+            <th>Level</th>
+            <th>Air Force (RAAF)</th>
+            <th>Navy (RAN)</th>
+            <th>Army</th>
+            <th>Notes / Typical Roles</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Air Chief Marshal</td>
-            <td>ACM</td>
-            <td>The highest active rank in the RAAF. Equivalent to a four-star general. Currently held by the Chief of the Defence Force when an Air Force officer is appointed to the role.</td>
+            <td>Four-star<br><small>(OF-9)</small></td>
+            <td><strong>Air Chief Marshal</strong><br><span class="rank-abbr">(ACM)</span></td>
+            <td><strong>Admiral</strong><br><span class="rank-abbr">(ADM)</span></td>
+            <td><strong>General</strong><br><span class="rank-abbr">(GEN)</span></td>
+            <td>Highest active rank. Equivalent to a four-star general/admiral. Normally held by the Chief of the Defence Force when an officer from that service is appointed to the CDF role. Rare in peacetime.</td>
           </tr>
           <tr>
-            <td>Air Marshal</td>
-            <td>AM</td>
-            <td>Three-star rank. The professional head of the RAAF (Chief of Air Force) normally holds this rank. Senior strategic leadership position.</td>
+            <td>Three-star<br><small>(OF-8)</small></td>
+            <td><strong>Air Marshal</strong><br><span class="rank-abbr">(AM)</span></td>
+            <td><strong>Vice Admiral</strong><br><span class="rank-abbr">(VADM)</span></td>
+            <td><strong>Lieutenant General</strong><br><span class="rank-abbr">(LTGEN)</span></td>
+            <td>Professional head of each service (Chief of Air Force / Chief of Navy / Chief of Army) normally holds this rank. Senior strategic leadership position and principal service advisor to Government / CDF.</td>
           </tr>
           <tr>
-            <td>Air Vice-Marshal</td>
-            <td>AVM</td>
-            <td>Two-star rank. Senior officers who typically command major formations, serve as Deputy Chief of Air Force, or hold key joint appointments.</td>
+            <td>Two-star<br><small>(OF-7)</small></td>
+            <td><strong>Air Vice-Marshal</strong><br><span class="rank-abbr">(AVM)</span></td>
+            <td><strong>Rear Admiral</strong><br><span class="rank-abbr">(RADM)</span></td>
+            <td><strong>Major General</strong><br><span class="rank-abbr">(MAJGEN)</span></td>
+            <td>Senior officers who command major formations (e.g. Air Commander Australia, Commander Australian Fleet, Divisional commanders), serve as Deputy Chiefs, Heads of Capability, or hold key joint appointments.</td>
           </tr>
           <tr>
-            <td>Air Commodore</td>
-            <td>AIRCDRE</td>
-            <td>One-star rank. Commands large bases or formations (e.g. Air Combat Group, Surveillance &amp; Response Group) and holds senior staff appointments.</td>
+            <td>One-star<br><small>(OF-6)</small></td>
+            <td><strong>Air Commodore</strong><br><span class="rank-abbr">(AIRCDRE)</span></td>
+            <td><strong>Commodore</strong><br><span class="rank-abbr">(CDRE)</span></td>
+            <td><strong>Brigadier</strong><br><span class="rank-abbr">(BRIG)</span></td>
+            <td>Commands large bases or formations (e.g. Air Combat Group, Surveillance &amp; Response Group, flotillas, brigades) and holds senior staff appointments in service and joint HQ.</td>
           </tr>
           <tr>
-            <td>Group Captain</td>
-            <td>GPCAPT</td>
-            <td>Commands major RAAF bases (e.g. Amberley, Williamtown) or holds significant headquarters roles. Equivalent to Colonel in the Army.</td>
+            <td>Senior Officer<br><small>(OF-5)</small></td>
+            <td><strong>Group Captain</strong><br><span class="rank-abbr">(GPCAPT)</span></td>
+            <td><strong>Captain</strong><br><span class="rank-abbr">(CAPT)</span></td>
+            <td><strong>Colonel</strong><br><span class="rank-abbr">(COL)</span></td>
+            <td>Commands major RAAF bases (Amberley, Williamtown etc.), major warships or large shore establishments (Navy), or regiments/battalions and senior staff (Army). Equivalent across the three services.</td>
           </tr>
           <tr>
-            <td>Wing Commander</td>
-            <td>WGCDR</td>
-            <td>Commands flying squadrons or large headquarters branches. A key middle-senior leadership rank.</td>
+            <td>Field Grade<br><small>(OF-4)</small></td>
+            <td><strong>Wing Commander</strong><br><span class="rank-abbr">(WGCDR)</span></td>
+            <td><strong>Commander</strong><br><span class="rank-abbr">(CMDR)</span></td>
+            <td><strong>Lieutenant Colonel</strong><br><span class="rank-abbr">(LTCOL)</span></td>
+            <td>Commands flying squadrons or large headquarters branches (AF), frigates/submarines or major minor vessels (Navy), battalions (Army). A core middle-senior leadership rank in operations and staff.</td>
           </tr>
           <tr>
-            <td>Squadron Leader</td>
-            <td>SQNLDR</td>
-            <td>Commands smaller units or serves as executive officers. Experienced officers in operational and staff roles.</td>
+            <td>Field Grade<br><small>(OF-3)</small></td>
+            <td><strong>Squadron Leader</strong><br><span class="rank-abbr">(SQNLDR)</span></td>
+            <td><strong>Lieutenant Commander</strong><br><span class="rank-abbr">(LCDR)</span></td>
+            <td><strong>Major</strong><br><span class="rank-abbr">(MAJ)</span></td>
+            <td>Commands smaller units, serves as executive officers, operations officers, or specialist staff. Experienced officers in both operational and headquarters roles.</td>
           </tr>
           <tr>
-            <td>Flight Lieutenant</td>
-            <td>FLTLT</td>
-            <td>Experienced junior officer. Often a flight commander in a squadron or specialist staff officer.</td>
+            <td>Junior Officer<br><small>(OF-2)</small></td>
+            <td><strong>Flight Lieutenant</strong><br><span class="rank-abbr">(FLTLT)</span></td>
+            <td><strong>Lieutenant</strong><br><span class="rank-abbr">(LEUT)</span></td>
+            <td><strong>Captain</strong><br><span class="rank-abbr">(CAPT)</span></td>
+            <td>Experienced junior officer. Flight commander in a squadron or staff specialist (AF); bridge watchkeeper, PWO or department head on smaller vessels (Navy); platoon/troop commander or company 2IC (Army).</td>
           </tr>
           <tr>
-            <td>Flying Officer</td>
-            <td>FLGOFF</td>
-            <td>Junior officer who has completed initial training and posting. Common rank for pilots and other aircrew early in their career.</td>
+            <td>Junior Officer<br><small>(OF-1)</small></td>
+            <td><strong>Flying Officer</strong><br><span class="rank-abbr">(FLGOFF)</span></td>
+            <td><strong>Sub Lieutenant</strong><br><span class="rank-abbr">(SBLT)</span></td>
+            <td><strong>Lieutenant</strong><br><span class="rank-abbr">(LT)</span></td>
+            <td>Junior officer who has completed initial training and first posting. Common early-career rank for pilots/aircrew, junior watchkeepers, and platoon commanders.</td>
           </tr>
           <tr>
-            <td>Pilot Officer</td>
-            <td>PLTOFF</td>
-            <td>The entry-level commissioned officer rank upon graduation from the Air Force Academy or direct entry officer training.</td>
+            <td>Entry Officer<br><small>(OF-1 / OF(D))</small></td>
+            <td><strong>Pilot Officer</strong><br><span class="rank-abbr">(PLTOFF)</span></td>
+            <td><strong>Midshipman</strong><br><span class="rank-abbr">(MIDN)</span></td>
+            <td><strong>Second Lieutenant</strong><br><span class="rank-abbr">(2LT)</span></td>
+            <td>The entry-level commissioned officer rank upon graduation from the Air Force Academy, Royal Military College Duntroon, or Royal Australian Naval College (plus ADFA midshipmen). Often "acting" in early phases. (Miscellaneous entry rank.)</td>
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
 
-    <!-- Enlisted / Other Ranks -->
+    <!-- Comparative Other Ranks + Miscellaneous Special Appointments -->
     <div class="ranks-block">
-      <h3>Other Ranks (Enlisted)</h3>
-      <table class="ranks-table">
+      <h3>Other Ranks (Enlisted) Equivalents &amp; Miscellaneous Special Appointments</h3>
+      <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+      <table class="ranks-table ranks-comparative">
         <thead>
           <tr>
-            <th>Rank</th>
-            <th>Abbreviation</th>
-            <th>Description</th>
+            <th>Level</th>
+            <th>Air Force (RAAF)</th>
+            <th>Navy (RAN)</th>
+            <th>Army</th>
+            <th>Notes / Typical Roles</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Warrant Officer of the Air Force</td>
-            <td>WOFF-AF</td>
-            <td>The single most senior enlisted member in the RAAF. Acts as the principal advisor to the Chief of Air Force on all matters concerning airmen and airwomen.</td>
+            <td>Service<br>Enlisted Advisor<br>(Special / Misc)</td>
+            <td><strong>Warrant Officer of the Air Force</strong><br><span class="rank-abbr">(WOFF-AF)</span></td>
+            <td><strong>Warrant Officer of the Navy</strong><br><span class="rank-abbr">(WO-N)</span></td>
+            <td><strong>Regimental Sergeant Major of the Army</strong><br><span class="rank-abbr">(RSM-A)</span></td>
+            <td>The single most senior enlisted member in each service. Principal advisor to the Chief on all matters affecting airmen / sailors / soldiers. The voice of the enlisted workforce at the highest levels of command. (Key miscellaneous special appointments – sit above the standard WO structure.)</td>
           </tr>
           <tr>
-            <td>Warrant Officer</td>
-            <td>WOFF</td>
-            <td>The most senior non-commissioned rank. Holds significant leadership, training, and disciplinary responsibilities within units.</td>
+            <td>Warrant Officer<br>(OR-9 / OR-8)</td>
+            <td><strong>Warrant Officer</strong><br><span class="rank-abbr">(WOFF)</span></td>
+            <td><strong>Warrant Officer</strong><br><span class="rank-abbr">(WO)</span></td>
+            <td><strong>Warrant Officer Class One / Class Two</strong><br><span class="rank-abbr">(WO1 / WO2)</span></td>
+            <td>Most senior non-commissioned ranks. Significant leadership, training, disciplinary and regimental responsibilities (e.g. RSM/CSM of a unit, senior technical supervisor, or key instructor). Army distinguishes WO1 (formation/unit level) and WO2.</td>
           </tr>
           <tr>
-            <td>Flight Sergeant</td>
-            <td>FSGT</td>
-            <td>Senior non-commissioned officer. Often serves as a squadron warrant officer or in senior technical/supervisory roles.</td>
+            <td>Senior NCO<br>(OR-7)</td>
+            <td><strong>Flight Sergeant</strong><br><span class="rank-abbr">(FSGT)</span></td>
+            <td><strong>Chief Petty Officer</strong><br><span class="rank-abbr">(CPO)</span></td>
+            <td><strong>Staff Sergeant</strong><br><span class="rank-abbr">(SSGT)</span></td>
+            <td>Senior technical and supervisory specialists. Often squadron/departmental senior sailor/soldier or senior trade instructor. Hold important leadership and mentoring roles.</td>
           </tr>
           <tr>
-            <td>Sergeant</td>
-            <td>SGT</td>
-            <td>Key non-commissioned leader. Commands sections, supervises junior ranks, and holds important technical or instructional positions.</td>
+            <td>Sergeant<br>(OR-5 / OR-6)</td>
+            <td><strong>Sergeant</strong><br><span class="rank-abbr">(SGT)</span></td>
+            <td><strong>Petty Officer</strong><br><span class="rank-abbr">(PO)</span></td>
+            <td><strong>Sergeant</strong><br><span class="rank-abbr">(SGT)</span></td>
+            <td>Key non-commissioned leaders. Command sections/teams, supervise junior ranks, and hold critical instructional, technical, watch, or divisional responsibilities across all three services.</td>
           </tr>
           <tr>
-            <td>Corporal</td>
-            <td>CPL</td>
-            <td>First level of non-commissioned officer. Leads small teams and is responsible for the welfare, training, and discipline of junior airmen.</td>
+            <td>Junior NCO<br>(OR-4)</td>
+            <td><strong>Corporal</strong><br><span class="rank-abbr">(CPL)</span></td>
+            <td><strong>Leading Seaman</strong><br><span class="rank-abbr">(LS)</span></td>
+            <td><strong>Corporal</strong><br><span class="rank-abbr">(CPL)</span></td>
+            <td>First level of non-commissioned officer. Leads small teams (sections), responsible for the welfare, training, and discipline of junior personnel. The first real leadership step for most enlisted members.</td>
           </tr>
           <tr>
-            <td>Leading Aircraftman / Leading Aircraftwoman</td>
-            <td>LAC / LACW</td>
-            <td>Experienced aviator who has demonstrated competence in their trade. Often mentors newer personnel.</td>
+            <td>Experienced<br>Other Rank<br>(OR-3)</td>
+            <td><strong>Leading Aircraftman /<br>Leading Aircraftwoman</strong><br><span class="rank-abbr">(LAC / LACW)</span></td>
+            <td><strong>Able Seaman</strong><br><span class="rank-abbr">(AB)</span></td>
+            <td><strong>Lance Corporal</strong><br><span class="rank-abbr">(LCPL)</span></td>
+            <td>Experienced and qualified personnel who have demonstrated competence in their trade. Often mentor newer members and hold limited supervisory or specialist team leader responsibilities.</td>
           </tr>
           <tr>
-            <td>Aircraftman / Aircraftwoman</td>
-            <td>AC / ACW</td>
-            <td>Entry-level rank for enlisted personnel after initial recruit training. The foundation of the RAAF workforce.</td>
+            <td>Entry / Trained<br>Other Rank<br>(OR-1 / OR-2)</td>
+            <td><strong>Aircraftman / Aircraftwoman</strong><br><span class="rank-abbr">(AC / ACW)</span></td>
+            <td><strong>Seaman</strong><br><span class="rank-abbr">(SMN)</span></td>
+            <td><strong>Private</strong><br><span class="rank-abbr">(PTE)</span><br><small>(or Gunner, Sapper, Trooper, Signaller, etc.)</small></td>
+            <td>Entry-level rank for enlisted personnel after initial recruit training (1RTU for RAAF, HMAS Cerberus for RAN, Kapooka for Army). The foundation of the workforce. Army uses many trade-specific titles at this level. (Miscellaneous entry ranks.)</td>
           </tr>
         </tbody>
       </table>
+      </div>
+      <p style="font-size: 13px; color: var(--text-dim); margin-top: 8px; max-width: 860px;">
+        <em>Miscellaneous / special appointments (WOFF-AF, WO-N, RSM-A) sit at the apex of the enlisted structure as the personal advisors to their service Chief. Junior entry ranks carry service-specific and corps/trade titles (e.g. Private equivalents). All descriptions are written for ADF interview preparation context.</em>
+      </p>
     </div>
 
-    <!-- NAVY RANKS -->
-    <div class="ranks-block">
-      <h3>Royal Australian Navy – Commissioned Officers</h3>
-      <table class="ranks-table">
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Abbreviation</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Admiral</td>
-            <td>ADM</td>
-            <td>Four-star rank. The highest active rank in the RAN, normally held by the Chief of the Defence Force when a Navy officer is appointed to the role.</td>
-          </tr>
-          <tr>
-            <td>Vice Admiral</td>
-            <td>VADM</td>
-            <td>Three-star rank. The professional head of the Navy (Chief of Navy) normally holds this rank. Senior strategic and operational leadership position.</td>
-          </tr>
-          <tr>
-            <td>Rear Admiral</td>
-            <td>RADM</td>
-            <td>Two-star rank. Commands major formations (e.g. Fleet Command), holds key joint appointments, or serves as Deputy Chief of Navy or Head of Navy Capability.</td>
-          </tr>
-          <tr>
-            <td>Commodore</td>
-            <td>CDRE</td>
-            <td>One-star rank. Commands major task groups, flotillas, or holds senior staff appointments in Navy Headquarters and joint commands.</td>
-          </tr>
-          <tr>
-            <td>Captain</td>
-            <td>CAPT</td>
-            <td>Commands major warships (e.g. Hobart-class destroyers, Canberra-class LHDs) or holds significant headquarters and capability roles. Equivalent to Group Captain / Colonel.</td>
-          </tr>
-          <tr>
-            <td>Commander</td>
-            <td>CMDR</td>
-            <td>Commands frigates, submarines, or major shore establishments. A critical middle-senior leadership rank in both operational and staff roles.</td>
-          </tr>
-          <tr>
-            <td>Lieutenant Commander</td>
-            <td>LCDR</td>
-            <td>Executive officer on major ships, commands minor war vessels, or serves as a principal warfare officer and staff specialist.</td>
-          </tr>
-          <tr>
-            <td>Lieutenant</td>
-            <td>LEUT</td>
-            <td>Experienced junior officer. Often a bridge watchkeeper, department head on smaller vessels, or specialist officer in aviation or submarines.</td>
-          </tr>
-          <tr>
-            <td>Sub Lieutenant</td>
-            <td>SBLT</td>
-            <td>Junior officer who has completed initial training. Common rank for new entrants from the Australian Defence Force Academy or direct entry.</td>
-          </tr>
-          <tr>
-            <td>Midshipman</td>
-            <td>MIDN</td>
-            <td>The entry-level officer rank for officer cadets at the Royal Australian Naval College and ADFA midshipmen.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="ranks-block">
-      <h3>Royal Australian Navy – Other Ranks (Enlisted)</h3>
-      <table class="ranks-table">
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Abbreviation</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Warrant Officer of the Navy</td>
-            <td>WO-N</td>
-            <td>The single most senior enlisted member in the RAN. Principal advisor to the Chief of Navy on all matters affecting sailors.</td>
-          </tr>
-          <tr>
-            <td>Warrant Officer</td>
-            <td>WO</td>
-            <td>The most senior non-commissioned rank. Holds significant leadership, training, and disciplinary responsibilities across ships and establishments.</td>
-          </tr>
-          <tr>
-            <td>Chief Petty Officer</td>
-            <td>CPO</td>
-            <td>Senior technical and supervisory specialist. Often a divisional senior sailor or senior instructor in key trades.</td>
-          </tr>
-          <tr>
-            <td>Petty Officer</td>
-            <td>PO</td>
-            <td>Key non-commissioned leader. Leads teams of sailors, supervises technical work, and holds important instructional and divisional roles.</td>
-          </tr>
-          <tr>
-            <td>Leading Seaman</td>
-            <td>LS</td>
-            <td>Experienced sailor who has demonstrated competence. Often a team leader, watch supervisor, or specialist operator.</td>
-          </tr>
-          <tr>
-            <td>Able Seaman</td>
-            <td>AB</td>
-            <td>Fully qualified sailor in their primary qualification. The core of the Navy’s workforce at sea and ashore.</td>
-          </tr>
-          <tr>
-            <td>Seaman</td>
-            <td>SMN</td>
-            <td>Entry-level rank for sailors after initial recruit training at HMAS Cerberus. Foundation of the enlisted workforce.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- ARMY RANKS -->
-    <div class="ranks-block">
-      <h3>Australian Army – Commissioned Officers</h3>
-      <table class="ranks-table">
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Abbreviation</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>General</td>
-            <td>GEN</td>
-            <td>Four-star rank. The highest active rank in the Army, normally held by the Chief of the Defence Force when an Army officer is in the role.</td>
-          </tr>
-          <tr>
-            <td>Lieutenant General</td>
-            <td>LTGEN</td>
-            <td>Three-star rank. The professional head of the Army (Chief of Army) normally holds this rank. Provides strategic leadership for the Army.</td>
-          </tr>
-          <tr>
-            <td>Major General</td>
-            <td>MAJGEN</td>
-            <td>Two-star rank. Commands divisions, holds key joint appointments, or serves as Deputy Chief of Army or Head of Army Capability.</td>
-          </tr>
-          <tr>
-            <td>Brigadier</td>
-            <td>BRIG</td>
-            <td>One-star rank. Commands brigades, major training establishments, or holds senior staff roles in Army Headquarters and joint commands.</td>
-          </tr>
-          <tr>
-            <td>Colonel</td>
-            <td>COL</td>
-            <td>Commands major units or holds significant headquarters appointments. Equivalent to Group Captain / Captain (RAN).</td>
-          </tr>
-          <tr>
-            <td>Lieutenant Colonel</td>
-            <td>LTCOL</td>
-            <td>Commands battalions or regiments. A critical command and staff rank at the heart of Army operations and capability.</td>
-          </tr>
-          <tr>
-            <td>Major</td>
-            <td>MAJ</td>
-            <td>Company commander, operations officer, or senior staff officer. Key middle-management leadership role.</td>
-          </tr>
-          <tr>
-            <td>Captain</td>
-            <td>CAPT</td>
-            <td>Experienced junior officer. Commands a platoon or troop and holds important sub-unit leadership and staff appointments.</td>
-          </tr>
-          <tr>
-            <td>Lieutenant</td>
-            <td>LT</td>
-            <td>Junior officer who has completed initial training. Leads a platoon or troop in combat and training.</td>
-          </tr>
-          <tr>
-            <td>Second Lieutenant</td>
-            <td>2LT</td>
-            <td>The entry-level commissioned officer rank upon graduation from the Royal Military College – Duntroon or officer commissioning course.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="ranks-block">
-      <h3>Australian Army – Other Ranks (Enlisted)</h3>
-      <table class="ranks-table">
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Abbreviation</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Regimental Sergeant Major of the Army</td>
-            <td>RSM-A</td>
-            <td>The single most senior enlisted member in the Australian Army. Principal advisor to the Chief of Army on all matters affecting soldiers.</td>
-          </tr>
-          <tr>
-            <td>Warrant Officer Class One</td>
-            <td>WO1</td>
-            <td>The most senior non-commissioned rank. Holds significant leadership, training, and regimental responsibilities (e.g. RSM of a unit).</td>
-          </tr>
-          <tr>
-            <td>Warrant Officer Class Two</td>
-            <td>WO2</td>
-            <td>Senior technical and supervisory specialist. Often a Company Sergeant Major or senior instructor.</td>
-          </tr>
-          <tr>
-            <td>Staff Sergeant</td>
-            <td>SSGT</td>
-            <td>Senior non-commissioned officer. Holds key supervisory, technical, and administrative leadership roles.</td>
-          </tr>
-          <tr>
-            <td>Sergeant</td>
-            <td>SGT</td>
-            <td>Key non-commissioned leader. Commands sections, supervises soldiers, and holds important instructional and team leadership positions.</td>
-          </tr>
-          <tr>
-            <td>Corporal</td>
-            <td>CPL</td>
-            <td>First level of non-commissioned officer. Leads small teams (sections) and is responsible for the welfare, training, and discipline of junior soldiers.</td>
-          </tr>
-          <tr>
-            <td>Lance Corporal</td>
-            <td>LCPL</td>
-            <td>Junior non-commissioned officer. Assists the section commander and develops leadership skills.</td>
-          </tr>
-          <tr>
-            <td>Private</td>
-            <td>PTE</td>
-            <td>Entry-level rank for soldiers after initial recruit training at Kapooka (or trade-specific equivalents: Gunner, Sapper, Trooper, Signaller, etc.).</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Senior Leadership Bios -->
+    <!-- Defence / Joint Leadership (Minister + CDF + other important defence personnel) - placed first as requested -->
     <div class="leadership-block">
-      <h3>Current Senior Leadership</h3>
-      <p class="leadership-intro">Key civilian and military leaders responsible for the Australian Defence Force and the Royal Australian Air Force (as of 2026). See Navy and Army sections below for the other services.</p>
+      <h3>Defence Leadership (Joint &amp; Ministerial)</h3>
+      <p class="leadership-intro">The Minister for Defence and the most senior joint (tri-service) military leadership. These roles sit above the individual services and are critical for understanding the strategic direction and command of the entire ADF.</p>
 
       <div class="leadership-grid">
 
-        <!-- 1. Minister for Defence -->
+        <!-- Minister for Defence -->
         <div class="leadership-card">
           <div class="leader-photo">
             <img src="images/richard-marles.jpg" alt="The Hon. Richard Marles MP">
@@ -1208,11 +1065,11 @@
             <div class="leader-rank">Minister for Defence</div>
             <div class="leader-name">The Hon. Richard Marles MP</div>
             <div class="leader-title">Deputy Prime Minister of Australia</div>
-            <p class="leader-bio">Richard Marles has served as Australia’s Minister for Defence since June 2022. As Deputy Prime Minister he oversees the strategic direction of the Australian Defence Force, including the RAAF’s modernisation, capability acquisition, and alignment with the 2026 National Defence Strategy. He is responsible for defence policy, international engagement, and ensuring the ADF remains a credible and capable force in the Indo-Pacific.</p>
+            <p class="leader-bio">Richard Marles has served as Australia’s Minister for Defence since June 2022. As Deputy Prime Minister he oversees the strategic direction of the Australian Defence Force, including capability acquisition, alignment with the National Defence Strategy, defence policy, international engagement, and ensuring the ADF remains a credible force in the Indo-Pacific.</p>
           </div>
         </div>
 
-        <!-- 2. Chief of the Defence Force -->
+        <!-- Chief of the Defence Force -->
         <div class="leadership-card">
           <div class="leader-photo">
             <img src="images/david-johnston.jpg" alt="Admiral David Johnston AC RAN">
@@ -1225,7 +1082,17 @@
           </div>
         </div>
 
-        <!-- 3. Chief of Air Force -->
+      </div>
+    </div>
+
+    <!-- RAAF SENIOR LEADERSHIP - now pure 6 Air Force officials (Minister's original slot replaced + 1 additional top AF leader added to complete the set of 6) -->
+    <div class="leadership-block">
+      <h3>Royal Australian Air Force – Current Senior Leadership (6)</h3>
+      <p class="leadership-intro">Key leaders responsible for the Royal Australian Air Force (as of 2026). These are the officers and senior airmen/airwomen you should be able to discuss in detail during interview.</p>
+
+      <div class="leadership-grid">
+
+        <!-- 1. Chief of Air Force -->
         <div class="leadership-card">
           <div class="leader-photo">
             <img src="images/stephen-chappell.jpg" alt="Air Marshal Stephen Chappell">
@@ -1238,7 +1105,7 @@
           </div>
         </div>
 
-        <!-- 4. Deputy Chief of Air Force -->
+        <!-- 2. Deputy Chief of Air Force -->
         <div class="leadership-card">
           <div class="leader-photo">
             <img src="images/steve-pesce.jpg" alt="Air Vice-Marshal Steve Pesce AM">
@@ -1251,7 +1118,7 @@
           </div>
         </div>
 
-        <!-- 5. Air Commander Australia -->
+        <!-- 3. Air Commander Australia -->
         <div class="leadership-card">
           <div class="leader-photo">
             <img src="images/harvey-reynolds.jpg" alt="Air Vice-Marshal Harvey Reynolds AM">
@@ -1264,7 +1131,7 @@
           </div>
         </div>
 
-        <!-- 6. Warrant Officer of the Air Force -->
+        <!-- 4. Warrant Officer of the Air Force -->
         <div class="leadership-card">
           <div class="leader-photo">
             <img src="images/ralph-clifton.jpg" alt="Warrant Officer of the Air Force Ralph Clifton">
@@ -1277,9 +1144,35 @@
           </div>
         </div>
 
+        <!-- 5. Head of Air Capability (Nicolas Hogan) -->
+        <div class="leadership-card">
+          <div class="leader-photo">
+            <img src="images/nicolas-hogan.jpg" alt="Air Vice-Marshal Nicolas Hogan AM CSC">
+          </div>
+          <div class="leader-info">
+            <div class="leader-rank">Air Vice-Marshal</div>
+            <div class="leader-name">Nicolas Hogan AM CSC</div>
+            <div class="leader-title">Head of Air Capability</div>
+            <p class="leader-bio">Air Vice-Marshal Nicolas Hogan leads the development and acquisition of future Air Force capabilities, including next-generation combat aircraft, AEW&amp;C, tankers, and integration of uncrewed systems and loyal wingman technologies. A key voice in long-term force structure and AUKUS-related air domain planning.</p>
+          </div>
+        </div>
+
+        <!-- 6. Commander Air Combat Group -->
+        <div class="leadership-card">
+          <div class="leader-photo">
+            <img src="images/matthew-mccormack.jpg" alt="Air Commodore Matthew McCormack">
+          </div>
+          <div class="leader-info">
+            <div class="leader-rank">Air Commodore</div>
+            <div class="leader-name">Matthew McCormack</div>
+            <div class="leader-title">Commander Air Combat Group</div>
+            <p class="leader-bio">Air Commodore Matthew McCormack assumed command of Air Combat Group in January 2026. He is responsible for the generation, training, and sustainment of the RAAF’s front-line air combat forces, including the F-35A Joint Strike Fighter, F/A-18F Super Hornet, EA-18G Growler, and associated operational conversion and support units. He reports to the Air Commander Australia and plays a central role in preparing Australia’s combat air power for operations.</p>
+          </div>
+        </div>
+
       </div>
 
-      <p class="leadership-note">Photos: Add high-quality official images to the <code>images/</code> folder. See <code>images/adf-leadership-photos.txt</code> for recommendations for the Leadership section.</p>
+      <p class="leadership-note">Photos: High-quality official images required in the <code>images/</code> folder (see <code>images/leadership-photos.txt</code> for the full updated list, including Nicolas Hogan and Matthew McCormack). All services now have exactly six dedicated leaders; joint/ministerial roles are in the Defence Leadership section above.</p>
     </div>
 
     <!-- NAVY SENIOR LEADERSHIP -->
@@ -1432,26 +1325,26 @@
         <!-- Army 5 -->
         <div class="leadership-card">
           <div class="leader-photo">
-            <img src="images/michael-nolan.jpg" alt="Major General Michael Nolan AM CSC DSM">
+            <img src="images/ash-collingburn.jpg" alt="Major General Ash Collingburn AM DSM">
           </div>
           <div class="leader-info">
             <div class="leader-rank">Major General</div>
-            <div class="leader-name">Michael Nolan AM CSC DSM</div>
-            <div class="leader-title">Commander 1st Division</div>
-            <p class="leader-bio">Major General Michael Nolan commands the Army’s primary high-readiness formation. He is responsible for preparing and certifying Army’s combat brigades and specialist units for operations and major exercises.</p>
+            <div class="leader-name">Ash Collingburn AM DSM</div>
+            <div class="leader-title">Commander 1st (Australian) Division</div>
+            <p class="leader-bio">Major General Ash Collingburn AM DSM commands the Army’s primary high-readiness formation, the 1st (Australian) Division. He is responsible for preparing and certifying Army’s combat brigades and specialist units for operations and major exercises. His operational service includes tours in Iraq and Afghanistan and on UN peacekeeping operations.</p>
           </div>
         </div>
 
         <!-- Army 6 -->
         <div class="leadership-card">
           <div class="leader-photo">
-            <img src="images/catherine-cox.jpg" alt="Major General Catherine Cox AM CSC">
+            <img src="images/richard-vagg.jpg" alt="Major General Richard Vagg DSC">
           </div>
           <div class="leader-info">
             <div class="leader-rank">Major General</div>
-            <div class="leader-name">Catherine Cox AM CSC</div>
-            <div class="leader-title">Head of Army Capability</div>
-            <p class="leader-bio">Major General Catherine Cox leads the development of future Army capability, including the acquisition of new armoured vehicles, long-range fires (HIMARS), and the integration of autonomous and robotic systems into the land force.</p>
+            <div class="leader-name">Richard Vagg DSC</div>
+            <div class="leader-title">Head Land Capability</div>
+            <p class="leader-bio">Major General Richard Vagg DSC leads the development of future Army capability as Head Land Capability, including the acquisition of new armoured vehicles, long-range fires (HIMARS), and the integration of autonomous and robotic systems into the land force. He has operational experience in Kosovo, Afghanistan and Iraq.</p>
           </div>
         </div>
 
@@ -2378,7 +2271,7 @@
       <div class="glossary-filters">
         <span class="glossary-filter active" data-cat="all" onclick="filterGlossaryByCategory('all', this)">All</span>
         <span class="glossary-filter" data-cat="sensors" onclick="filterGlossaryByCategory('sensors', this)">Sensors & Radar</span>
-        <span class="glossary-filter" data-cat="weapons" onclick="filterGlossaryByCategory('weapons', this)">Weapons & Munitions</span>
+        <span class="glossary-filter" data-cat="weapons" onclick="filterGlossaryByCategory('weapons', this)">Weapons & Systems</span>
         <span class="glossary-filter" data-cat="platforms" onclick="filterGlossaryByCategory('platforms', this)">Platforms</span>
         <span class="glossary-filter" data-cat="doctrine" onclick="filterGlossaryByCategory('doctrine', this)">Doctrine & Strategy</span>
         <span class="glossary-filter" data-cat="orgs" onclick="filterGlossaryByCategory('orgs', this)">Organisations</span>
@@ -2755,7 +2648,7 @@
           <option value="pfa">Pre-entry Fitness (PFA)</option>
           <option value="ranks">Ranks</option>
           <option value="leadership">Leadership</option>
-          <option value="weapons">Weapons & Munitions</option>
+          <option value="weapons">Weapons & Systems</option>
           <option value="aircraft">Air Force</option>
           <option value="navy">Navy</option>
           <option value="army">Army (incl. Aviation)</option>
@@ -2805,7 +2698,7 @@
           <option value="pfa">PFA Standards</option>
           <option value="ranks">Ranks Knowledge</option>
           <option value="leadership">Leadership Doctrine</option>
-          <option value="weapons">Weapons Identification</option>
+          <option value="weapons">Weapons & Systems Identification</option>
           <option value="aircraft">Air Force Roles</option>
           <option value="navy">Navy Recognition</option>
           <option value="army">Army (incl. Aviation)</option>
@@ -2858,7 +2751,7 @@
           <option value="mixed">Mixed (All Sources)</option>
           <option value="glossary">Glossary</option>
           <option value="aircraft">Aircraft</option>
-          <option value="weapons">Weapons</option>
+          <option value="weapons">Weapons & Systems</option>
           <option value="cyberspace">Cyberspace / Threats</option>
           <option value="adversary">Adversary Aircraft</option>
           <option value="leadership">Leadership</option>
@@ -2903,7 +2796,7 @@
           <option value="mixed">Mixed (All Sources)</option>
           <option value="glossary">Glossary</option>
           <option value="aircraft">Aircraft</option>
-          <option value="weapons">Weapons</option>
+          <option value="weapons">Weapons & Systems</option>
           <option value="cyberspace">Cyberspace / Threats</option>
           <option value="adversary">Adversary Aircraft</option>
           <option value="leadership">Leadership</option>

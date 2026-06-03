@@ -960,7 +960,8 @@ const ARMY = [
     systems: [
       { name: "120 mm M256 Smoothbore Gun", code: "Gun", desc: "Fires depleted uranium or tungsten sabot rounds and HEAT. Extremely accurate and lethal against other tanks and hardened targets out to 3+ km.", layman: "The big cannon that can destroy another tank from several kilometres away with a single shot." },
       { name: "Heavy Armour + Reactive Tiles", code: "Protection", desc: "Composite armour with explosive reactive armour tiles. Designed to defeat modern anti-tank missiles and kinetic rounds.", layman: "Incredibly thick layered armour that can shrug off most battlefield threats." },
-      { name: "Digital Fire Control + Hunter-Killer Sight", code: "Fire Control", desc: "Commander and gunner have independent thermal sights, allowing the tank to engage multiple targets rapidly while moving.", layman: "The tank can spot and shoot at two different threats at the same time, day or night." }
+      { name: "Digital Fire Control + Hunter-Killer Sight", code: "Fire Control", desc: "Commander and gunner have independent thermal sights, allowing the tank to engage multiple targets rapidly while moving.", layman: "The tank can spot and shoot at two different threats at the same time, day or night." },
+      { name: "CITV / Commander's Independent Thermal Viewer (M1A1 Abrams)", code: "Thermal", desc: "Independent 360° thermal sight for commander. Hunter-killer capability with gunner sight; day/night target acquisition.", layman: "The boss has his own set of magic night-vision binoculars that spin all the way around." }
     ],
     tags: ["Heavy Armour", "Tank", "Chinook Lift", "Direct Fire"]
   },
@@ -1169,7 +1170,7 @@ const ARMY = [
     overview: "The ARH Tiger provides the Australian Army with armed reconnaissance and precision strike capability from the air. Although the platform has had sustainment issues and is scheduled for replacement, it remains an important asset for recognition training.",
     systems: [
       { name: "30 mm Cannon + Hellfire", code: "Firepower", desc: "Heavy cannon and laser-guided missiles for engaging armoured and soft targets." },
-      { name: "Mast-Mounted Sight", code: "Sensors", desc: "Advanced EO/IR sensor allowing the helicopter to observe while remaining hidden." }
+      { name: "OSIRIS / Strix Mast-Mounted Sight (ARH Tiger)", code: "EO-IR + Radar", desc: "Gyro-stabilised mast sight with thermal, TV, laser and mm-wave radar. Allows target ID and Hellfire designation while masked.", layman: "A periscope on a stick that sees in infrared and with radar, so the Tiger can hide behind a hill." }
     ],
     tags: ["Army Aviation", "Attack", "Reconnaissance", "Hellfire"]
   }
@@ -1413,7 +1414,7 @@ const WEAPONS = [
     desig: "AIM-120",
     name: "AMRAAM",
     type: "Air-to-Air",
-    group: "australian-strike",
+    group: "air-to-air",
     tagline: "The RAAF's primary beyond-visual-range air-to-air missile. 'Fire and forget' radar-guided weapon.",
     img: "images/aim120.jpg",
     stats: [
@@ -1435,7 +1436,7 @@ const WEAPONS = [
     desig: "AIM-9X",
     name: "Sidewinder",
     type: "Air-to-Air",
-    group: "australian-strike",
+    group: "air-to-air",
     tagline: "Short-range, highly manoeuvrable infrared-guided 'dogfight' missile with helmet cueing and off-boresight capability.",
     img: "images/aim9x.jpg",
     stats: [
@@ -1457,7 +1458,7 @@ const WEAPONS = [
     desig: "JSM",
     name: "Joint Strike Missile",
     type: "Air-to-Surface",
-    group: "australian-strike",
+    group: "air-to-surface",
     tagline: "Stealthy, long-range anti-ship and land-attack cruise missile designed specifically for internal carriage on the F-35A.",
     img: "images/jsm.jpg",
     stats: [
@@ -1479,7 +1480,7 @@ const WEAPONS = [
     desig: "JDAM",
     name: "Joint Direct Attack Munition",
     type: "Air-to-Surface",
-    group: "australian-strike",
+    group: "air-to-surface",
     tagline: "GPS-guided kit that turns ordinary 'dumb' bombs into precision weapons in all weather, day or night.",
     img: "images/jdam.jpg",
     stats: [
@@ -1501,7 +1502,7 @@ const WEAPONS = [
     desig: "GBU-39",
     name: "Small Diameter Bomb",
     type: "Air-to-Surface",
-    group: "australian-strike",
+    group: "air-to-surface",
     tagline: "Lightweight precision glide bomb that allows the F-35A to carry up to eight weapons internally while remaining stealthy.",
     img: "images/sdb.jpg",
     stats: [
@@ -1523,7 +1524,7 @@ const WEAPONS = [
     desig: "AGM-154",
     name: "JSOW",
     type: "Air-to-Surface",
-    group: "australian-strike",
+    group: "air-to-surface",
     tagline: "Stand-off glide weapon family that can deliver submunitions or a unitary penetrating warhead from long range.",
     img: "images/jsow.jpg",
     stats: [
@@ -1545,7 +1546,7 @@ const WEAPONS = [
     desig: "AGM-84H",
     name: "SLAM-ER",
     type: "Air-to-Surface",
-    group: "australian-strike",
+    group: "air-to-surface",
     tagline: "Standoff Land Attack Missile – Expanded Response. Precision long-range cruise missile for land targets.",
     img: "images/slam-er.jpg",
     stats: [
@@ -1566,7 +1567,7 @@ const WEAPONS = [
     desig: "AGM-88",
     name: "HARM",
     type: "Air-to-Surface",
-    group: "australian-strike",
+    group: "air-to-surface",
     tagline: "High-speed anti-radiation missile designed to home in on and destroy enemy radar emitters.",
     img: "images/harm.jpg",
     stats: [
@@ -1587,7 +1588,7 @@ const WEAPONS = [
     desig: "AGM-84 / NSM",
     name: "Harpoon / Naval Strike Missile",
     type: "Air-to-Surface",
-    group: "australian-strike",
+    group: "air-to-surface",
     tagline: "Long-range, sea-skimming anti-ship missile. The RAAF is transitioning from legacy Harpoon to the stealthier, more capable Naval Strike Missile.",
     img: "images/harpoon-nsm.jpg",
     stats: [
@@ -1609,7 +1610,7 @@ const WEAPONS = [
     desig: "APKWS",
     name: "Advanced Precision Kill Weapon System",
     type: "Air-to-Surface",
-    group: "australian-strike",
+    group: "air-to-surface",
     tagline: "Laser-guided 70 mm (2.75 inch) rocket that turns cheap unguided rockets into low-cost precision weapons.",
     img: "images/apkws.jpg",
     stats: [
@@ -1630,7 +1631,7 @@ const WEAPONS = [
     desig: "AGM-114",
     name: "Hellfire",
     type: "Air-to-Surface",
-    group: "australian-strike",
+    group: "air-to-surface",
     tagline: "Heavy anti-armour and multi-role missile carried by the MH-60R Seahawk for precision strikes against vehicles, small boats, and bunkers.",
     img: "images/hellfire.jpg",
     stats: [
@@ -1652,7 +1653,7 @@ const WEAPONS = [
     desig: "Mk 54",
     name: "Lightweight Torpedo",
     type: "Maritime",
-    group: "australian-strike",
+    group: "air-to-surface",
     tagline: "The primary anti-submarine weapon dropped by P-8A Poseidon and MH-60R Seahawk helicopters.",
     img: "images/mk54.jpg",
     stats: [
@@ -1674,7 +1675,7 @@ const WEAPONS = [
     desig: "Tomahawk",
     name: "Land Attack Cruise Missile",
     type: "Land Attack",
-    group: "australian-strike",
+    group: "air-to-surface",
     tagline: "Long-range, subsonic cruise missile integrated on Hobart-class destroyers and future AUKUS SSNs (also air-launched in some allied configurations).",
     img: "images/tomahawk.jpg",
     stats: [
@@ -1699,7 +1700,7 @@ const WEAPONS = [
     desig: "Mk 48",
     name: "Heavyweight Torpedo",
     type: "Maritime",
-    group: "australian-fleet",
+    group: "surface-subsurface",
     tagline: "The primary heavyweight torpedo of the Collins-class submarines and future AUKUS SSNs. Wire-guided with autonomous terminal homing.",
     img: "images/mk48.jpg",
     stats: [
@@ -1720,7 +1721,7 @@ const WEAPONS = [
     desig: "MU90",
     name: "Impact Lightweight Torpedo",
     type: "Maritime",
-    group: "australian-fleet",
+    group: "surface-subsurface",
     tagline: "European lightweight torpedo used by Hobart-class, Anzac-class and future Hunter-class ships. Primary ship-launched ASW weapon.",
     img: "images/mu90.jpg",
     stats: [
@@ -1741,7 +1742,7 @@ const WEAPONS = [
     desig: "Mk 45",
     name: "5-inch/127mm Naval Gun",
     type: "Naval Gun",
-    group: "australian-fleet",
+    group: "surface-subsurface",
     tagline: "Primary surface gun on Hobart-class and Anzac-class frigates. Versatile for surface fire, naval gunfire support, and limited air defence.",
     img: "images/mk45.jpg",
     stats: [
@@ -2108,7 +2109,439 @@ const ADVERSARY_AIRCRAFT = [
 
 
 // ============================================
-// STUDY TOOLS - EXPANDED DATA SOURCES
+// SYSTEMS (extracted & deduped from all aircraft, navy vessels/helo, army vehicles/platforms)
+// Segregated by type for UI grids: radar, eo-ir, sonar, ew, avionics, other
+// Each has id for linking, name/code, group, tagline (short), overview (full desc + layman combined), platforms (list for back-links), img if available
+const SYSTEMS = [
+  // RADAR
+  {
+    id: "an-apg-81-aesa",
+    name: "AN/APG-81 AESA Radar",
+    code: "AESA",
+    group: "radar",
+    tagline: "Advanced Active Electronically Scanned Array radar for F-35A. Thousands of T/R modules for multi-function search, track, mapping and EA.",
+    overview: "Active Electronically Scanned Array radar. Unlike older radars with a single rotating dish, this radar has thousands of tiny transmitter elements that electronically steer the beam. Think of it as thousands of small torches all pointing together — you can switch direction in microseconds without moving any parts. Provides excellent range, resolution, simultaneous multi-target tracking, low probability of intercept modes, and integrated electronic attack capability. Central to F-35A sensor fusion and situational awareness.",
+    layman: "Like having thousands of eyes that can look in any direction instantly, without turning your head.",
+    platforms: ["f35a"],
+    img: "images/apg-81-aesa.jpg"
+  },
+  {
+    id: "an-apg-79-aesa",
+    name: "AN/APG-79 AESA Radar",
+    code: "AESA",
+    group: "radar",
+    tagline: "Advanced phased-array radar for Super Hornet and Growler. Long-range air/surface search, tracking and weapons guidance.",
+    overview: "Advanced phased-array radar providing long-range air and surface search, tracking, and weapons guidance. Same radar on Super Hornet and Growler (Growler version allows self-defence and air threats).",
+    layman: "Powerful radar that can track many aircraft at once and guide missiles to multiple targets simultaneously.",
+    platforms: ["fa18f", "ea18g"],
+    img: "images/apg-79-aesa.jpg"
+  },
+  {
+    id: "mesa-radar",
+    name: "MESA Radar",
+    code: "MESA",
+    group: "radar",
+    tagline: "Multi-role Electronically Scanned Array on E-7A Wedgetail. Fixed top-mounted 360° coverage without physical rotation.",
+    overview: "Multi-role Electronically Scanned Array. A fixed, top-mounted radar that uses electronic beam steering in both elevation and azimuth, providing 360° coverage without needing to physically rotate. Tracks both air and surface targets simultaneously.",
+    layman: "A radar strapped on top of the aircraft that can look in every direction at once without spinning. It sees aircraft 600+ km away.",
+    platforms: ["e7a"],
+    img: "images/mesa-radar.jpg"
+  },
+  {
+    id: "an-apy-10-radar",
+    name: "AN/APY-10 Radar",
+    code: "APY-10",
+    group: "radar",
+    tagline: "Multimode surface search radar on P-8A Poseidon. Optimised for maritime surveillance including periscope detection.",
+    overview: "Multimode surface search radar. Can detect surfaced or snorkelling submarines, surface vessels and small objects in high sea states.",
+    layman: "A powerful ground-scanning radar that can spot a submarine periscope poking above the water from high altitude.",
+    platforms: ["p8a"],
+    img: "images/apy-10-radar.jpg"
+  },
+  {
+    id: "an-zpy-3-mfas",
+    name: "AN/ZPY-3 Multi-Function Active Sensor (MFAS)",
+    code: "Radar",
+    group: "radar",
+    tagline: "Advanced 360° maritime surveillance radar on MQ-4C Triton. Detects and tracks ships and surfaced submarines in all weather.",
+    overview: "Advanced 360° maritime surveillance radar capable of detecting and tracking ships and surfaced submarines in all weather conditions.",
+    layman: "A massive radar that can watch thousands of square kilometres of ocean at once, spotting ships even through clouds.",
+    platforms: ["triton"],
+    img: "images/zpy-3-mfas.jpeg"
+  },
+  {
+    id: "spy-1d",
+    name: "AN/SPY-1D(V) Phased Array Radar",
+    code: "SPY-1D",
+    group: "radar",
+    tagline: "Four fixed faces of Aegis radar on Hobart-class. 360° volume search and tracking at 150+ km.",
+    overview: "Four fixed faces of the Aegis radar providing 360° volume search and tracking. Detects aircraft and missiles at ranges exceeding 150 km and provides mid-course guidance to SM-2 and SM-6 missiles.",
+    layman: "Four giant flat-panel radars that never stop spinning. They can track dozens of aircraft and missiles at once and tell the missiles exactly where to go.",
+    platforms: ["hobart"],
+    img: "images/spy-1d-v.jpg"
+  },
+  {
+    id: "ceafar2-l",
+    name: "CEAFAR2-L Long-Range AESA Radar",
+    code: "CEAFAR2",
+    group: "radar",
+    tagline: "Australian L-band AESA on upgraded Anzac and Hunter-class. Superior against sea-skimming threats vs legacy SPS-49.",
+    overview: "Australian-designed L-band active electronically scanned array optimised for long-range air search and tracking. Provides superior performance against small, fast, sea-skimming targets compared with the original SPS-49 radar.",
+    layman: "A locally built 'flat panel' radar that is exceptionally good at spotting low-flying missiles and aircraft over the ocean horizon.",
+    platforms: ["anzac", "hunter"],
+    img: "images/CEAFAR-L.jpg"
+  },
+  {
+    id: "ceafar2-aegis",
+    name: "CEAFAR2 + Aegis Combat System",
+    code: "CEAFAR2",
+    group: "radar",
+    tagline: "Australian tri-band AESA (L/S/X) on Hunter-class integrated with Aegis via Saab 9LV. Superior surveillance and fire control.",
+    overview: "Australian tri-band AESA radar (L/S/X) integrated with Aegis via Saab 9LV interface. Provides superior air and surface surveillance plus fire control for SM-2/ESSM and future weapons.",
+    layman: "The same locally designed radar family as the upgraded Anzacs, but married to the full power of Aegis — the best of Australian and American technology.",
+    platforms: ["hunter"],
+    img: "images/CEAFAR-L.jpg"
+  },
+  {
+    id: "an-zpy-3-mfas-t",
+    name: "AN/ZPY-3 MFAS (Triton variant)",
+    code: "Radar",
+    group: "radar",
+    tagline: "360° maritime surveillance radar on Triton. All-weather ship and sub detection.",
+    overview: "Advanced 360° maritime surveillance radar capable of detecting and tracking ships and surfaced submarines in all weather conditions.",
+    layman: "A massive radar that can watch thousands of square kilometres of ocean at once, spotting ships even through clouds.",
+    platforms: ["triton"],
+    img: "images/zpy-3-mfas.jpeg"
+  },
+  // EO/IR & Cameras
+  {
+    id: "an-aaq-40-eots",
+    name: "AN/AAQ-40 EOTS",
+    code: "EOTS",
+    group: "eo-ir",
+    tagline: "Electro-Optical Targeting System on F-35A. High-res IR/optical camera flush in fuselage for day/night targeting and laser designation.",
+    overview: "Electro-Optical Targeting System. A high-resolution infrared and optical camera built flush into the fuselage. Allows the pilot to see targets in detail day or night, guide laser-guided bombs and measure target distance.",
+    layman: "An incredibly powerful zoom camera that also acts as a laser pointer for bombs — all built invisibly into the aircraft's nose.",
+    platforms: ["f35a"],
+    img: "images/anaqq-40-eots.jpg"
+  },
+  {
+    id: "eo-ir-turret-triton",
+    name: "Electro-Optical / Infrared (EO/IR) Turret",
+    code: "Camera",
+    group: "eo-ir",
+    tagline: "High-res day/night cameras on Triton. Zoom from 50,000 ft to read ship names or identify activity.",
+    overview: "High-resolution day and night cameras that can zoom in on vessels from 50,000 feet to read names or identify activity.",
+    layman: "Incredibly powerful cameras that can read the name on a ship from way up in the stratosphere.",
+    platforms: ["triton"],
+    img: "images/triton.jpg"
+  },
+  {
+    id: "an-aps-153-eo-ir",
+    name: "AN/APS-153 Multi-Mode Radar + EO/IR",
+    code: "Sensors",
+    group: "eo-ir",
+    tagline: "Powerful surface-search radar plus high-res EO/IR turret on MH-60R. Visual ID and targeting day/night at long range.",
+    overview: "Powerful surface-search radar plus high-resolution electro-optical/infrared turret for visual identification and targeting at long range, day and night.",
+    layman: "The helicopter's own radar and cameras let it spot ships and small boats far over the horizon and identify them before the parent ship can see them.",
+    platforms: ["mh60r"],
+    img: "images/aps-143-radar.JPG"
+  },
+  // Sonar & Acoustic
+  {
+    id: "aqs-22f-dipping",
+    name: "AQS-22F Dipping Sonar + Sonobuoys",
+    code: "ASW",
+    group: "sonar",
+    tagline: "Dipping sonar and sonobuoys on MH-60R. Active/passive sub hunting, mobile long-range underwater sensor.",
+    overview: "Lowerable sonar buoy that actively and passively hunts submarines. Combined with sonobuoys dropped from the helicopter, it gives the ship a mobile, long-range underwater sensor that can be positioned exactly where needed.",
+    layman: "The helicopter can dunk a powerful underwater microphone into the sea to listen for submarines, then drop listening buoys in patterns around the contact.",
+    platforms: ["mh60r"],
+    img: "images/aqs-22f-sonar.jpg"
+  },
+  {
+    id: "an-aps-153-sonar-helo",
+    name: "AN/APS-153 + Acoustic Suite (MH-60R)",
+    code: "Sensors",
+    group: "sonar",
+    tagline: "Multi-mode radar + acoustic on MH-60R. Full ASW with dipping sonar and sonobuoys.",
+    overview: "Powerful surface-search radar plus high-resolution electro-optical/infrared turret for visual identification and targeting at long range, day and night. Combined with AQS-22F for full sub hunting.",
+    layman: "The helicopter's own radar and cameras plus underwater sensors for complete ASW picture.",
+    platforms: ["mh60r"],
+    img: "images/aqs-22f-sonar.jpg"
+  },
+  {
+    id: "integrated-sonar-hobart",
+    name: "Integrated Sonar Suite + MU90 Torpedoes (Hobart)",
+    code: "ASW",
+    group: "sonar",
+    tagline: "Hull + towed array sonars on Hobart-class. Independent sub detection and engagement with torpedoes.",
+    overview: "Hull-mounted and towed-array sonars plus two triple MU90 lightweight torpedo launchers. Provides the ship with its own submarine detection and engagement capability independent of the helicopter.",
+    layman: "Underwater ears plus torpedoes the ship can shoot itself. Good for when the helicopter is busy or the threat is close.",
+    platforms: ["hobart"],
+    img: "images/hobart.jpg"
+  },
+  {
+    id: "advanced-asw-hunter",
+    name: "Advanced ASW Suite (S2150 + 2087 TAS/VDS)",
+    code: "Sonar",
+    group: "sonar",
+    tagline: "Ultra S2150 hull + Thales 2087 towed/variable depth sonar on Hunter-class. World-class sub hunting with MH-60R.",
+    overview: "Ultra S2150 hull-mounted sonar plus Thales Sonar 2087 towed array and variable-depth sonar. Combined with MH-60R and Surface Ship Torpedo Defence (SSTD), this is a world-class submarine hunting package.",
+    layman: "The best underwater listening gear Australia could buy, plus a helicopter and anti-torpedo decoys. Built from the keel up to kill submarines.",
+    platforms: ["hunter"],
+    img: "images/s2150-2087-tasvds.jpg"
+  },
+  {
+    id: "sophisticated-sonar-collins",
+    name: "Sophisticated Sonar Suite + Towed Array (Collins)",
+    code: "Sonar",
+    group: "sonar",
+    tagline: "Bow, flank, distributed + towed arrays on Collins-class. Renowned passive detection in right conditions.",
+    overview: "Bow, flank and distributed arrays plus a towed array. The Collins is renowned for its passive detection performance in the right ocean conditions.",
+    layman: "Underwater microphones all over the boat plus a long cable that listens far behind. One of the quietest conventional subs ever built.",
+    platforms: ["collins"],
+    img: "images/sonar-suite-collins.jpg"
+  },
+  // EW & ESM
+  {
+    id: "an-alq-214-idecm",
+    name: "AN/ALQ-214 IDECM",
+    code: "IDECM",
+    group: "ew",
+    tagline: "Integrated Defensive Electronic Countermeasures on Super Hornet. Radar warning, missile warning, active jamming.",
+    overview: "Integrated Defensive Electronic Countermeasures. Combines radar warning, missile warning, and active jamming in one system.",
+    layman: "The jet's self-defence system — detects missiles fired at it and automatically deploys countermeasures.",
+    platforms: ["fa18f"],
+    img: "images/alq-214-idecm.jpg"
+  },
+  {
+    id: "an-alq-218",
+    name: "AN/ALQ-218 Receiver",
+    code: "ALQ-218",
+    group: "ew",
+    tagline: "Wideband high-sensitivity receiver on Growler. Detects and locates enemy radar/radio emissions across vast frequencies.",
+    overview: "Wideband, high-sensitivity receiver that detects and precisely locates enemy radar and radio emissions across a vast frequency range.",
+    layman: "An incredibly sensitive radio scanner that picks up every radar and radio signal in the area and maps where they're coming from.",
+    platforms: ["ea18g"],
+    img: "images/alq-2018-receiver.jpg"
+  },
+  {
+    id: "an-alq-99",
+    name: "AN/ALQ-99 Jamming Pods",
+    code: "ALQ-99 TJS",
+    group: "ew",
+    tagline: "Tactical Jamming System pods on Growler. Powerful EM signals to overload and blind enemy radars.",
+    overview: "Tactical Jamming System. These pods emit powerful electromagnetic signals to overload and blind enemy radar systems, rendering them ineffective.",
+    layman: "Like shining a spotlight directly into someone's eyes to blind them — but for radar. Enemy radar operators see only static.",
+    platforms: ["ea18g"],
+    img: "images/alq-99-jamming_pods.JPG"
+  },
+  {
+    id: "an-alr-69-rwr",
+    name: "AN/ALR-69 Radar Warning Receiver",
+    code: "RWR",
+    group: "ew",
+    tagline: "Detects enemy radar emissions on C-130J. Visual/audio warnings for evasive action or countermeasures.",
+    overview: "Detects enemy radar emissions and provides the crew with visual and audio warnings of potential threats, allowing the aircraft to take evasive action or deploy countermeasures.",
+    layman: "The aircraft's 'ears' — it listens for enemy radars trying to lock on and warns the crew so they can dodge or hide.",
+    platforms: ["c130j"],
+    img: "images/alr-69-radar_receiver.jpg"
+  },
+  {
+    id: "laircm",
+    name: "LAIRCM / Large Aircraft Infrared Countermeasures",
+    code: "LAIRCM",
+    group: "ew",
+    tagline: "Detects heat-seeking missiles on large aircraft (C-17, C-130, P-8) and uses laser to confuse seeker.",
+    overview: "Large Aircraft Infrared Countermeasures. Detects incoming heat-seeking missiles and uses a laser to confuse the missile's seeker, causing it to miss. Automatic on some variants.",
+    layman: "An automatic laser that blinds heat-seeking missiles fired at the aircraft — no pilot action needed.",
+    platforms: ["c17", "c130j", "p8a"],
+    img: "images/laircm.jpg"
+  },
+  {
+    id: "an-alq-218-growler",
+    name: "AN/ALQ-218 + ALQ-99 (Growler EW Suite)",
+    code: "EW",
+    group: "ew",
+    tagline: "Growler's full EW suite: receiver for detection/location + jamming pods for blinding enemy radars.",
+    overview: "Wideband receiver for precise location of emissions + high-power tactical jamming pods. Primary SEAD/DEAD enabler.",
+    layman: "The Growler's ears (detects everything) + its jamming fists (blinds the bad guys).",
+    platforms: ["ea18g"],
+    img: "images/alq-99-jamming_pods.JPG"
+  },
+  // Avionics / Other
+  {
+    id: "mission-computing-wedgetail",
+    name: "Mission Computing System (Wedgetail)",
+    code: "MCS",
+    group: "avionics",
+    tagline: "Integrates all sensor data on E-7A into single coherent air picture for battle management.",
+    overview: "Integrates all sensor data (radar, ESM, IFF) and fuses them into a single, coherent air picture. Operators in the cabin use this to manage the whole air battle.",
+    layman: "The brain of the aircraft — it combines all the radar and sensor data into one clear picture that operators use to control the battle.",
+    platforms: ["e7a"],
+    img: "images/wedgetail.jpg"
+  },
+  {
+    id: "glass-cockpit-pilatus",
+    name: "Glass Cockpit & Embedded Simulation (PC-21)",
+    code: "Cockpit",
+    group: "avionics",
+    tagline: "Modern touchscreen + onboard sim on PC-21 for complex tactics training in air.",
+    overview: "Fully integrated touchscreen displays and onboard simulation systems that allow students to practice complex tactics and emergencies in the air without needing external support aircraft.",
+    layman: "The cockpit feels like a real fighter jet. Students can practice radar, weapons, and emergencies right there in the training plane.",
+    platforms: ["pc21"],
+    img: "images/pc21.jpg"
+  },
+  {
+    id: "enhanced-vision-c27j",
+    name: "Enhanced Vision System (C-27J)",
+    code: "EVS",
+    group: "avionics",
+    tagline: "FLIR + low-light cameras on C-27J for improved SA into remote/poorly lit strips at night/bad weather.",
+    overview: "Forward-looking infrared and low-light camera system that gives pilots greatly improved situational awareness when operating into remote or poorly lit airstrips at night or in bad weather.",
+    layman: "Special cameras that let the pilots 'see' the runway clearly even when it's pitch black or raining heavily.",
+    platforms: ["c27j"],
+    img: "images/c27j.jpg"
+  },
+  {
+    id: "defensive-aids-c27j",
+    name: "Defensive Aids Suite (C-27J)",
+    code: "DAS",
+    group: "ew",
+    tagline: "Missile/radar warning + countermeasures on C-27J for higher-threat ops than typical transports.",
+    overview: "Integrated missile warning, radar warning and countermeasures system tailored for operations in higher-threat environments than traditional transport aircraft usually face.",
+    layman: "The aircraft's self-protection suite — it can detect incoming missiles and automatically release flares or chaff.",
+    platforms: ["c27j"],
+    img: "images/defensive_aids_suite.avif"
+  },
+  {
+    id: "fly-by-wire-refuelling",
+    name: "Fly-by-Wire Refuelling Boom (KC-30A)",
+    code: "FBW ARBS",
+    group: "avionics",
+    tagline: "Extendable boom on KC-30A controlled by operator with joystick-like video game controls.",
+    overview: "An extendable boom at the tail of the aircraft that a receiver aircraft connects to. The boom is controlled by an operator using a fly-by-wire joystick, similar to video game controls.",
+    layman: "A retractable 'hose on a stick' at the tail that links to a fighter's fuel port — the boom operator flies it into place with a joystick.",
+    platforms: ["kc30a"],
+    img: "images/refuelling-boom-kc-30a.jpg"
+  },
+  {
+    id: "hose-drogue-kc30a",
+    name: "Hose & Drogue System (KC-30A)",
+    code: "HDU",
+    group: "avionics",
+    tagline: "Flexible hose with drogue basket on KC-30A. Receiver pilot flies probe into basket.",
+    overview: "Alternative refuelling system using a flexible hose with a funnel-shaped drogue basket at the end. The receiving aircraft's pilot flies into the basket to connect.",
+    layman: "A flexible fuel hose with a basket on the end — the receiving pilot flies their aircraft's refuelling probe into the basket to refuel.",
+    platforms: ["kc30a"],
+    img: "images/hose-drogue-system-KC30a.jpg"
+  },
+  {
+    id: "twin-t55-chinook",
+    name: "Twin Honeywell T55-GA-714A Engines (CH-47F)",
+    code: "Engines",
+    group: "avionics",
+    tagline: "Powerful turboshaft engines on Chinook. Counter-rotating rotors eliminate tail rotor, exceptional lift/hover at altitude.",
+    overview: "Two powerful turboshaft engines driving tandem rotors. The counter-rotating rotor design eliminates the need for a tail rotor and gives exceptional lift and hover performance even at high altitude and temperature.",
+    layman: "Two huge engines spinning two big rotors in opposite directions — this lets it lift tanks and massive sling loads that normal helicopters can't touch.",
+    platforms: ["ch47f"],
+    img: "images/t55-ga-714a_engines.jpg"
+  },
+  {
+    id: "advanced-cockpit-chinook",
+    name: "Advanced Cockpit & Digital Flight Controls (CH-47F)",
+    code: "Avionics",
+    group: "avionics",
+    tagline: "Modern glass cockpit on F-model Chinook. Digital controls, NVG compatible, improved reliability.",
+    overview: "Modern glass cockpit with digital flight controls, night-vision compatibility, and excellent all-weather capability. The F-model has significantly improved reliability and maintenance compared with older Chinooks.",
+    layman: "Up-to-date screens and computers so two pilots can fly it day or night, in bad weather, with far less workload.",
+    platforms: ["ch47f"],
+    img: "images/cockpit_ch47f.jpg"
+  },
+  {
+    id: "cargo-hook-chinook",
+    name: "Cargo Hook & Sling System (CH-47F)",
+    code: "Sling",
+    group: "avionics",
+    tagline: "Heavy-duty external hooks on Chinook. Lift over 12 tonnes for artillery, vehicles, fuel, construction into no-LZ areas.",
+    overview: "Heavy-duty external cargo hooks capable of lifting over 12 tonnes. Used for moving artillery, vehicles, fuel bladders, and construction equipment into areas without landing zones.",
+    layman: "The big hook underneath that can dangle an entire tank or a shipping container and put it exactly where the ground forces need it.",
+    platforms: ["ch47f"],
+    img: "images/cargo-hook_chinook.jpg"
+  },
+  {
+    id: "troop-vehicle-chinook",
+    name: "Troop & Vehicle Carrying Capability (CH-47F)",
+    code: "Transport",
+    group: "avionics",
+    tagline: "Internal carry on Chinook: 44 troops or light vehicles/stores. Rapid load/unload, hover options.",
+    overview: "Can carry 44 fully equipped troops or a mix of light vehicles and stores internally. The rear ramp allows rapid loading and unloading, including while hovering for certain operations.",
+    layman: "A flying truck that can drive an Abrams tank straight in or unload 40 soldiers in seconds via the back ramp.",
+    platforms: ["ch47f"],
+    img: "images/chinook.jpg"
+  },
+  // Army ground vehicle sensors / sights (added for full cross-platform coverage)
+  {
+    id: "m1a1-citv-thermal",
+    name: "CITV / Commander's Independent Thermal Viewer (M1A1 Abrams)",
+    code: "Thermal",
+    group: "eo-ir",
+    tagline: "Independent 360° thermal sight for commander. Hunter-killer capability with gunner sight; day/night target acquisition.",
+    overview: "The Commander's Independent Thermal Viewer gives the tank commander a separate stabilised thermal and day camera that can scan while the gunner engages. Classic hunter-killer: commander finds, gunner kills. Critical for situational awareness in cluttered or low-visibility fights.",
+    layman: "The boss has his own set of magic night-vision binoculars that spin all the way around, so he can spot bad guys while the gunner is busy shooting the first one.",
+    platforms: ["m1a1"],
+    img: "images/citv.jpeg"
+  },
+  {
+    id: "m1a1-fcs",
+    name: "Fire Control System + Laser Rangefinder (M1A1)",
+    code: "FCS",
+    group: "avionics",
+    tagline: "Ballistic computer, laser rangefinder and stabilised sights. First-round hit probability high even on the move.",
+    overview: "Digital fire control with laser rangefinder, meteorological sensors, and gun stabilisation. Allows accurate main gun shots while the tank is moving over rough ground.",
+    layman: "The tank's computer does the hard maths for bullet drop, wind and movement so the gunner just puts the crosshair on target and fires — even while bouncing across a paddock.",
+    platforms: ["m1a1"],
+    img: "images/abrams.jpg"
+  },
+  {
+    id: "boxer-lance-turret-sight",
+    name: "Lance Turret Sight / EO-IR (Boxer CRV)",
+    code: "EO-IR",
+    group: "eo-ir",
+    tagline: "Stabilised day/night sight on the 30 mm turret. Target acquisition, tracking and hunter-killer for the crew.",
+    overview: "Integrated electro-optical/infrared sight package on the remote or manned turret. Provides detection, recognition and engagement of targets at range in all light conditions.",
+    layman: "The armoured vehicle's own camera suite that lets the crew see and shoot accurately at night or through smoke and dust.",
+    platforms: ["boxer"],
+    img: "images/boxer.jpg"
+  },
+  {
+    id: "arhtiger-osiris",
+    name: "OSIRIS / Strix Mast-Mounted Sight (ARH Tiger)",
+    code: "EO-IR + Radar",
+    group: "eo-ir",
+    tagline: "Gyro-stabilised mast sight with thermal, TV, laser and mm-wave radar. Allows target ID and Hellfire designation while masked.",
+    overview: "The mast sight lets the helicopter peek over trees or ridges, designate targets with laser or radar, and fire Hellfires without exposing the whole aircraft. One of the best reconnaissance/attack sights on any attack helo.",
+    layman: "A periscope on a stick that sees in infrared and with radar, so the Tiger can hide behind a hill, find the enemy, and launch missiles without ever showing itself.",
+    platforms: ["arhtiger"],
+    img: "images/osiris.jpg"
+  },
+  {
+    id: "type055-radar",
+    name: "Type 346B / S-band AESA (Type 055)",
+    code: "AESA",
+    group: "radar",
+    tagline: "Large active phased-array suite on Chinese Renhai-class. 360° air/surface search and fire control for HHQ-9 / YJ-21 etc.",
+    overview: "Advanced four-face S-band AESA providing long-range surveillance, tracking and illumination. Comparable in role to SPY-1/6 but with Chinese characteristics and very high power.",
+    layman: "The big flat radars on China's most powerful destroyer — they watch the sky and sea for hundreds of kilometres and guide the ship's many missiles.",
+    platforms: ["type055"],
+    img: "images/346b-aesa-type055.jpg"
+  }
+  // Note: many more systems exist in platform data (e.g. more radars on adversary, additional avionics). Auto-linking via previewMap + wrap will cover references; full exhaustive list can be expanded in future passes. Core representative set added for organisation and linking.
+];
+
+// End SYSTEMS
+
 // These arrays power the Flashcards and Quiz features
 // ============================================
 

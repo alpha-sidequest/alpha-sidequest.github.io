@@ -11,6 +11,32 @@ console.log('%c[RAFF DEBUG] script.js parsed successfully - VERSION 2025-04-07-F
 let glossaryMap = new Map();
 let previewMap = new Map(); // for rich platform/weapon previews
 
+// Early auto-register so that wrapGlossaryTerms calls during initial grid builds (weapons cards etc.)
+// already see all SYSTEMS + WEAPONS + platforms for cross-refs. (Full rich manual entries added later in tooltip block.)
+try {
+  const earlySources = [];
+  if (typeof AIRCRAFT !== 'undefined' && Array.isArray(AIRCRAFT)) earlySources.push(...AIRCRAFT);
+  if (typeof NAVY !== 'undefined' && Array.isArray(NAVY)) earlySources.push(...NAVY);
+  if (typeof WEAPONS !== 'undefined' && Array.isArray(WEAPONS)) earlySources.push(...WEAPONS);
+  if (typeof SYSTEMS !== 'undefined' && Array.isArray(SYSTEMS)) earlySources.push(...SYSTEMS);
+  if (typeof ADVERSARY_VEHICLES !== 'undefined' && Array.isArray(ADVERSARY_VEHICLES)) earlySources.push(...ADVERSARY_VEHICLES);
+  if (typeof ADVERSARY_AIRCRAFT !== 'undefined' && Array.isArray(ADVERSARY_AIRCRAFT)) earlySources.push(...ADVERSARY_AIRCRAFT);
+  earlySources.forEach(item => {
+    if (!item || !item.id || !item.name) return;
+    const key = item.id.toLowerCase();
+    if (previewMap.has(key)) return;
+    const shortDesc = item.tagline || (item.overview ? item.overview.substring(0, 140) + '...' : item.name);
+    let typ = 'airforce';
+    const d = (item.desig || '').toUpperCase();
+    if (item.group) typ = 'weapon';
+    else if (d.includes('FFH') || d.includes('LHD') || d.includes('DDG') || d.includes('LSD') || d.includes('SSN') || d.includes('SSK')) typ = 'navy';
+    else if (item.origin || /type0|j-?1[0-9]|kilo|j20|j16|j15|j11/i.test((item.id||'') + (item.name||''))) typ = 'adversary';
+    previewMap.set(key, { title: item.desig ? `${item.desig} ${item.name}` : item.name, short: shortDesc, img: item.img || null, type: typ, id: item.id });
+    const fn = item.name.toLowerCase();
+    if (!previewMap.has(fn)) previewMap.set(fn, { title: item.desig ? `${item.desig} ${item.name}` : item.name, short: shortDesc, img: item.img || null, type: typ, id: item.id });
+  });
+} catch(e){}
+
 // ── SECTION SWITCHING ─────────────────────────────────────────
 function showSection(id, el) {
   console.log('%c[RAFF DEBUG] showSection called with id =', 'color: cyan', id);
@@ -444,11 +470,23 @@ function getAllStudyItems(source) {
       items.push({
         id: 'w-' + w.id,
         front: `${w.desig} — ${w.name}`,
-        back: `${w.tagline}\n\n${w.overview}\n\nKey systems: ${w.systems.map(s => s.name).join(', ')}`,
+        back: `${w.tagline}\n\n${w.overview}\n\nKey systems: ${w.systems ? w.systems.map(s => s.name).join(', ') : ''}`,
         source: 'Weapons',
         img: w.img || null
       });
     });
+    // Also surface SYSTEMS (radars, sonars, EW, EO/IR etc) under the same study bucket now that section is "Weapons & Systems"
+    if (typeof SYSTEMS !== 'undefined' && Array.isArray(SYSTEMS)) {
+      SYSTEMS.forEach(s => {
+        items.push({
+          id: 'sys-' + s.id,
+          front: `${s.code || 'SYS'} — ${s.name}`,
+          back: `${s.tagline}\n\n${s.overview}\n\nPlatforms: ${(s.platforms||[]).join(', ')}\n\nPlain English: ${s.layman || ''}`,
+          source: 'Systems',
+          img: s.img || null
+        });
+      });
+    }
   }
 
   if (source === 'adversary' || source === 'mixed') {
@@ -2092,70 +2130,102 @@ function showAdversaryVehicleDetail(id) {
   document.body.style.overflow = 'hidden';
 }
 
-// ── WEAPONS GRID & MODAL ──────────────────────────────────────
-// Renders four separate grouped grids (australian-strike, australian-fleet, defensive, adversary)
+// ── WEAPONS & SYSTEMS GRID & MODAL ──────────────────────────────────────
+// Renders segregated grids for weapons (by role) and systems (by sensor type).
+// Uses WEAPONS for weapons, SYSTEMS for sensors/systems extracted from platforms.
+// All cards use wrap for cross-links; click opens showWeaponDetail (unified for both).
 function buildWeaponsGrid() {
-  const groups = [
-    { id: 'australianStrikeGrid', group: 'australian-strike' },
-    { id: 'australianFleetGrid',  group: 'australian-fleet' },
-    { id: 'defensiveGrid',        group: 'defensive' },
+  // Weapons groups (re-segregated per user request: air-air, air-surface/land, surface/sub, defence, adversary)
+  const weaponGroups = [
+    { id: 'airToAirGrid', group: 'air-to-air' },
+    { id: 'airToSurfaceGrid', group: 'air-to-surface' },
+    { id: 'surfaceSubsurfaceGrid', group: 'surface-subsurface' },
+    { id: 'defenceGrid', group: 'defensive' },
     { id: 'adversaryWeaponsGrid', group: 'adversary' }
   ];
 
   const weaponsData = window.WEAPONS || (typeof WEAPONS !== 'undefined' ? WEAPONS : null);
 
-  if (!weaponsData || !Array.isArray(weaponsData) || weaponsData.length === 0) {
-    // Show error in the first grid only (others will be empty but harmless)
-    const firstGrid = document.getElementById('australianStrikeGrid');
-    if (firstGrid) {
-      firstGrid.innerHTML = `
-        <div style="padding: 40px; text-align: center; color: var(--text-muted); grid-column: 1 / -1;">
-          <p><strong>No weapons data loaded.</strong></p>
-          <p style="font-size: 13px; margin-top: 8px;">Try a hard refresh (Cmd/Ctrl + Shift + R).</p>
-        </div>
-      `;
-    }
-    console.warn('WEAPONS data is missing or empty');
-    return;
-  }
+  if (weaponsData && Array.isArray(weaponsData) && weaponsData.length > 0) {
+    weaponGroups.forEach(({ id, group }) => {
+      const container = document.getElementById(id);
+      if (!container) return;
 
-  groups.forEach(({ id, group }) => {
-    const container = document.getElementById(id);
-    if (!container) return;
+      const filtered = weaponsData.filter(w => w.group === group);
 
-    const filtered = weaponsData.filter(w => w.group === group);
-
-    if (filtered.length === 0) {
-      container.innerHTML = `
-        <div style="padding: 24px; text-align: center; color: var(--text-dim); font-size: 13px; grid-column: 1 / -1;">
-          No entries in this category yet.
-        </div>
-      `;
-      return;
-    }
+      if (filtered.length === 0) {
+        container.innerHTML = `<div style="padding:24px;text-align:center;color:var(--text-dim);font-size:13px;grid-column:1/-1;">No entries in this category yet.</div>`;
+        return;
+      }
 
       try {
-          let html = '';
-          for (let i = 0; i < filtered.length; i++) {
-            const w = filtered[i];
-            html += '<div class="weapons-card" id="weapon-' + w.id + '" data-detail-id="' + w.id + '">' +
-              '<div class="weapons-img-wrap"><img src="' + w.img + '" alt="' + w.name + '"></div>' +
-              '<div class="weapons-card-body">' +
-                '<div class="weapons-designation">' + w.desig + ' · ' + w.type + '</div>' +
-                '<div class="weapons-name">' + w.name + '</div>' +
-                '<div class="weapons-role">' + wrapGlossaryTerms(w.tagline) + '</div>' +
-                '<div class="weapons-specs">' + w.stats.map(function(s){return s.v;}).join(' • ') + '</div>' +
-              '</div>' +
-            '</div>';
-          }
-          container.innerHTML = html;
-        } catch (err) {
-          console.error('Error building weapons grid for group ' + group + ':', err);
-          container.innerHTML = '<div style="padding:24px;text-align:center;color:#E05A40;font-size:13px;">Error rendering this section. Check console.</div>';
+        let html = '';
+        for (let i = 0; i < filtered.length; i++) {
+          const w = filtered[i];
+          html += '<div class="weapons-card" id="weapon-' + w.id + '" data-detail-id="' + w.id + '">' +
+            '<div class="weapons-img-wrap"><img src="' + w.img + '" alt="' + w.name + '"></div>' +
+            '<div class="weapons-card-body">' +
+              '<div class="weapons-designation">' + (w.desig || '') + ' · ' + (w.type || w.group || '') + '</div>' +
+              '<div class="weapons-name">' + w.name + '</div>' +
+              '<div class="weapons-role">' + wrapGlossaryTerms(w.tagline) + '</div>' +
+              '<div class="weapons-specs">' + (w.stats ? w.stats.map(function(s){return s.v;}).join(' • ') : '') + '</div>' +
+            '</div>' +
+          '</div>';
         }
-  });
+        container.innerHTML = html;
+      } catch (err) {
+        console.error('Error building weapons grid for group ' + group + ':', err);
+        container.innerHTML = '<div style="padding:24px;text-align:center;color:#E05A40;font-size:13px;">Error rendering. Check console.</div>';
+      }
+    });
+  }
 
-  // Build left sidebar TOC after cards exist
+  // Systems grids (segregated by type: radar, eo-ir, sonar, ew, avionics)
+  const systemGroups = [
+    { id: 'radarSystemsGrid', group: 'radar' },
+    { id: 'eoIrSystemsGrid', group: 'eo-ir' },
+    { id: 'sonarSystemsGrid', group: 'sonar' },
+    { id: 'ewSystemsGrid', group: 'ew' },
+    { id: 'avionicsSystemsGrid', group: 'avionics' }
+  ];
+
+  const systemsData = window.SYSTEMS || (typeof SYSTEMS !== 'undefined' ? SYSTEMS : null);
+
+  if (systemsData && Array.isArray(systemsData) && systemsData.length > 0) {
+    systemGroups.forEach(({ id, group }) => {
+      const container = document.getElementById(id);
+      if (!container) return;
+
+      const filtered = systemsData.filter(s => s.group === group);
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div style="padding:24px;text-align:center;color:var(--text-dim);font-size:13px;grid-column:1/-1;">No entries in this category yet.</div>`;
+        return;
+      }
+
+      try {
+        let html = '';
+        for (let i = 0; i < filtered.length; i++) {
+          const s = filtered[i];
+          html += '<div class="weapons-card" id="system-' + s.id + '" data-detail-id="' + s.id + '" data-is-system="true">' +
+            '<div class="weapons-img-wrap"><img src="' + (s.img || 'images/f35a.jpg') + '" alt="' + s.name + '"></div>' +
+            '<div class="weapons-card-body">' +
+              '<div class="weapons-designation">' + (s.code || s.group || 'System') + '</div>' +
+              '<div class="weapons-name">' + s.name + '</div>' +
+              '<div class="weapons-role">' + wrapGlossaryTerms(s.tagline) + '</div>' +
+              '<div class="weapons-specs">' + (s.platforms ? s.platforms.map(function(p){ return p.replace('f35a','F-35A').replace('fa18f','F/A-18F').replace('ea18g','EA-18G').replace('mh60r','MH-60R').replace('ch47f','CH-47F').replace('p8a','P-8A').replace('e7a','E-7A').replace('c130j','C-130J').replace('kc30a','KC-30A').replace('c27j','C-27J').replace('pc21','PC-21').replace('m1a1','M1A1').replace('arhtiger','ARH Tiger').toUpperCase(); }).join(' • ') : '') + '</div>' +
+            '</div>' +
+          '</div>';
+        }
+        container.innerHTML = html;
+      } catch (err) {
+        console.error('Error building systems grid for group ' + group + ':', err);
+        container.innerHTML = '<div style="padding:24px;text-align:center;color:#E05A40;font-size:13px;">Error rendering systems. Check console.</div>';
+      }
+    });
+  }
+
+  // Build/enhance TOC (weapons + systems)
   buildWeaponsTOC();
 }
 
@@ -2164,10 +2234,12 @@ function buildWeaponsTOC() {
   if (!toc) return;
 
   const groups = [
-    { label: 'Australian Strike Weapons', gridId: 'australianStrikeGrid' },
-    { label: 'Australian Fleet & Vessel Weaponry', gridId: 'australianFleetGrid' },
-    { label: 'Fleet Air & Missile Defence', gridId: 'defensiveGrid' },
-    { label: 'Adversary Weapons', gridId: 'adversaryWeaponsGrid', threat: true }
+    { label: 'Air-to-Air Weapons', gridId: 'airToAirGrid' },
+    { label: 'Air-to-Surface / Land & Maritime Strike', gridId: 'airToSurfaceGrid' },
+    { label: 'Surface & Sub-Surface Weapons', gridId: 'surfaceSubsurfaceGrid' },
+    { label: 'Air & Missile Defence Systems', gridId: 'defenceGrid' },
+    { label: 'Adversary Weapons', gridId: 'adversaryWeaponsGrid', threat: true },
+    { label: 'Sensors & Systems (Radar / EO-IR / Sonar / EW / Avionics)', gridId: 'radarSystemsGrid' }
   ];
 
   let html = `<ul>`;
@@ -2185,7 +2257,7 @@ function buildWeaponsTOC() {
     cards.forEach(card => {
       const id = card.id;
       const nameEl = card.querySelector('.weapons-name');
-      const name = nameEl ? nameEl.textContent.trim() : 'Weapon';
+      const name = nameEl ? nameEl.textContent.trim() : (card.getAttribute('data-is-system') ? 'System' : 'Item');
       const colorStyle = g.threat ? ' style="color:#e07a6b;"' : '';
       html += `<li><a href="#${id}" data-target="${id}"${colorStyle}>${name}</a></li>`;
     });
@@ -2196,42 +2268,78 @@ function buildWeaponsTOC() {
 }
 
 function showWeaponDetail(id) {
-  const weapon = WEAPONS.find(w => w.id === id);
-  if (!weapon) return;
+  let item = (typeof WEAPONS !== 'undefined' ? WEAPONS : []).find(w => w.id === id);
+  let isSystem = false;
+  if (!item && typeof SYSTEMS !== 'undefined') {
+    item = SYSTEMS.find(s => s.id === id);
+    isSystem = !!item;
+  }
+  if (!item) return;
 
-  const statsHTML = weapon.stats.map(s => `<div class="modal-stat"><div class="modal-stat-val">${s.v}</div><div class="modal-stat-key">${s.k}</div></div>`).join('');
+  const statsHTML = (item.stats || []).map(s => `<div class="modal-stat"><div class="modal-stat-val">${s.v}</div><div class="modal-stat-key">${s.k}</div></div>`).join('');
 
-  const sysHTML = weapon.systems.map(s => `
-    <li class="system-item">
-      <div>
-        <div class="system-name">${wrapGlossaryTerms(s.name)}</div>
-        <div class="system-code">${s.code}</div>
-      </div>
-      <div>
-        <div class="system-desc">${wrapGlossaryTerms(s.desc)}</div>
-        <div class="layman-box"><strong>Plain English</strong>${wrapGlossaryTerms(s.layman)}</div>
-      </div>
-    </li>
-  `).join('');
+  // Normalize display fields for both weapons and systems
+  const dispName = item.name || id;
+  const dispDesig = item.desig || item.code || (isSystem ? 'SYSTEM' : 'WEAPON');
+  const dispType = item.type || item.group || (isSystem ? 'Sensor/System' : 'Weapon');
+  const dispImg = item.img || 'images/f35a.jpg';
+  const dispOverview = item.overview || item.tagline || 'No detailed overview available.';
+  const dispTags = item.tags || (item.platforms || []).map(p => p.toUpperCase());
+
+  let sysHTML = '';
+  let tabLabel = 'Guidance & Systems';
+  if (isSystem) {
+    tabLabel = 'Platforms';
+    // Build real cross-ref spans for bidirectional navigation (leverages global tooltip + capture click)
+    const platList = (item.platforms || []);
+    let usedByHTML = 'Various platforms (see linked aircraft, vessels and vehicles)';
+    if (platList.length) {
+      usedByHTML = platList.map(p => {
+        // Map id to cross-ref type (airforce/navy/army/adversary). Keeps linking working.
+        let typ = 'airforce';
+        if (/^(hobart|anzac|hunter|collins|canberra|virginia|mh60r)$/.test(p)) typ = 'navy';
+        else if (/^(m1a1|boxer|hawkei|k21|caesar|chinook|uh60m|arhtiger|bushmaster|rapier)$/.test(p) || p==='army') typ = 'army';
+        else if (/^(j20|j16|j15|j11|kilo|type055|type052d|type054a)$/.test(p)) typ = 'adversary';
+        const label = p.replace('f35a','F-35A').replace('fa18f','F/A-18F').replace('ea18g','EA-18G').replace('mh60r','MH-60R').replace('ch47f','CH-47F').replace('p8a','P-8A').replace('e7a','E-7A').replace('c130j','C-130J').replace('kc30a','KC-30A').replace('c27j','C-27J').replace('pc21','PC-21').toUpperCase();
+        return `<span class="cross-ref" data-type="${typ}" data-id="${p}">${label}</span>`;
+      }).join(' ');
+    }
+    sysHTML = `<li class="system-item"><div><div class="system-name">Used By (click to open platform)</div></div><div><div class="system-desc">${usedByHTML}</div><div class="layman-box"><strong>Tip</strong>Hover or click any platform name above to jump directly to its full card. All sensors &amp; systems are cross-linked.</div></div></li>`;
+  } else if (item.systems) {
+    sysHTML = item.systems.map(s => `
+      <li class="system-item">
+        <div>
+          <div class="system-name">${wrapGlossaryTerms(s.name)}</div>
+          <div class="system-code">${s.code}</div>
+        </div>
+        <div>
+          <div class="system-desc">${wrapGlossaryTerms(s.desc)}</div>
+          <div class="layman-box"><strong>Plain English</strong>${wrapGlossaryTerms(s.layman)}</div>
+        </div>
+      </li>
+    `).join('');
+  }
+
+  const tagsHTML = (dispTags || []).map(t => `<span class="tag">${t}</span>`).join('');
 
   document.getElementById('modalInner').innerHTML = `
     <div class="modal-hero">
-      <img src="${weapon.img}" alt="${weapon.name}">
+      <img src="${dispImg}" alt="${dispName}">
       <div class="modal-hero-overlay"></div>
       <div class="modal-hero-text">
-        <div class="modal-desig">${wrapGlossaryTerms(weapon.desig)} · ${wrapGlossaryTerms(weapon.type)}</div>
-        <div class="modal-name">${weapon.name}</div>
+        <div class="modal-desig">${wrapGlossaryTerms(dispDesig)} · ${wrapGlossaryTerms(dispType)}</div>
+        <div class="modal-name">${dispName}</div>
       </div>
     </div>
     <div class="modal-body">
       <div class="modal-stats-row">${statsHTML}</div>
       <div class="modal-tabs">
         <div class="modal-tab active" onclick="switchTab(event,'overview-${id}')">Overview</div>
-        <div class="modal-tab" onclick="switchTab(event,'systems-${id}')">Guidance & Systems</div>
+        <div class="modal-tab" onclick="switchTab(event,'systems-${id}')">${tabLabel}</div>
       </div>
       <div class="modal-tab-pane active" id="overview-${id}">
-        <p class="modal-desc">${wrapGlossaryTerms(weapon.overview)}</p>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">${weapon.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+        <p class="modal-desc">${wrapGlossaryTerms(dispOverview)}</p>
+        ${tagsHTML ? `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">${tagsHTML}</div>` : ''}
       </div>
       <div class="modal-tab-pane" id="systems-${id}">
         <ul class="system-list">${sysHTML}</ul>
@@ -2424,13 +2532,17 @@ function initCardClickHandlers() {
     });
   }
 
-  // Weapons cards (all 4 sub-grids live under #weapons)
+  // Weapons + Systems cards (segregated sub-grids under #weapons)
   const weaponsSection = document.getElementById('weapons');
   if (weaponsSection) {
     weaponsSection.addEventListener('click', (e) => {
       const card = e.target.closest('.weapons-card');
-      if (!card || !card.id) return;
-      const wid = card.id.replace('weapon-', '');
+      if (!card) return;
+      let wid = card.dataset.detailId;
+      if (!wid) {
+        const full = card.id || '';
+        wid = full.replace(/^(weapon-|system-)/, '');
+      }
       if (wid) showWeaponDetail(wid);
     });
   }
@@ -2807,6 +2919,9 @@ function initGlossaryTooltips() {
     if (typeof AIRCRAFT !== 'undefined' && Array.isArray(AIRCRAFT)) dataSources.push(...AIRCRAFT);
     if (typeof NAVY !== 'undefined' && Array.isArray(NAVY)) dataSources.push(...NAVY);
     if (typeof WEAPONS !== 'undefined' && Array.isArray(WEAPONS)) dataSources.push(...WEAPONS);
+    if (typeof SYSTEMS !== 'undefined' && Array.isArray(SYSTEMS)) dataSources.push(...SYSTEMS);
+    if (typeof ADVERSARY_VEHICLES !== 'undefined' && Array.isArray(ADVERSARY_VEHICLES)) dataSources.push(...ADVERSARY_VEHICLES);
+    if (typeof ADVERSARY_AIRCRAFT !== 'undefined' && Array.isArray(ADVERSARY_AIRCRAFT)) dataSources.push(...ADVERSARY_AIRCRAFT);
 
     dataSources.forEach(item => {
       if (!item || !item.id || !item.name) return;
@@ -2817,9 +2932,11 @@ function initGlossaryTooltips() {
       let typ = 'airforce';
       const d = (item.desig || '').toUpperCase();
       if (item.group) {
-        typ = 'weapon';
+        typ = 'weapon';  // unified for weapons + systems (both use showWeaponDetail for cross-linking)
       } else if (d.includes('FFH') || d.includes('LHD') || d.includes('DDG') || d.includes('LSD') || d.includes('SSN') || d.includes('SSK')) {
         typ = 'navy';
+      } else if (item.origin || /type0|j-?1[0-9]|kilo|j20|j16|j15|j11/i.test((item.id||'') + (item.name||''))) {
+        typ = 'adversary';
       }
 
       previewMap.set(key, {
@@ -2829,6 +2946,18 @@ function initGlossaryTooltips() {
         type: typ,
         id: item.id
       });
+
+      // Also register exact lower name for reliable wrap matching in platform texts
+      const fullNameLower = item.name.toLowerCase();
+      if (!previewMap.has(fullNameLower)) {
+        previewMap.set(fullNameLower, {
+          title: item.desig ? `${item.desig} ${item.name}` : item.name,
+          short: shortDesc,
+          img: item.img || null,
+          type: typ,
+          id: item.id
+        });
+      }
     });
   } catch (e) { /* non-fatal */ }
 
@@ -2947,6 +3076,10 @@ function initGlossaryTooltips() {
         showVehicleDetail(p.id);
       } else if (p.type === 'weapon' && typeof showWeaponDetail === 'function') {
         showWeaponDetail(p.id);
+      } else if (p.type === 'adversary' && typeof showAdversaryVehicleDetail === 'function') {
+        showAdversaryVehicleDetail(p.id);
+      } else if (p.type === 'adversary' && typeof showAdversaryDetail === 'function') {
+        showAdversaryDetail(p.id);
       } else {
         // Fallback: just navigate to the section if possible
         const nav = document.querySelector(`.nav-link[data-section="${p.type || 'navy'}"]`);
