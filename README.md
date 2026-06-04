@@ -1,74 +1,48 @@
-# RAAF Knowledge Hub — Your Personal Defence Compendium
+# ADF Forge
 
-This is now your own encyclopedia for defence interview preparation.
+Tri-service Australian Defence Force reference (Navy • Army • Air Force). Pure vanilla, fully offline, local-assets-only SPA. All content data-driven from `data.js`. Rich cards, modals, glossary cross-refs, interactive maps (JPG + SVG overlays), study tools.
 
-## How to view the website (easiest ways)
+## Open it
 
-### Option 1: Double-click (recommended for most people)
-1. Open Finder
-2. Go to your `alpha-sidequest` folder
-3. Double-click the file called `index.html`
-4. It will open in your web browser
+- Finder: double-click `index.html`
+- Terminal: `open index.html`
 
-### Option 2: From this terminal
-Just type this and press Enter:
+Works from `file://` with zero external calls after load. No build step, no bundler, no CDN.
 
-    open index.html
+## Layout & files
 
-## The files (what each one does)
+- `index.html` — hero, nav, all sections (Air Force / Navy / Army platforms, Weapons & Systems, Bases map + side panel, Ranks & Leadership, Cyberspace, Glossary, Study Tools), the two maps (australia + world), modals.
+- `data.js` — **the single source of truth**. BASES (18 tri-service entries with optional image + lat/lng), AIRCRAFT, NAVY, ARMY, WEAPONS, SYSTEMS, ADVERSARY, GLOSSARY (terms + aliases + whyItMatters), RANKS, PFA_STANDARDS, etc.
+- `script.js` — renderBaseCard (aerial preview + live GMaps satellite link), selectBase, grid builders, wrapGlossaryTerms + tooltips + cross-ref clicks, modal logic, study engines (flash/quiz/whoami/matching with localStorage), showSection, etc.
+- `styles.css` — CSS vars (navy/gold), Rajdhani font-face (self-hosted from fonts/, graceful fallback), .base-dot / map styles, cards, modals, responsive.
+- `images/` — australia-map-cropped.jpg + world-map.jpg (the map visuals), 16 *_base.png aerials, platform photos (~150), leadership photos.
+- `fonts/` — Rajdhani woff2 (4 weights). Optional; site works without (see fonts/README.md).
 
-- `index.html` — The main page structure. You normally don't touch this.
-- `styles.css` — All the colours, fonts, and layout. Only change if you want visual tweaks.
-- `fonts/` — Self-hosted Rajdhani font files (no more Google Fonts calls). See fonts/README.md for download instructions.
-- `script.js` — The interactive parts (clicking maps, opening modals, switching sections).
-- `data.js` — **This is the most important file for you.**
+## Editing / adding content
 
-### The data.js file (your main editing file)
-This is where almost all future changes will happen:
-- All the RAAF bases
-- All the aircraft with their systems and "plain English" explanations
-- All the current operations
+1. Edit the relevant object in `data.js` (copy-paste an existing entry, tweak id/name/etc).
+2. For new base: add entry to BASES + the <g class="base-dot" data-base="newid"> + <text> label in the australia-svg in index.html (use calib click for coords). Add image + lat/lng for aerial + satellite link.
+3. For new platform/weapon: add to the right array in data.js; the grids are auto-built.
+4. Glossary terms get auto-wrapped for tooltips + previewMap links in most descriptions.
 
-Because we split the site, you (or I) can now safely add new aircraft, update numbers, fix text, or add new sections without risking breaking the whole website.
+Hybrid maps note (for devs): JPGs are the passive background visuals (inset inside fixed viewBox so coords never shift). All dots, labels, clicks, hovers and calib are SVG overlay elements inside the <svg>.
 
-## How we will work together from now on
+## Splits & scope
 
-You will tell me what you want to change or add using plain English in this chat.
+- This site (ADF Forge) is the clean tri-service reference. No "interview prep" framing, no model answers, no salaries, no training pipelines.
+- The study / prep material lives in the sibling folder `alpha-interview-prep` (kept separate so this one can be published if desired).
+- Study tools (flashcards etc) are still included here for personal/reference use.
 
-Examples of things you can ask:
-- "Add a new aircraft called the MQ-4C Triton"
-- "Update the number of F-35As to 72"
-- "Fix the Peregrine image — it's showing the wrong plane"
-- "Add a new section for ADF ranks and structure"
-- "Make the bases map show more detail when zoomed"
+## Working on it
 
-I will then make the changes safely in the correct files.
+Describe the desired change in plain English. Changes are made with targeted edits + minimal verification. Git tags are created before significant batches.
 
-## Adding your own images (future)
+Current state includes: all 18 bases with right-of-dot white labels, lazy-loaded images, aerial previews + GMaps links for 16 bases, fully cross-linked glossary terms, tri-service generalization, etc.
 
-When you want to use your own photos or diagrams instead of internet images:
-1. Put the image file inside the `images` folder
-2. Tell me the filename
-3. I will update the code to use your local image
+## Fonts note
 
-This keeps everything self-contained and private.
+Rajdhani is referenced via @font-face in styles.css pointing at `fonts/rajdhani-*.woff2`. If the actual files are not present the browser falls back to the sans-serif stack. Download the 4 weights (300/400/500/600) from Google Fonts or a similar source and drop them in `fonts/` to enable the exact typeface.
 
-## Backup note
+## License / use
 
-On 28 May 2025 the original single giant `index.html` file was split into the current clean structure for easier long-term maintenance.
-
-The old single-file version was replaced during the migration. If you ever desperately need the old giant file back, let me know and I can attempt to reconstruct it.
-
-## Next steps
-
-Tell me what you want to work on first. High-priority remaining items from the high-impact list:
-
-- Finish Study Tools (Flashcards + Quiz mode with localStorage tracking)
-- Expand Glossary even further with more ADF/RAAF-specific terms
-- Add more weapons and adversary aircraft entries
-- Deeper Space domain and Cyber domain sections (especially relevant for your three applications)
-- Mobile responsiveness polish or print/PDF study sheet options
-
-The site has grown significantly with Weapons, Adversary Air, a much larger Glossary, and robust Global Search.
-
-Just say the word and we'll keep building.
+Personal reference project. Not an official ADF or Commonwealth site.

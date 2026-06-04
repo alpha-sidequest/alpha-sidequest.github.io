@@ -1,11 +1,10 @@
 // ============================================
-// RAAF Knowledge Hub - Interactivity  (VERSION: 2025-04-07-2)
+// ADF Forge - Interactivity
 // ============================================
-// All the JavaScript that makes the maps, modals,
-// section switching, and cards work lives here.
-// You normally won't need to edit this file.
+// Maps (selectBase + renderBaseCard with aerial/GMaps), modals, grids, glossary wrapping + cross-refs,
+// study tools, showSection, etc. Data-driven from data.js. Keep edits minimal.
 
-console.log('%c[RAFF DEBUG] script.js parsed successfully - VERSION 2025-04-07-FINAL', 'color: limegreen; font-size: 14px');
+console.log('%c[ADF Forge] script.js loaded', 'color: limegreen; font-size: 13px');
 
 // Glossary tooltip state (initialized early to avoid TDZ in any render paths)
 let glossaryMap = new Map();
@@ -34,6 +33,17 @@ try {
     previewMap.set(key, { title: item.desig ? `${item.desig} ${item.name}` : item.name, short: shortDesc, img: item.img || null, type: typ, id: item.id });
     const fn = item.name.toLowerCase();
     if (!previewMap.has(fn)) previewMap.set(fn, { title: item.desig ? `${item.desig} ${item.name}` : item.name, short: shortDesc, img: item.img || null, type: typ, id: item.id });
+    // Also register desig variants (with/without hyphens) so mentions like "C-130J", "F-35A" in overviews get wrapped and linked
+    if (item.desig) {
+      const dlow = item.desig.toLowerCase();
+      if (!previewMap.has(dlow)) {
+        previewMap.set(dlow, { title: item.desig ? `${item.desig} ${item.name}` : item.name, short: shortDesc, img: item.img || null, type: typ, id: item.id });
+      }
+      const dnorm = dlow.replace(/-/g, '');
+      if (dnorm !== dlow && !previewMap.has(dnorm)) {
+        previewMap.set(dnorm, { title: item.desig ? `${item.desig} ${item.name}` : item.name, short: shortDesc, img: item.img || null, type: typ, id: item.id });
+      }
+    }
   });
 } catch(e){}
 
@@ -41,12 +51,17 @@ try {
 function showSection(id, el) {
   console.log('%c[RAFF DEBUG] showSection called with id =', 'color: cyan', id);
 
-  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  // Force hide ALL sections (robust against any CSS specificity or timing issues)
+  document.querySelectorAll('section').forEach(s => {
+    s.classList.remove('active');
+    s.style.display = 'none';
+  });
   document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
 
   const sectionEl = document.getElementById(id);
   if (sectionEl) {
     sectionEl.classList.add('active');
+    sectionEl.style.display = 'block';
   } else {
     console.warn('[RAFF DEBUG] No section found with id:', id);
   }
@@ -58,7 +73,15 @@ function showSection(id, el) {
   }
   if (navEl) navEl.classList.add('active');
 
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Scroll the activated section into view (more reliable than always top:0 for long pages)
+  if (sectionEl) {
+    // small timeout so the display:block has taken effect for measurement
+    setTimeout(() => {
+      sectionEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 10);
+  } else {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 }
 
 // ── BASE MAP ──────────────────────────────────────────────────
@@ -92,18 +115,57 @@ function renderBaseCard(id) {
   card.innerHTML = `
     <div class="base-card-header">
       <div class="base-card-location">${b.location}</div>
-      <div class="base-card-name">${b.name.replace('RAAF Base ','')}</div>
+      <div class="base-card-name">${b.name.replace(/^(RAAF Base |HMAS |Army Aviation Centre ) /i,'')}</div>
       <div class="base-card-role">${b.role}</div>
     </div>
     <div class="base-card-body">
       <div class="base-section-label">About this base</div>
       <p class="base-desc">${b.desc}</p>
-      <div class="base-section-label">Squadrons & Aircraft</div>
+      ${b.image ? `
+      <div class="base-section-label">Aerial View</div>
+      <div class="base-aerial-wrap">
+        <img src="${b.image}" alt="Bird's-eye view of ${b.name}" class="base-aerial-preview" onclick="showBaseAerial('${b.image}', '${b.name.replace(/'/g, "\\'")}')" loading="lazy">
+        <div class="base-aerial-hint">Google Maps satellite • Click to enlarge</div>
+      </div>
+      ` : ''}
+      ${b.lat && b.lng ? `
+      <div class="base-section-label">Live Satellite</div>
+      <a href="https://www.google.com/maps/@${b.lat},${b.lng},18z/data=!3m1!1e3" target="_blank" rel="noopener noreferrer" class="google-maps-link">Open full satellite view on Google Maps →</a>
+      <p style="font-size:10px;color:var(--text-dim);margin-top:4px">Live Google Maps (internet required)</p>
+      ` : ''}
+      <div class="base-section-label">Units & Assets</div>
       ${sqHTML}
       <p style="font-size:11px;color:var(--text-dim);margin-top:12px">Tap aircraft names above to view full aircraft details</p>
     </div>
   `;
 }
+
+function showBaseAerial(imageSrc, baseName) {
+  const modal = document.getElementById('baseImageModal');
+  const inner = document.getElementById('baseImageInner');
+  inner.innerHTML = `
+    <div class="base-image-hero">
+      <img src="${imageSrc}" alt="Bird's-eye view of ${baseName}" loading="lazy">
+    </div>
+    <div class="base-image-meta">
+      <div class="base-image-title">${baseName}</div>
+      <div class="base-image-subtitle">Bird's eye view • Google Maps satellite imagery</div>
+    </div>
+  `;
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeBaseImageModal() {
+  const modal = document.getElementById('baseImageModal');
+  modal.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Close base image modal on overlay click
+document.getElementById('baseImageModal').addEventListener('click', function(e) {
+  if (e.target === this) closeBaseImageModal();
+});
 
 function goToAircraft(name) {
   const aircraftNav = document.querySelector('.nav-link[data-section="airforce"]');
@@ -157,7 +219,7 @@ function buildAircraftGrid() {
       const cardHTML = `
         <div class="aircraft-card" id="ac-${ac.id}" data-detail-id="${ac.id}">
           <div class="aircraft-img-wrap">
-            <img src="${ac.img}" alt="${ac.name}">
+            <img src="${ac.img}" alt="${ac.name}" loading="lazy">
             <span class="aircraft-type-badge badge-${ac.type}">${ac.typeName}</span>
           </div>
           <div class="aircraft-card-body">
@@ -188,7 +250,7 @@ function buildAircraftGrid() {
       const cardHTML = `
         <div class="aircraft-card" id="adv-${a.id}" data-detail-id="${a.id}">
           <div class="aircraft-img-wrap">
-            <img src="${a.img}" alt="${a.name}">
+            <img src="${a.img}" alt="${a.name}" loading="lazy">
             <span class="aircraft-type-badge badge-adversary">${a.typeName}</span>
           </div>
           <div class="aircraft-card-body">
@@ -381,7 +443,7 @@ function openAircraftModal(id) {
 
   document.getElementById('modalInner').innerHTML = `
     <div class="modal-hero">
-      <img src="${ac.img}" alt="${ac.name}">
+      <img src="${ac.img}" alt="${ac.name}" loading="lazy">
       <div class="modal-hero-overlay"></div>
       <div class="modal-hero-text">
         <div class="modal-desig">${wrapGlossaryTerms(ac.desig)} · ${wrapGlossaryTerms(ac.typeName)}</div>
@@ -651,7 +713,7 @@ function renderFlashcard() {
   if (item.img) {
     frontHTML += `
       <div style="margin-bottom:12px;">
-        <img src="${item.img}" alt="${item.front}" style="max-width:100%; max-height:160px; border-radius:6px; border:1px solid var(--border); object-fit:contain;">
+        <img src="${item.img}" alt="${item.front}" style="max-width:100%; max-height:160px; border-radius:6px; border:1px solid var(--border); object-fit:contain;" loading="lazy">
       </div>
     `;
   }
@@ -1144,14 +1206,14 @@ function submitWhoAmIGuess() {
     feedback.innerHTML = `
       <strong style="color:#2EC4A0">Correct!</strong><br>
       <strong>${currentWhoAmIItem.front}</strong><br><br>
-      ${currentWhoAmIItem.img ? `<img src="${currentWhoAmIItem.img}" alt="${currentWhoAmIItem.front}" style="max-width:100%; max-height:180px; border-radius:6px; border:1px solid var(--border); object-fit:contain; margin:10px 0;">` : ''}
+      ${currentWhoAmIItem.img ? `<img src="${currentWhoAmIItem.img}" alt="${currentWhoAmIItem.front}" style="max-width:100%; max-height:180px; border-radius:6px; border:1px solid var(--border); object-fit:contain; margin:10px 0;" loading="lazy">` : ''}
       ${currentWhoAmIItem.back}
     `;
   } else {
     feedback.innerHTML = `
       <strong style="color:#E05A40">Not quite.</strong><br>
       The answer was: <strong>${currentWhoAmIItem.front}</strong><br><br>
-      ${currentWhoAmIItem.img ? `<img src="${currentWhoAmIItem.img}" alt="${currentWhoAmIItem.front}" style="max-width:100%; max-height:180px; border-radius:6px; border:1px solid var(--border); object-fit:contain; margin:10px 0;">` : ''}
+      ${currentWhoAmIItem.img ? `<img src="${currentWhoAmIItem.img}" alt="${currentWhoAmIItem.front}" style="max-width:100%; max-height:180px; border-radius:6px; border:1px solid var(--border); object-fit:contain; margin:10px 0;" loading="lazy">` : ''}
       ${currentWhoAmIItem.back}
     `;
   }
@@ -1179,7 +1241,7 @@ function showWhoAmIAnswer() {
   feedback.innerHTML = `
     <strong style="color:#E05A40">Answer revealed.</strong><br>
     <strong>${currentWhoAmIItem.front}</strong><br><br>
-    ${currentWhoAmIItem.img ? `<img src="${currentWhoAmIItem.img}" alt="${currentWhoAmIItem.front}" style="max-width:100%; max-height:180px; border-radius:6px; border:1px solid var(--border); object-fit:contain; margin:10px 0;">` : ''}
+    ${currentWhoAmIItem.img ? `<img src="${currentWhoAmIItem.img}" alt="${currentWhoAmIItem.front}" style="max-width:100%; max-height:180px; border-radius:6px; border:1px solid var(--border); object-fit:contain; margin:10px 0;" loading="lazy">` : ''}
     ${currentWhoAmIItem.back}
   `;
 
@@ -1840,7 +1902,7 @@ function showMaritimeDetail(id) {
 
   document.getElementById('modalInner').innerHTML = `
     <div class="modal-hero">
-      <img src="${vessel.img}" alt="${vessel.name}">
+      <img src="${vessel.img}" alt="${vessel.name}" loading="lazy">
       <div class="modal-hero-overlay"></div>
       <div class="modal-hero-text">
         <div class="modal-desig">${wrapGlossaryTerms(vessel.desig)} · ${wrapGlossaryTerms(vessel.typeName)}</div>
@@ -1879,10 +1941,10 @@ function buildGlossary() {
         <span class="full-name">${item.full}</span>
       </div>
       <span class="glossary-category">${item.category.toUpperCase()}</span>
-      <div class="glossary-definition">${item.definition}</div>
+      <div class="glossary-definition">${wrapGlossaryTerms(item.definition)}</div>
       <div class="glossary-why">
         <strong>Why it matters in an interview</strong>
-        ${item.whyItMatters}
+        ${wrapGlossaryTerms(item.whyItMatters)}
       </div>
     </div>
   `).join('');
@@ -1941,7 +2003,7 @@ function buildVehiclesGrid() {
     html += groundVehicles.map(v => `
       <div class="fleet-card" id="army-${v.id}" data-detail-id="${v.id}">
         <div class="fleet-img-wrap">
-          ${v.img ? `<img src="${v.img}" alt="${v.name}">` : `<div style="height:140px; background:var(--navy-mid); display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:13px;">Photo coming soon</div>`}
+          ${v.img ? `<img src="${v.img}" alt="${v.name}" loading="lazy">` : `<div style="height:140px; background:var(--navy-mid); display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:13px;">Photo coming soon</div>`}
           <span class="fleet-type-badge">${v.typeName}</span>
         </div>
         <div class="fleet-card-body">
@@ -1965,7 +2027,7 @@ function buildVehiclesGrid() {
     html += armyAviation.map(v => `
       <div class="fleet-card" id="army-${v.id}" data-detail-id="${v.id}">
         <div class="fleet-img-wrap">
-          ${v.img ? `<img src="${v.img}" alt="${v.name}">` : `<div style="height:140px; background:var(--navy-mid); display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:13px;">Photo coming soon</div>`}
+          ${v.img ? `<img src="${v.img}" alt="${v.name}" loading="lazy">` : `<div style="height:140px; background:var(--navy-mid); display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:13px;">Photo coming soon</div>`}
           <span class="fleet-type-badge">Army Aviation</span>
         </div>
         <div class="fleet-card-body">
@@ -1989,7 +2051,7 @@ function buildVehiclesGrid() {
     html += advData.map(v => `
       <div class="fleet-card" id="adv-vehicle-${v.id}" data-detail-id="${v.id}">
         <div class="fleet-img-wrap">
-          ${v.img ? `<img src="${v.img}" alt="${v.name}">` : `<div style="height:140px; background:var(--navy-mid); display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:13px;">Photo coming soon</div>`}
+          ${v.img ? `<img src="${v.img}" alt="${v.name}" loading="lazy">` : `<div style="height:140px; background:var(--navy-mid); display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:13px;">Photo coming soon</div>`}
           <span class="fleet-type-badge badge-adversary">${v.typeName}</span>
         </div>
         <div class="fleet-card-body">
@@ -2011,6 +2073,116 @@ function buildVehiclesGrid() {
   }
 
   container.innerHTML = html;
+}
+
+// ── HERO STATS (data-driven where possible to avoid staleness) ─────────
+function updateHeroStats() {
+  try {
+    const basesEl = document.getElementById('stat-bases');
+    if (basesEl && typeof BASES !== 'undefined' && BASES) {
+      basesEl.textContent = Object.keys(BASES).length;
+    }
+    const glossEl = document.getElementById('stat-glossary');
+    if (glossEl && typeof GLOSSARY !== 'undefined' && Array.isArray(GLOSSARY)) {
+      glossEl.textContent = GLOSSARY.length;
+    }
+    // Aircraft / Naval / Army kept as approximate "+" strings (data arrays contain many sub-objects + adversaries)
+  } catch (e) { /* non-fatal */ }
+}
+
+// ── NAVY / MARITIME GRID (data-driven for consistency with aircraft/army/weapons) ─────────
+function buildNavyGrid() {
+  const grid = document.getElementById('navyGrid');
+  if (!grid) return;
+  const NAVY_DATA = (window.NAVY || (typeof NAVY !== 'undefined' ? NAVY : []));
+  // Curated prominent RAN + key adversary vessels for recognition (order matches prior static presentation)
+  const displayIds = ['hobart','anzac','collins','canberra','supply','choules','hunter','aukus','mh60r','type055','type052d','kilo','gorshkov'];
+  // Group to preserve original subsection visuals (headers + separate grids)
+  const mainIds = ['hobart','anzac','collins','canberra','supply','choules','hunter','aukus'];
+  const heloIds = ['mh60r'];
+  const advIds = ['type055','type052d','kilo','gorshkov'];
+
+  function renderCards(ids) {
+    return ids.map(id => {
+      const v = NAVY_DATA.find(x => x.id === id);
+      if (!v) return '';
+      const isAdv = (v.desig && /adversary/i.test(v.desig)) || /russian|chinese|kilo|gorshkov|type0/i.test((v.id||'') + (v.name||''));
+      const badgeClass = isAdv ? ' adversary' : '';
+      const badgeText = v.typeName || v.desig || '';
+      const specs = (v.stats || []).map(s => s.v).join(' • ');
+      const tags = (v.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
+      const role = wrapGlossaryTerms(v.tagline || '');
+      return `
+        <div class="fleet-card" id="maritime-${v.id}" data-detail-id="${v.id}">
+          <div class="fleet-img-wrap">
+            ${v.img ? `<img src="${v.img}" alt="${v.name}" loading="lazy">` : `<div style="height:140px; background:var(--navy-mid); display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:13px;">Photo coming soon</div>`}
+            <span class="fleet-type-badge${badgeClass}">${badgeText}</span>
+          </div>
+          <div class="fleet-card-body">
+            <div class="fleet-designation">${v.desig}</div>
+            <div class="fleet-name">${v.name}</div>
+            <div class="fleet-role">${role}</div>
+            <div class="fleet-specs">${specs}</div>
+            <div class="fleet-tags">${tags}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  let html = '';
+  html += `<div class="fleet-grid maritime-grid">${renderCards(mainIds)}</div>`;
+  html += `<div class="aircraft-section-header" style="margin-top:32px;margin-bottom:12px;"><h3>Navy Helicopters</h3></div>`;
+  html += `<div class="fleet-grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr));">${renderCards(heloIds)}</div>`;
+  html += `<h3 style="font-family:'Rajdhani',sans-serif;color:var(--threat);margin:40px 0 16px;">Adversary Recognition</h3>`;
+  html += `<div class="fleet-grid">${renderCards(advIds)}</div>`;
+  grid.innerHTML = html;
+}
+
+// ── BASE MAP CALIB TOGGLE (user-requested on/off for the coord helpers) ─────────
+function initCalibToggle() {
+  const btn = document.getElementById('calibToggleBtn');
+  const stateEl = document.getElementById('calibState');
+  const label = document.getElementById('calib-label');
+  const rect = document.getElementById('calib-rect');
+  if (!btn || !stateEl) return;
+
+  let visible = false; // default OFF
+
+  // Attach reliable click handler for coord logging (moved from inline onclick for robustness + pointer-events)
+  if (rect) {
+    rect.addEventListener('click', function(e) {
+      const svg = this.ownerSVGElement;
+      if (!svg) return;
+      const pt = svg.createSVGPoint();
+      pt.x = e.clientX;
+      pt.y = e.clientY;
+      const ctm = svg.getScreenCTM();
+      if (!ctm) return;
+      const svgP = pt.matrixTransform(ctm.inverse());
+      console.log('Map click coords (for viewBox):', Math.round(svgP.x), Math.round(svgP.y));
+      e.stopImmediatePropagation();
+    });
+  }
+
+  function apply() {
+    const d = visible ? '' : 'none';
+    if (label) label.style.display = d;
+    if (rect) {
+      rect.style.display = d;
+      rect.setAttribute('pointer-events', visible ? 'all' : 'none');
+    }
+    stateEl.textContent = visible ? 'ON' : 'OFF';
+    if (visible) console.log('%c[ADF Forge] Calib helpers ON — click map background (non-dot) to log viewBox coords', 'color:#ff0');
+  }
+
+  btn.addEventListener('click', () => {
+    visible = !visible;
+    apply();
+  });
+
+  // initial apply (hidden)
+  apply();
 }
 
 // ── VEHICLES DETAIL MODALS (now matching Aircraft & Maritime style) ─────────
@@ -2039,7 +2211,7 @@ function showVehicleDetail(id) {
 
   const heroHTML = (v.img && v.img.trim() !== '') ? `
     <div class="modal-hero">
-      <img src="${v.img}" alt="${v.name}">
+      <img src="${v.img}" alt="${v.name}" loading="lazy">
       <div class="modal-hero-overlay"></div>
       <div class="modal-hero-text">
         <div class="modal-desig">${wrapGlossaryTerms(v.desig)} · ${wrapGlossaryTerms(v.typeName)}</div>
@@ -2097,7 +2269,7 @@ function showAdversaryVehicleDetail(id) {
 
   const heroHTML = (v.img && v.img.trim() !== '') ? `
     <div class="modal-hero">
-      <img src="${v.img}" alt="${v.name}">
+      <img src="${v.img}" alt="${v.name}" loading="lazy">
       <div class="modal-hero-overlay"></div>
       <div class="modal-hero-text">
         <div class="modal-desig">${wrapGlossaryTerms(v.desig)} · ${wrapGlossaryTerms(v.typeName)}</div>
@@ -2163,7 +2335,7 @@ function buildWeaponsGrid() {
         for (let i = 0; i < filtered.length; i++) {
           const w = filtered[i];
           html += '<div class="weapons-card" id="weapon-' + w.id + '" data-detail-id="' + w.id + '">' +
-            '<div class="weapons-img-wrap"><img src="' + w.img + '" alt="' + w.name + '"></div>' +
+            '<div class="weapons-img-wrap"><img src="' + w.img + '" alt="' + w.name + '" loading="lazy"></div>' +
             '<div class="weapons-card-body">' +
               '<div class="weapons-designation">' + (w.desig || '') + ' · ' + (w.type || w.group || '') + '</div>' +
               '<div class="weapons-name">' + w.name + '</div>' +
@@ -2208,7 +2380,7 @@ function buildWeaponsGrid() {
         for (let i = 0; i < filtered.length; i++) {
           const s = filtered[i];
           html += '<div class="weapons-card" id="system-' + s.id + '" data-detail-id="' + s.id + '" data-is-system="true">' +
-            '<div class="weapons-img-wrap"><img src="' + (s.img || 'images/f35a.jpg') + '" alt="' + s.name + '"></div>' +
+            '<div class="weapons-img-wrap"><img src="' + (s.img || 'images/f35a.jpg') + '" alt="' + s.name + '" loading="lazy"></div>' +
             '<div class="weapons-card-body">' +
               '<div class="weapons-designation">' + (s.code || s.group || 'System') + '</div>' +
               '<div class="weapons-name">' + s.name + '</div>' +
@@ -2324,7 +2496,7 @@ function showWeaponDetail(id) {
 
   document.getElementById('modalInner').innerHTML = `
     <div class="modal-hero">
-      <img src="${dispImg}" alt="${dispName}">
+      <img src="${dispImg}" alt="${dispName}" loading="lazy">
       <div class="modal-hero-overlay"></div>
       <div class="modal-hero-text">
         <div class="modal-desig">${wrapGlossaryTerms(dispDesig)} · ${wrapGlossaryTerms(dispType)}</div>
@@ -2408,7 +2580,7 @@ function showAdversaryDetail(id) {
 
   document.getElementById('modalInner').innerHTML = `
     <div class="modal-hero">
-      <img src="${ac.img}" alt="${ac.name}">
+      <img src="${ac.img}" alt="${ac.name}" loading="lazy">
       <div class="modal-hero-overlay"></div>
       <div class="modal-hero-text">
         <div class="modal-desig">${wrapGlossaryTerms(ac.desig)} · ${wrapGlossaryTerms(ac.origin)}</div>
@@ -2523,6 +2695,7 @@ function initCardClickHandlers() {
     aircraftGrid.addEventListener('click', (e) => {
       const card = e.target.closest('.aircraft-card');
       if (!card || !card.id) return;
+      console.log('[RAFF DEBUG] Aircraft card clicked:', card.id);
       const fullId = card.id;
       if (fullId.startsWith('ac-')) {
         openAircraftModal(fullId.replace('ac-', ''));
@@ -2538,6 +2711,7 @@ function initCardClickHandlers() {
     weaponsSection.addEventListener('click', (e) => {
       const card = e.target.closest('.weapons-card');
       if (!card) return;
+      console.log('[RAFF DEBUG] Weapon/System card clicked:', card.id || card.dataset.detailId);
       let wid = card.dataset.detailId;
       if (!wid) {
         const full = card.id || '';
@@ -2553,6 +2727,7 @@ function initCardClickHandlers() {
     navySection.addEventListener('click', (e) => {
       const card = e.target.closest('.fleet-card[id]');
       if (!card) return;
+      console.log('[RAFF DEBUG] Fleet card clicked:', card.id);
       let detailId = card.dataset.detailId;
       if (!detailId) {
         const full = card.id || '';
@@ -2570,6 +2745,7 @@ function initCardClickHandlers() {
     vehiclesGrid.addEventListener('click', (e) => {
       const card = e.target.closest('.fleet-card');
       if (!card || !card.id) return;
+      console.log('[RAFF DEBUG] Army vehicle card clicked:', card.id);
       const full = card.id;
       if (full.startsWith('adv-vehicle-')) {
         showAdversaryVehicleDetail(full.replace('adv-vehicle-', ''));
@@ -2586,10 +2762,13 @@ buildOpsGrid();
 buildGlossary();
 buildWeaponsGrid();
 buildVehiclesGrid();
+buildNavyGrid();
+updateHeroStats();
+initCalibToggle();
+initStudyTools();
 initThemeSwitcher();
 initMainNavigation();
 initCardClickHandlers();
-initStudyTools();
 
 // Keyboard support (Escape closes modal)
 document.addEventListener('keydown', e => {
@@ -2683,6 +2862,69 @@ function initGlossaryTooltips() {
     img: 'images/poseidon.jpg',
     type: 'airforce',
     id: 'p8a'
+  });
+  previewMap.set('c-130j', {
+    title: 'C-130J Hercules',
+    short: 'RAAF medium tactical airlifter (No. 37 Sqn). Versatile workhorse for troops, vehicles, airdrops and HADR from short/unprepared strips.',
+    img: 'images/c130j.jpg',
+    type: 'airforce',
+    id: 'c130j'
+  });
+  previewMap.set('c130j', {
+    title: 'C-130J Hercules',
+    short: 'RAAF medium tactical airlifter (No. 37 Sqn). Versatile workhorse for troops, vehicles, airdrops and HADR from short/unprepared strips.',
+    img: 'images/c130j.jpg',
+    type: 'airforce',
+    id: 'c130j'
+  });
+  previewMap.set('c-27j', {
+    title: 'C-27J Spartan',
+    short: 'RAAF battlefield airlifter (No. 35 Sqn). Operates from the smallest strips in support of Army and amphibious ops.',
+    img: 'images/c27j.jpg',
+    type: 'airforce',
+    id: 'c27j'
+  });
+  previewMap.set('c27j', {
+    title: 'C-27J Spartan',
+    short: 'RAAF battlefield airlifter (No. 35 Sqn). Operates from the smallest strips in support of Army and amphibious ops.',
+    img: 'images/c27j.jpg',
+    type: 'airforce',
+    id: 'c27j'
+  });
+  previewMap.set('c-17a', {
+    title: 'C-17A Globemaster III',
+    short: 'RAAF heavy strategic airlifter. Carries tanks, helos and bulk cargo intercontinentally.',
+    img: 'images/c17.jpg',
+    type: 'airforce',
+    id: 'c17'
+  });
+  previewMap.set('c-17', {
+    title: 'C-17A Globemaster III',
+    short: 'RAAF heavy strategic airlifter. Carries tanks, helos and bulk cargo intercontinentally.',
+    img: 'images/c17.jpg',
+    type: 'airforce',
+    id: 'c17'
+  });
+  previewMap.set('c17', {
+    title: 'C-17A Globemaster III',
+    short: 'RAAF heavy strategic airlifter. Carries tanks, helos and bulk cargo intercontinentally.',
+    img: 'images/c17.jpg',
+    type: 'airforce',
+    id: 'c17'
+  });
+  previewMap.set('ch-47f', {
+    title: 'CH-47F Chinook',
+    short: 'RAAF heavy-lift helicopter. Only asset that can move M1 Abrams by air (sling or internal in some configs).',
+    img: 'images/ch47f.jpg',
+    type: 'airforce',
+    id: 'ch47f'
+  });
+  previewMap.set('chinook', {
+    title: 'CH-47F Chinook',
+    short: 'RAAF heavy-lift helicopter. Only asset that can move M1 Abrams by air (sling or internal in some configs).',
+    img: 'images/ch47f.jpg',
+    type: 'airforce',
+    id: 'ch47f'
   });
   previewMap.set('wedgetail', {
     title: 'E-7A Wedgetail',
@@ -2958,6 +3200,41 @@ function initGlossaryTooltips() {
           id: item.id
         });
       }
+
+      // Register desig variants (hyphenated and normalized) so texts mentioning "C-130J", "F-35A", "CH-47F" etc. get auto cross-ref links
+      if (item.desig) {
+        const dlow = item.desig.toLowerCase();
+        if (!previewMap.has(dlow)) {
+          previewMap.set(dlow, {
+            title: item.desig ? `${item.desig} ${item.name}` : item.name,
+            short: shortDesc,
+            img: item.img || null,
+            type: typ,
+            id: item.id
+          });
+        }
+        const dnorm = dlow.replace(/-/g, '');
+        if (dnorm !== dlow && !previewMap.has(dnorm)) {
+          previewMap.set(dnorm, {
+            title: item.desig ? `${item.desig} ${item.name}` : item.name,
+            short: shortDesc,
+            img: item.img || null,
+            type: typ,
+            id: item.id
+          });
+        }
+        // Short desig e.g. C-17A -> c-17 , C-130J -> c-130 for common prose mentions
+        const shortD = dlow.replace(/-[a-z]$/, '').replace(/[a-z]$/, '');
+        if (shortD && shortD !== dlow && shortD.length > 2 && !previewMap.has(shortD)) {
+          previewMap.set(shortD, {
+            title: item.desig ? `${item.desig} ${item.name}` : item.name,
+            short: shortDesc,
+            img: item.img || null,
+            type: typ,
+            id: item.id
+          });
+        }
+      }
     });
   } catch (e) { /* non-fatal */ }
 
@@ -2972,9 +3249,15 @@ function initGlossaryTooltips() {
   const tooltipEl = document.getElementById('site-tooltip');
 
   // Event delegation — works for dynamically inserted content in modals/cards
+  // NOTE: .glossary-term removed from selectors so the glossary cards themselves do not spawn
+  // a duplicate hover bubble (per request: keep full info on-card; bubbles only for .cross-ref
+  // terms *inside* descriptions for cross-links).
   document.addEventListener('mouseover', (e) => {
-    const termEl = e.target.closest('.glossary-term, .cross-ref');
+    const termEl = e.target.closest('.cross-ref, .glossary-term');
     if (!termEl) return;
+    // Skip the top-level glossary cards (they have the definition on-card already);
+    // only allow bubbles for wrapped .cross-ref or inner .glossary-term spans (data-term present)
+    if (termEl.classList.contains('glossary-term') && !termEl.dataset.term) return;
 
     const rawTerm = termEl.dataset.term || termEl.textContent.trim();
     const key = rawTerm.toLowerCase();
@@ -2999,7 +3282,7 @@ function initGlossaryTooltips() {
     if (preview) {
       html += `<div class="tooltip-preview">`;
       if (preview.img) {
-        html += `<img src="${preview.img}" alt="${preview.title}">`;
+        html += `<img src="${preview.img}" alt="${preview.title}" loading="lazy">`;
       }
       html += `<div class="preview-text">`;
       html += `<strong>${preview.title}</strong>`;
@@ -3041,17 +3324,18 @@ function initGlossaryTooltips() {
   });
 
   document.addEventListener('mouseout', (e) => {
-    const termEl = e.target.closest('.glossary-term, .cross-ref');
-    if (termEl) {
-      tooltipEl.style.display = 'none';
-    }
+    const termEl = e.target.closest('.cross-ref, .glossary-term');
+    if (!termEl) return;
+    if (termEl.classList.contains('glossary-term') && !termEl.dataset.term) return;
+    tooltipEl.style.display = 'none';
   });
 
   // Click support for cross-refs (opens the relevant full card/modal)
   // Use capture phase so it runs early, before ancestor delegations (e.g. card open), and stop to prevent conflicts
   document.addEventListener('click', (e) => {
-    const termEl = e.target.closest('.glossary-term, .cross-ref');
+    const termEl = e.target.closest('.cross-ref, .glossary-term');
     if (!termEl) return;
+    if (termEl.classList.contains('glossary-term') && !termEl.dataset.term) return;
 
     let p = termEl._previewData;
 
@@ -3060,11 +3344,33 @@ function initGlossaryTooltips() {
       const raw = termEl.dataset.term || termEl.textContent.trim();
       const key = raw.toLowerCase();
       p = previewMap.get(key) || previewMap.get(raw.toLowerCase().replace(/[^a-z0-9]/g, ''));
-      if (!p) return;
     }
 
     e.stopImmediatePropagation();
     tooltipEl.style.display = 'none';
+
+    // If no rich preview (e.g. plain glossary term cross-ref), jump to glossary and highlight the term
+    if (!p) {
+      const glossaryTerm = termEl.dataset.term;
+      if (glossaryTerm) {
+        const navEl = document.querySelector('.nav-link[data-section="glossary"]');
+        showSection('glossary', navEl);
+        setTimeout(() => {
+          const cards = document.querySelectorAll('#glossaryGrid .glossary-term');
+          for (const card of cards) {
+            const ac = card.querySelector('.acronym');
+            if (ac && ac.textContent.toLowerCase().includes(glossaryTerm.toLowerCase())) {
+              card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              const orig = card.style.boxShadow;
+              card.style.boxShadow = '0 0 0 3px var(--gold)';
+              setTimeout(() => { card.style.boxShadow = orig || ''; }, 1800);
+              break;
+            }
+          }
+        }, 120);
+      }
+      return;
+    }
 
     // Attempt to open the correct modal based on type + id
     try {

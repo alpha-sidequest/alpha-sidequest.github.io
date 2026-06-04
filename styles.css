@@ -1,5 +1,5 @@
 /* ============================================
-   RAAF Knowledge Hub - Styles
+   ADF Forge - Styles (navy/gold + Rajdhani)
    ============================================
    All visual styling for the site lives here.
    You generally won't need to touch this file
@@ -11,7 +11,7 @@
   font-family: 'Rajdhani';
   font-style: normal;
   font-weight: 400;
-  src: url('../fonts/rajdhani-v17-latin-regular.woff2') format('woff2');
+  src: url('fonts/rajdhani-v17-latin-regular.woff2') format('woff2');
   font-display: swap;
 }
 
@@ -19,7 +19,7 @@
   font-family: 'Rajdhani';
   font-style: normal;
   font-weight: 500;
-  src: url('../fonts/rajdhani-v17-latin-500.woff2') format('woff2');
+  src: url('fonts/rajdhani-v17-latin-500.woff2') format('woff2');
   font-display: swap;
 }
 
@@ -27,7 +27,7 @@
   font-family: 'Rajdhani';
   font-style: normal;
   font-weight: 600;
-  src: url('../fonts/rajdhani-v17-latin-600.woff2') format('woff2');
+  src: url('fonts/rajdhani-v17-latin-600.woff2') format('woff2');
   font-display: swap;
 }
 
@@ -35,8 +35,14 @@
   font-family: 'Rajdhani';
   font-style: normal;
   font-weight: 700;
-  src: url('../fonts/rajdhani-v17-latin-700.woff2') format('woff2');
+  src: url('fonts/rajdhani-v17-latin-700.woff2') format('woff2');
   font-display: swap;
+}
+
+/* If the woff2 files are not present in fonts/, fall back gracefully to system sans for readability.
+   To get the exact Rajdhani look, copy the 4 rajdhani *.woff2 files into alpha-sidequest/fonts/ */
+body, .nav-link, h1, h2, h3, .feature-card-title, .section-header h2 {
+  font-family: 'Rajdhani', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 :root {
@@ -1027,8 +1033,12 @@ section.active { display: block; }
 /* ── MAP SECTION (Bases) ── */
 .map-layout {
   display: grid;
-  grid-template-columns: 1fr 380px;
+  grid-template-columns: 3fr 280px;
   gap: 28px; align-items: start;
+}
+
+#bases .section-wrap {
+  max-width: 1600px;
 }
 
 .map-container {
@@ -1043,14 +1053,14 @@ section.active { display: block; }
 .base-dot { cursor: pointer; transition: all 0.2s; }
 .base-dot circle { transition: all 0.2s; }
 
-.base-dot:hover circle.outer { r: 10; opacity: 0.4; }
-.base-dot:hover circle.inner { r: 6; }
+.base-dot:hover circle.outer { r: 25; opacity: 0.4; }
+.base-dot:hover circle.inner { r: 13; }
 
 .base-dot.selected circle.outer {
-  r: 12; opacity: 0.5; fill: var(--gold);
+  r: 21; opacity: 0.5; fill: var(--gold);
 }
 .base-dot.selected circle.inner {
-  r: 7; fill: var(--gold);
+  r: 12; fill: var(--gold);
 }
 
 .map-legend {
@@ -1071,6 +1081,35 @@ section.active { display: block; }
 .legend-dot.transport { background: #2EC4A0; }
 .legend-dot.training { background: #9B59B6; }
 .legend-dot.mixed { background: var(--gold); }
+.legend-dot.navy { background: #4A9EDB; }
+.legend-dot.army { background: #228B22; }
+
+.map-calib-controls {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+.calib-btn {
+  font-family: Rajdhani, sans-serif;
+  font-size: 11px;
+  padding: 2px 8px;
+  background: var(--navy-mid);
+  color: var(--gold);
+  border: 1px solid rgba(201,168,76,0.4);
+  border-radius: 3px;
+  cursor: pointer;
+  line-height: 1;
+}
+.calib-btn:hover { background: rgba(201,168,76,0.15); }
+.calib-state {
+  font-family: monospace;
+  color: var(--text-dim);
+  min-width: 24px;
+  display: inline-block;
+}
+.calib-helper { display: none; } /* default hidden; JS toggles for the svg elements */
 
 /* Base Info Panel */
 .base-panel { position: sticky; top: 72px; }
@@ -1132,6 +1171,90 @@ section.active { display: block; }
 }
 
 .base-section-label:first-child { margin-top: 0; }
+
+/* Aerial preview in base side panel (narrow 280px column) */
+.base-aerial-wrap {
+  margin: 12px 0 16px;
+}
+.base-aerial-preview {
+  width: 100%;
+  max-height: 140px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: block;
+}
+.base-aerial-preview:hover {
+  transform: scale(1.01);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.base-aerial-hint {
+  font-size: 9px;
+  color: var(--text-dim);
+  margin-top: 4px;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+.google-maps-link {
+  display: inline-block;
+  font-size: 12px;
+  color: var(--gold);
+  text-decoration: none;
+  padding: 6px 10px;
+  border: 1px solid var(--gold-dark);
+  border-radius: 4px;
+  margin-top: 4px;
+  transition: all 0.2s;
+}
+.google-maps-link:hover {
+  background: var(--gold);
+  color: var(--navy);
+  border-color: var(--gold);
+}
+
+/* Dedicated base aerial image modal (large view) */
+.base-image-modal {
+  max-width: 96vw !important;
+  width: auto;
+  margin: 20px auto;
+  background: var(--navy-mid);
+}
+.base-image-hero {
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+.base-image-hero img {
+  max-width: 100%;
+  max-height: 82vh;
+  width: auto;
+  height: auto;
+  display: block;
+  border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+.base-image-meta {
+  padding: 16px 20px 20px;
+  text-align: center;
+  border-top: 1px solid var(--border-subtle);
+}
+.base-image-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.base-image-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+}
 
 .squadron-item {
   display: flex; align-items: flex-start; gap: 12px;

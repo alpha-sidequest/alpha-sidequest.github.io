@@ -1,4 +1,4 @@
-RAAF Knowledge Hub - Leadership Photos for Ranks Section
+ADF Forge - Leadership Photos for Ranks & Leadership Section
 =======================================================
 
 The "Current Senior Leadership" section now includes six important officials. You will need official photos for all of them.
@@ -37,7 +37,7 @@ Tips:
 
 Once the photos are added to the images/ folder with the exact filenames above, all six leadership cards will display correctly.
 
-These six people represent the key civilian and military leaders you should be able to discuss in a defence interview.
+These are the key civilian and military leaders for the tri-service reference.
 
 ================================================================================
 NEW: Navy & Army Leadership Photos (added 2026)

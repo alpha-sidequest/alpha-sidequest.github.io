@@ -27,6 +27,14 @@
   </div>
 </div>
 
+<!-- BASE AERIAL IMAGE MODAL -->
+<div class="modal-overlay" id="baseImageModal">
+  <div class="modal base-image-modal" id="baseImageContent">
+    <button class="modal-close" onclick="closeBaseImageModal()">×</button>
+    <div id="baseImageInner"></div>
+  </div>
+</div>
+
 <!-- NAV -->
 <nav>
   <a class="nav-brand" href="#" onclick="showSection('home'); return false;">
@@ -52,7 +60,7 @@
     <div class="nav-title"><span>ADF</span> Forge</div>
   </a>
   <div class="nav-links">
-    <span class="nav-link" data-section="bases">RAAF Bases</span>
+    <span class="nav-link" data-section="bases">Bases</span>
     <span class="nav-link" data-section="operations">Operations</span>
     <span class="nav-link" data-section="airforce">Air Force</span>
     <span class="nav-link" data-section="navy">Navy</span>
@@ -94,8 +102,8 @@
 
       <div class="hero-stats">
         <div>
-          <div class="hero-stat-num">11</div>
-          <div class="hero-stat-label">Air Bases</div>
+          <div class="hero-stat-num" id="stat-bases">18</div>
+          <div class="hero-stat-label">Bases</div>
         </div>
         <div>
           <div class="hero-stat-num">25+</div>
@@ -110,7 +118,7 @@
           <div class="hero-stat-label">Army Vehicles</div>
         </div>
         <div>
-          <div class="hero-stat-num">110</div>
+          <div class="hero-stat-num" id="stat-glossary">96</div>
           <div class="hero-stat-label">Glossary Terms</div>
         </div>
       </div>
@@ -131,9 +139,9 @@
 
       <!-- Bases -->
       <div class="feature-card" data-section="bases">
-        <div class="feature-card-title">RAAF Bases</div>
+        <div class="feature-card-title">ADF Bases</div>
         <div class="feature-card-desc">
-          Interactive map of all 11 RAAF bases across Australia. Explore squadrons, aircraft types, and each base’s operational role.
+          Interactive map of major ADF bases across Australia — RAAF, Army and Navy. Explore squadrons, aircraft, units and each base’s role.
         </div>
         <div class="feature-card-link">Explore bases →</div>
       </div>
@@ -232,7 +240,7 @@
       <div class="feature-card" data-section="glossary">
         <div class="feature-card-title">Glossary</div>
         <div class="feature-card-desc">
-          Master glossary of key terms, acronyms, and concepts with clear definitions and operational/strategic context.
+          Master glossary of key terms, acronyms, and concepts with clear definitions and “why it matters” operational/technical context.
         </div>
         <div class="feature-card-link">Browse glossary →</div>
       </div>
@@ -245,97 +253,161 @@
 <section id="bases">
   <div class="section-wrap">
     <div class="section-header">
-      <h2>RAAF <span>Bases</span></h2>
-      <p>Click any base marker on the map to see its squadrons, aircraft and role. Aircraft names link to the Aircraft section for full details.</p>
+      <h2>ADF <span>Bases</span></h2>
+      <p>Click any base marker on the map to see its units, aircraft and role. Tri-service (RAAF, Army, Navy). Aircraft names link to the Air Force section for full details.</p>
     </div>
 
     <div class="map-layout">
       <!-- Australia Map -->
       <div class="map-container">
-        <svg id="australia-svg" viewBox="0 0 800 700" xmlns="http://www.w3.org/2000/svg">
+        <svg id="australia-svg" viewBox="0 0 4000 2588" xmlns="http://www.w3.org/2000/svg">
           <!-- Clean vector Australia map background (rolled back from topographic JPG) -->
-          <rect width="800" height="700" fill="#0A1628"/>
-          <image href="images/australia-map.svg" width="800" height="700" preserveAspectRatio="xMidYMid meet"/>
+          <rect width="4000" height="2588" fill="#0A1628"/>
+          <image x="720" y="155" width="2560" height="2276" href="images/australia-map-cropped.jpg" preserveAspectRatio="xMidYMid meet"/>
+          <!-- Hybrid map: JPG provides the *visual background only* (inset-cropped 18%/6% via x/y/w/h inside *unchanged* 4000x2588 viewBox so all base cx/cy + user coords stay valid).
+               SVG <g class="base-dot">/circles + <text> (white Rajdhani labels) + calib <rect> are the interactive overlay layer (click/hover/select, role colors, right-of-dot labels, coord logging). 
+               "SVG tweaks" are only to this overlay, not the map raster itself (which has been .jpg since the provided australia-map.jpg + world-map.jpg). -->
+          <!-- Dev calibration label (toggleable for map coordinate work) -->
+          <text id="calib-label" class="calib-helper" x="80" y="120" font-family="sans-serif" font-size="16" fill="#ff0" opacity="0.9">Click map bg (F12 console) to get coords for fixes</text>
+
+          <!-- CALIBRATION HELPER: Click anywhere on the map (not on a dot) to log the exact (x,y) in console.
+               Use those numbers to tell me the correct position for each base.
+               Toggle via the Calib button below (defaults off). -->
+          <rect id="calib-rect" class="calib-helper" x="720" y="155" width="2560" height="2276" fill="rgba(255,255,255,0.01)" style="cursor: crosshair;" />
+
 
           <!-- Learmonth WA (Exmouth peninsula, far west coast) -->
           <g class="base-dot" data-base="learmonth" onclick="selectBase('learmonth',event)">
-            <circle class="outer" cx="100" cy="215" r="9" fill="#4A9EDB" opacity="0.7"/>
-            <circle class="inner" cx="100" cy="215" r="5" fill="#4A9EDB" stroke="#FFFFFF" stroke-width="1"/>
+            <circle class="outer" cx="984" cy="1198" r="19" fill="#4A9EDB" opacity="0.7"/>
+            <circle class="inner" cx="984" cy="1198" r="11" fill="#4A9EDB" stroke="#FFFFFF" stroke-width="2"/>
           </g>
 
           <!-- Pearce WA (near Perth, southwest coast) -->
           <g class="base-dot" data-base="pearce" onclick="selectBase('pearce',event)">
-            <circle class="outer" cx="49" cy="431" r="9" fill="#4A9EDB" opacity="0.7"/>
-            <circle class="inner" cx="49" cy="431" r="5" fill="#4A9EDB" stroke="#FFFFFF" stroke-width="1"/>
+            <circle class="outer" cx="1181" cy="1720" r="19" fill="#4A9EDB" opacity="0.7"/>
+            <circle class="inner" cx="1181" cy="1720" r="11" fill="#4A9EDB" stroke="#FFFFFF" stroke-width="2"/>
           </g>
 
           <!-- Darwin NT (northernmost) -->
           <g class="base-dot" data-base="darwin" onclick="selectBase('darwin',event)">
-            <circle class="outer" cx="360" cy="39" r="9" fill="#E05A40" opacity="0.75"/>
-            <circle class="inner" cx="360" cy="39" r="5" fill="#E05A40" stroke="#FFFFFF" stroke-width="1.2"/>
+            <circle class="outer" cx="1861" cy="526" r="19" fill="#E05A40" opacity="0.7"/>
+            <circle class="inner" cx="1861" cy="526" r="11" fill="#E05A40" stroke="#FFFFFF" stroke-width="2"/>
           </g>
 
           <!-- Tindal NT (Katherine area) - placed south of Darwin per forgrok6 reference -->
           <g class="base-dot" data-base="tindal" onclick="selectBase('tindal',event)">
-            <circle class="outer" cx="385" cy="125" r="9" fill="#E05A40" opacity="0.75"/>
-            <circle class="inner" cx="385" cy="125" r="5" fill="#E05A40" stroke="#FFFFFF" stroke-width="1.2"/>
+            <circle class="outer" cx="1935" cy="614" r="19" fill="#E05A40" opacity="0.7"/>
+            <circle class="inner" cx="1935" cy="614" r="11" fill="#E05A40" stroke="#FFFFFF" stroke-width="2"/>
           </g>
 
           <!-- Townsville QLD (northeast coast) - adjusted relative to Amberley per forgrok6 -->
           <g class="base-dot" data-base="townsville" onclick="selectBase('townsville',event)">
-            <circle class="outer" cx="595" cy="205" r="9" fill="#C9A84C" opacity="0.75"/>
-            <circle class="inner" cx="595" cy="205" r="5" fill="#C9A84C" stroke="#FFFFFF" stroke-width="1.2"/>
+            <circle class="outer" cx="2732" cy="924" r="19" fill="#C9A84C" opacity="0.7"/>
+            <circle class="inner" cx="2732" cy="924" r="11" fill="#C9A84C" stroke="#FFFFFF" stroke-width="2"/>
           </g>
 
           <!-- Amberley QLD (near Ipswich/Brisbane) - nudged for better coastal alignment -->
           <g class="base-dot" data-base="amberley" onclick="selectBase('amberley',event)">
-            <circle class="outer" cx="592" cy="328" r="9" fill="#E05A40" opacity="0.75"/>
-            <circle class="inner" cx="592" cy="328" r="5" fill="#E05A40" stroke="#FFFFFF" stroke-width="1.2"/>
+            <circle class="outer" cx="3010" cy="1446" r="19" fill="#E05A40" opacity="0.7"/>
+            <circle class="inner" cx="3010" cy="1446" r="11" fill="#E05A40" stroke="#FFFFFF" stroke-width="2"/>
           </g>
 
           <!-- Richmond NSW (NW of Sydney, inland from Williamtown per forgrok6) -->
           <g class="base-dot" data-base="richmond" onclick="selectBase('richmond',event)">
-            <circle class="outer" cx="555" cy="415" r="9" fill="#2EC4A0" opacity="0.75"/>
-            <circle class="inner" cx="555" cy="415" r="5" fill="#2EC4A0" stroke="#FFFFFF" stroke-width="1.2"/>
+            <circle class="outer" cx="2871" cy="1798" r="19" fill="#2EC4A0" opacity="0.7"/>
+            <circle class="inner" cx="2871" cy="1798" r="11" fill="#2EC4A0" stroke="#FFFFFF" stroke-width="2"/>
           </g>
 
           <!-- Williamtown NSW (near Newcastle, on/very close to coast) - corrected based on Google Maps reference -->
           <g class="base-dot" data-base="williamtown" onclick="selectBase('williamtown',event)">
-            <circle class="outer" cx="608" cy="408" r="9" fill="#E05A40" opacity="0.7"/>
-            <circle class="inner" cx="608" cy="408" r="5" fill="#E05A40" stroke="#FFFFFF" stroke-width="1"/>
+            <circle class="outer" cx="2918" cy="1749" r="19" fill="#E05A40" opacity="0.7"/>
+            <circle class="inner" cx="2918" cy="1749" r="11" fill="#E05A40" stroke="#FFFFFF" stroke-width="2"/>
           </g>
 
           <!-- Fairbairn ACT (Canberra) - placed south of Sydney area per forgrok6 reference -->
           <g class="base-dot" data-base="fairbairn" onclick="selectBase('fairbairn',event)">
-            <circle class="outer" cx="555" cy="485" r="9" fill="#C9A84C" opacity="0.75"/>
-            <circle class="inner" cx="555" cy="485" r="5" fill="#C9A84C" stroke="#FFFFFF" stroke-width="1.2"/>
+            <circle class="outer" cx="2746" cy="1909" r="19" fill="#C9A84C" opacity="0.7"/>
+            <circle class="inner" cx="2746" cy="1909" r="11" fill="#C9A84C" stroke="#FFFFFF" stroke-width="2"/>
           </g>
 
           <!-- Edinburgh SA (north of Adelaide - 1" south-east from previous) -->
           <g class="base-dot" data-base="edinburgh" onclick="selectBase('edinburgh',event)">
-            <circle class="outer" cx="500" cy="477" r="9" fill="#4A9EDB" opacity="0.75"/>
-            <circle class="inner" cx="500" cy="477" r="5" fill="#4A9EDB" stroke="#FFFFFF" stroke-width="1.2"/>
+            <circle class="outer" cx="2299" cy="1802" r="19" fill="#4A9EDB" opacity="0.7"/>
+            <circle class="inner" cx="2299" cy="1802" r="11" fill="#4A9EDB" stroke="#FFFFFF" stroke-width="2"/>
           </g>
 
           <!-- East Sale VIC (Gippsland) - corrected for consistent east coast alignment -->
           <g class="base-dot" data-base="eastsale" onclick="selectBase('eastsale',event)">
-            <circle class="outer" cx="590" cy="565" r="9" fill="#9B59B6" opacity="0.75"/>
-            <circle class="inner" cx="590" cy="565" r="5" fill="#9B59B6" stroke="#FFFFFF" stroke-width="1.2"/>
+            <circle class="outer" cx="2670" cy="2033" r="19" fill="#9B59B6" opacity="0.7"/>
+            <circle class="inner" cx="2670" cy="2033" r="11" fill="#9B59B6" stroke="#FFFFFF" stroke-width="2"/>
+          </g>
+
+          <!-- NEW: Navy & Army bases (added for tri-service map) -->
+
+          <!-- HMAS Albatross (Nowra NSW - south of Sydney, coastal) -->
+          <g class="base-dot" data-base="albatross" onclick="selectBase('albatross',event)">
+            <circle class="outer" cx="2827" cy="1896" r="19" fill="#4A9EDB" opacity="0.7"/>
+            <circle class="inner" cx="2827" cy="1896" r="11" fill="#4A9EDB" stroke="#FFFFFF" stroke-width="2"/>
+          </g>
+
+          <!-- HMAS Stirling (Garden Island WA - south of Perth) -->
+          <g class="base-dot" data-base="stirling" onclick="selectBase('stirling',event)">
+            <circle class="outer" cx="1163" cy="1772" r="19" fill="#4A9EDB" opacity="0.7"/>
+            <circle class="inner" cx="1163" cy="1772" r="11" fill="#4A9EDB" stroke="#FFFFFF" stroke-width="2"/>
+          </g>
+
+          <!-- Lavarack Barracks (Townsville QLD - Army, near RAAF Townsville) -->
+          <g class="base-dot" data-base="lavarack" onclick="selectBase('lavarack',event)">
+            <circle class="outer" cx="2732" cy="947" r="19" fill="#228B22" opacity="0.7"/>
+            <circle class="inner" cx="2732" cy="947" r="11" fill="#228B22" stroke="#FFFFFF" stroke-width="2"/>
+          </g>
+
+          <!-- Robertson Barracks (Darwin NT - Army, near RAAF Darwin) -->
+          <g class="base-dot" data-base="robertson" onclick="selectBase('robertson',event)">
+            <circle class="outer" cx="1884" cy="523" r="19" fill="#228B22" opacity="0.7"/>
+            <circle class="inner" cx="1884" cy="523" r="11" fill="#228B22" stroke="#FFFFFF" stroke-width="2"/>
+          </g>
+
+          <!-- Puckapunyal (VIC - central, north of Melbourne area) -->
+          <g class="base-dot" data-base="puckapunyal" onclick="selectBase('puckapunyal',event)">
+            <circle class="outer" cx="2592" cy="1942" r="19" fill="#228B22" opacity="0.7"/>
+            <circle class="inner" cx="2592" cy="1942" r="11" fill="#228B22" stroke="#FFFFFF" stroke-width="2"/>
+          </g>
+
+          <!-- Holsworthy (SW Sydney NSW - Army) -->
+          <g class="base-dot" data-base="holsworthy" onclick="selectBase('holsworthy',event)">
+            <circle class="outer" cx="2871" cy="1821" r="19" fill="#228B22" opacity="0.7"/>
+            <circle class="inner" cx="2871" cy="1821" r="11" fill="#228B22" stroke="#FFFFFF" stroke-width="2"/>
+          </g>
+
+          <!-- Oakey (QLD - Army Aviation, west of Brisbane/Amberley) -->
+          <g class="base-dot" data-base="oakey" onclick="selectBase('oakey',event)">
+            <circle class="outer" cx="2971" cy="1426" r="19" fill="#228B22" opacity="0.7"/>
+            <circle class="inner" cx="2971" cy="1426" r="11" fill="#228B22" stroke="#FFFFFF" stroke-width="2"/>
           </g>
 
           <!-- Labels (moved in lockstep with their dots) -->
           <!-- Stronger visibility for colorful topographic background: thicker stroke + brighter fill -->
-          <text x="62" y="222" font-family="Rajdhani,sans-serif" font-size="13" fill="#FFFFFF" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" stroke-opacity="0.85">Learmonth</text>
-          <text x="12" y="444" font-family="Rajdhani,sans-serif" font-size="13" fill="#FFFFFF" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" stroke-opacity="0.85">Pearce</text>
-          <text x="308" y="35" font-family="Rajdhani,sans-serif" font-size="13" fill="#FFFFFF" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" stroke-opacity="0.85">Darwin</text>
-          <text x="333" y="121" font-family="Rajdhani,sans-serif" font-size="13" fill="#FFFFFF" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" stroke-opacity="0.85">Tindal</text>
-          <text x="600" y="198" font-family="Rajdhani,sans-serif" font-size="13" fill="#FFFFFF" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" stroke-opacity="0.85">Townsville</text>
-          <text x="597" y="322" font-family="Rajdhani,sans-serif" font-size="13" fill="#FFFFFF" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" stroke-opacity="0.85">Amberley</text>
-          <text x="560" y="410" font-family="Rajdhani,sans-serif" font-size="13" fill="#FFFFFF" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" stroke-opacity="0.85">Richmond</text>
-          <text x="613" y="402" font-family="Rajdhani,sans-serif" font-size="13" fill="#FFFFFF" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" stroke-opacity="0.85">Williamtown</text>
-          <text x="560" y="480" font-family="Rajdhani,sans-serif" font-size="13" fill="#FFFFFF" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" stroke-opacity="0.85">Fairbairn</text>
-          <text x="507" y="472" font-family="Rajdhani,sans-serif" font-size="13" fill="#FFFFFF" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" stroke-opacity="0.85">Edinburgh</text>
-          <text x="595" y="560" font-family="Rajdhani,sans-serif" font-size="13" fill="#FFFFFF" stroke="#000000" stroke-width="1.8" stroke-linejoin="round" stroke-opacity="0.85">East Sale</text>
+          <text x="1009" y="1204" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="38" fill="#FFFFFF">Learmonth</text>
+          <text x="1206" y="1726" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="38" fill="#FFFFFF">Pearce</text>
+          <text x="1886" y="514" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="38" fill="#FFFFFF">Darwin</text>
+          <text x="1960" y="620" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="38" fill="#FFFFFF">Tindal</text>
+          <text x="2757" y="930" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="38" fill="#FFFFFF">Townsville</text>
+          <text x="3035" y="1452" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="38" fill="#FFFFFF">Amberley</text>
+          <text x="2896" y="1804" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="38" fill="#FFFFFF">Richmond</text>
+          <text x="2943" y="1755" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="38" fill="#FFFFFF">Williamtown</text>
+          <text x="2771" y="1915" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="38" fill="#FFFFFF">Fairbairn</text>
+          <text x="2324" y="1808" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="38" fill="#FFFFFF">Edinburgh</text>
+          <text x="2695" y="2039" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="38" fill="#FFFFFF">East Sale</text>
+
+          <!-- New base labels -->
+          <text x="2852" y="1902" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="34" fill="#FFFFFF">Albatross</text>
+          <text x="1188" y="1778" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="34" fill="#FFFFFF">Stirling</text>
+          <text x="2757" y="953" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="34" fill="#FFFFFF">Lavarack</text>
+          <text x="1909" y="545" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="34" fill="#FFFFFF">Robertson</text>
+          <text x="2617" y="1948" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="34" fill="#FFFFFF">Puckapunyal</text>
+          <text x="2896" y="1827" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="34" fill="#FFFFFF">Holsworthy</text>
+          <text x="2996" y="1432" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="34" fill="#FFFFFF">Oakey</text>
         </svg>
 
         <div class="map-legend">
@@ -344,6 +416,14 @@
           <div class="legend-item"><div class="legend-dot transport"></div> Transport</div>
           <div class="legend-item"><div class="legend-dot training"></div> Training</div>
           <div class="legend-item"><div class="legend-dot mixed"></div> Mixed / HQ</div>
+          <div class="legend-item"><div class="legend-dot navy"></div> Navy</div>
+          <div class="legend-item"><div class="legend-dot army"></div> Army</div>
+        </div>
+
+        <!-- Calibration toggle for base position work (defaults OFF; useful when adding/fixing base coords) -->
+        <div class="map-calib-controls">
+          <button id="calibToggleBtn" class="calib-btn" title="Toggle calibration helpers (yellow label + clickable rect for logging coords). Off by default.">Calib</button>
+          <span id="calibState" class="calib-state">OFF</span>
         </div>
       </div>
 
@@ -351,7 +431,7 @@
       <div class="base-panel">
         <div class="base-panel-placeholder" id="basePlaceholder">
           <div class="icon">📍</div>
-          <p>Click a base marker on the map to view squadrons and aircraft details</p>
+          <p>Click a base marker on the map to view units, aircraft and role details</p>
         </div>
         <div class="base-card" id="baseCard"></div>
       </div>
@@ -368,59 +448,59 @@
     </div>
 
     <div class="world-map-wrap">
-      <svg id="world-svg" viewBox="0 0 900 460" xmlns="http://www.w3.org/2000/svg">
-        <rect width="900" height="460" fill="#0A1628"/>
+      <svg id="world-svg" viewBox="0 0 960 480" xmlns="http://www.w3.org/2000/svg">
+        <rect width="960" height="480" fill="#0A1628"/>
         <!-- Real world map as background -->
-        <image href="images/world-map.svg" width="900" height="460" preserveAspectRatio="xMidYMid meet"/>
+        <image href="images/world-map.jpg" width="960" height="480" preserveAspectRatio="xMidYMid meet"/>
 
         <!-- Operation Markers - all shifted +70 SVG units right (≈ 1 inch on 16" MacBook Pro screen) so they better align with the continents -->
 
         <!-- Operation Accordion - UAE (Al Minhad Air Base) -->
         <g class="op-dot" data-op="accordion" onclick="selectOp('accordion',event)">
-          <circle class="op-ring" cx="545" cy="155" r="8" fill="#C9A84C" opacity="0.3"/>
-          <circle cx="545" cy="155" r="4" fill="#C9A84C"/>
+          <circle class="op-ring" cx="581.3" cy="161.7" r="8.5" fill="#C9A84C" opacity="0.3"/>
+          <circle cx="581.3" cy="161.7" r="4" fill="#C9A84C"/>
         </g>
 
         <!-- Operation Gateway - Malaysia / Butterworth area -->
         <g class="op-dot" data-op="gateway" onclick="selectOp('gateway',event)">
-          <circle class="op-ring" cx="685" cy="215" r="8" fill="#4A9EDB" opacity="0.3"/>
-          <circle cx="685" cy="215" r="4" fill="#4A9EDB"/>
+          <circle class="op-ring" cx="730.7" cy="224.3" r="8" fill="#4A9EDB" opacity="0.3"/>
+          <circle cx="730.7" cy="224.3" r="4" fill="#4A9EDB"/>
         </g>
 
         <!-- Operation Resolute - Australia (broad maritime borders, centered on continent) -->
         <g class="op-dot" data-op="resolute" onclick="selectOp('resolute',event)">
-          <circle class="op-ring" cx="680" cy="325" r="8" fill="#2EC4A0" opacity="0.3"/>
-          <circle cx="680" cy="325" r="4" fill="#2EC4A0"/>
+          <circle class="op-ring" cx="725.3" cy="339.1" r="8" fill="#2EC4A0" opacity="0.3"/>
+          <circle cx="725.3" cy="339.1" r="4" fill="#2EC4A0"/>
         </g>
 
         <!-- Operation Solania - Pacific (near Solomon Islands / PNG area) -->
         <g class="op-dot" data-op="solania" onclick="selectOp('solania',event)">
-          <circle class="op-ring" cx="825" cy="285" r="8" fill="#4A9EDB" opacity="0.3"/>
-          <circle cx="825" cy="285" r="4" fill="#4A9EDB"/>
+          <circle class="op-ring" cx="880.0" cy="297.4" r="8" fill="#4A9EDB" opacity="0.3"/>
+          <circle cx="880.0" cy="297.4" r="4" fill="#4A9EDB"/>
         </g>
 
         <!-- Indo-Pacific Endeavour (broad regional - centered more on SE Asia / Timor area) -->
         <g class="op-dot" data-op="ipe" onclick="selectOp('ipe',event)">
-          <circle class="op-ring" cx="700" cy="265" r="8" fill="#9B59B6" opacity="0.3"/>
-          <circle cx="700" cy="265" r="4" fill="#9B59B6"/>
+          <circle class="op-ring" cx="746.7" cy="276.5" r="8" fill="#9B59B6" opacity="0.3"/>
+          <circle cx="746.7" cy="276.5" r="4" fill="#9B59B6"/>
         </g>
 
         <!-- Operation Hydranth - Red Sea -->
         <g class="op-dot" data-op="hydranth" onclick="selectOp('hydranth',event)">
-          <circle class="op-ring" cx="525" cy="165" r="8" fill="#E05A40" opacity="0.3"/>
-          <circle cx="525" cy="165" r="4" fill="#E05A40"/>
+          <circle class="op-ring" cx="549.3" cy="177.4" r="8" fill="#E05A40" opacity="0.3"/>
+          <circle cx="549.3" cy="177.4" r="4" fill="#E05A40"/>
         </g>
 
         <!-- Operation Kudu - Europe / UK training support -->
         <g class="op-dot" data-op="kudu" onclick="selectOp('kudu',event)">
-          <circle class="op-ring" cx="475" cy="105" r="8" fill="#E05A40" opacity="0.3"/>
-          <circle cx="475" cy="105" r="4" fill="#E05A40"/>
+          <circle class="op-ring" cx="448.0" cy="104.3" r="8" fill="#E05A40" opacity="0.3"/>
+          <circle cx="448.0" cy="104.3" r="4" fill="#E05A40"/>
         </g>
 
         <!-- Operation Manitou - Persian Gulf / Arabian Sea -->
         <g class="op-dot" data-op="manitou" onclick="selectOp('manitou',event)">
-          <circle class="op-ring" cx="555" cy="182" r="8" fill="#C9A84C" opacity="0.3"/>
-          <circle cx="555" cy="182" r="4" fill="#C9A84C"/>
+          <circle class="op-ring" cx="592.0" cy="189.9" r="8" fill="#C9A84C" opacity="0.3"/>
+          <circle cx="592.0" cy="189.9" r="4" fill="#C9A84C"/>
         </g>
       </svg>
 
@@ -462,279 +542,9 @@
 
 
 
-      <div class="fleet-grid maritime-grid">
-
-        <!-- Hobart Class -->
-        <div class="fleet-card" id="maritime-hobart" data-detail-id="hobart">
-          <div class="fleet-img-wrap">
-            <img src="images/hobart.jpg" alt="HMAS Hobart">
-            <span class="fleet-type-badge">Surface</span>
-          </div>
-          <div class="fleet-card-body">
-            <div class="fleet-designation">DDG</div>
-            <div class="fleet-name">Hobart Class</div>
-            <div class="fleet-role">Air Warfare Destroyer</div>
-            <div class="fleet-specs">7,000t • 28+ kts • Aegis + 48 VLS • MH-60R</div>
-            <div class="fleet-tags">
-              <span class="tag">Aegis</span>
-              <span class="tag">48 VLS</span>
-              <span class="tag">Area Air Defence</span>
-              <span class="tag">MH-60R</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Anzac Class -->
-        <div class="fleet-card" id="maritime-anzac" data-detail-id="anzac">
-          <div class="fleet-img-wrap">
-            <img src="images/anzac.jpg" alt="HMAS Anzac">
-            <span class="fleet-type-badge">Surface</span>
-          </div>
-          <div class="fleet-card-body">
-            <div class="fleet-designation">FFH</div>
-            <div class="fleet-name">Anzac Class</div>
-            <div class="fleet-role">Frigate</div>
-            <div class="fleet-specs">3,600t • 27 kts • CEAFAR2 • MU90 + Seahawk</div>
-            <div class="fleet-tags">
-              <span class="tag">CEAFAR2</span>
-              <span class="tag">ESSM</span>
-              <span class="tag">ASW</span>
-              <span class="tag">MH-60R</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Collins Class -->
-        <div class="fleet-card" id="maritime-collins" data-detail-id="collins">
-          <div class="fleet-img-wrap">
-            <img src="images/collins.jpg" alt="HMAS Collins">
-            <span class="fleet-type-badge">Submarine</span>
-          </div>
-          <div class="fleet-card-body">
-            <div class="fleet-designation">SSK</div>
-            <div class="fleet-name">Collins Class</div>
-            <div class="fleet-role">Diesel-Electric Submarine</div>
-            <div class="fleet-specs">3,100t • 21 kts sub • Mk 48 + Harpoon</div>
-            <div class="fleet-tags">
-              <span class="tag">Mk 48</span>
-              <span class="tag">Harpoon</span>
-              <span class="tag">Long Range</span>
-              <span class="tag">Stealthy</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Canberra Class -->
-        <div class="fleet-card" id="maritime-canberra" data-detail-id="canberra">
-          <div class="fleet-img-wrap">
-            <img src="images/canberra.jpg" alt="HMAS Canberra">
-            <span class="fleet-type-badge">Amphibious</span>
-          </div>
-          <div class="fleet-card-body">
-            <div class="fleet-designation">LHD</div>
-            <div class="fleet-name">Canberra Class</div>
-            <div class="fleet-role">Amphibious Assault Ship</div>
-            <div class="fleet-specs">27,500t • 20+ kts • 18 helos • Well dock</div>
-            <div class="fleet-tags">
-              <span class="tag">LHD</span>
-              <span class="tag">18 Helos</span>
-              <span class="tag">Well Dock</span>
-              <span class="tag">HADR</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Supply Class -->
-        <div class="fleet-card" id="maritime-supply" data-detail-id="supply">
-          <div class="fleet-img-wrap">
-            <img src="images/supply-class.jpg" alt="HMAS Supply">
-            <span class="fleet-type-badge">Support</span>
-          </div>
-          <div class="fleet-card-body">
-            <div class="fleet-designation">AOR</div>
-            <div class="fleet-name">Supply Class</div>
-            <div class="fleet-role">Replenishment Oiler</div>
-            <div class="fleet-specs">19,500t • 20 kts • RAS + Helo deck</div>
-            <div class="fleet-tags">
-              <span class="tag">AOR</span>
-              <span class="tag">RAS</span>
-              <span class="tag">Underway Replenishment</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Choules -->
-        <div class="fleet-card" id="maritime-choules" data-detail-id="choules">
-          <div class="fleet-img-wrap">
-            <img src="images/choules.jpg" alt="HMAS Choules">
-            <span class="fleet-type-badge">Amphibious</span>
-          </div>
-          <div class="fleet-card-body">
-            <div class="fleet-designation">LSD</div>
-            <div class="fleet-name">Choules Class</div>
-            <div class="fleet-role">Dock Landing Ship</div>
-            <div class="fleet-specs">16,000t • 18 kts • Well dock + Vehicles</div>
-            <div class="fleet-tags">
-              <span class="tag">LSD</span>
-              <span class="tag">Well Dock</span>
-              <span class="tag">Vehicles</span>
-              <span class="tag">HADR</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Hunter Class -->
-        <div class="fleet-card" id="maritime-hunter" data-detail-id="hunter">
-          <div class="fleet-img-wrap">
-            <img src="images/hunter-class.jpg" alt="Hunter-class Frigate">
-            <span class="fleet-type-badge">Surface (Future)</span>
-          </div>
-          <div class="fleet-card-body">
-            <div class="fleet-designation">FFG (Future)</div>
-            <div class="fleet-name">Hunter Class</div>
-            <div class="fleet-role">Future Anti-Submarine Frigate</div>
-            <div class="fleet-specs">8,800t • 27+ kts • CEAFAR2 • Advanced ASW</div>
-            <div class="fleet-tags">
-              <span class="tag">ASW Optimised</span>
-              <span class="tag">CEAFAR2</span>
-              <span class="tag">32 VLS</span>
-              <span class="tag">MH-60R</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- AUKUS / Virginia -->
-        <div class="fleet-card" id="maritime-aukus" data-detail-id="aukus">
-          <div class="fleet-img-wrap">
-            <img src="images/virginia-class.jpg" alt="Virginia-class SSN">
-            <span class="fleet-type-badge">Submarine (Future)</span>
-          </div>
-          <div class="fleet-card-body">
-            <div class="fleet-designation">SSN (Future)</div>
-            <div class="fleet-name">Virginia-class + SSN-AUKUS</div>
-            <div class="fleet-role">Nuclear Attack Submarine</div>
-            <div class="fleet-specs">~7,800t • 25+ kts • Tomahawk + Advanced sensors</div>
-            <div class="fleet-tags">
-              <span class="tag">AUKUS</span>
-              <span class="tag">Tomahawk</span>
-              <span class="tag">SSN</span>
-              <span class="tag">Long Range</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Navy Helicopters subsection -->
-      <div class="aircraft-section-header" style="margin-top: 32px; margin-bottom: 12px;">
-        <h3>Navy Helicopters</h3>
-      </div>
-
-      <div class="fleet-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
-        <div class="fleet-card" id="navy-mh60r" data-detail-id="mh60r">
-          <div class="fleet-img-wrap">
-            <img src="images/mh60r.jpg" alt="MH-60R Seahawk Romeo">
-            <span class="fleet-type-badge">Navy Aviation</span>
-          </div>
-          <div class="fleet-card-body">
-            <div class="fleet-designation">MH-60R</div>
-            <div class="fleet-name">Seahawk 'Romeo'</div>
-            <div class="fleet-role">Multi-Role Shipborne Helicopter</div>
-            <div class="fleet-specs">270 km/h • Dipping Sonar + Hellfire + Mk 54</div>
-            <div class="fleet-tags">
-              <span class="tag">ASW</span>
-              <span class="tag">Hellfire</span>
-              <span class="tag">Dipping Sonar</span>
-              <span class="tag">RAN Aviation</span>
-            </div>
-          </div>
-        </div>
-      </div>   <!-- end of Navy Helicopters grid -->
-
-      <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--threat); margin: 40px 0 16px;">Adversary Recognition</h3>
-
-      <div class="fleet-grid">
-
-        <!-- Type 055 -->
-        <div class="fleet-card" id="maritime-type055" data-detail-id="type055">
-          <div class="fleet-img-wrap">
-            <img src="images/type-055.jpg" alt="Type 055 Destroyer">
-            <span class="fleet-type-badge adversary">Chinese DDG</span>
-          </div>
-          <div class="fleet-card-body">
-            <div class="fleet-designation">DDG (Adversary)</div>
-            <div class="fleet-name">Type 055 (Renhai)</div>
-            <div class="fleet-role">Chinese Destroyer / Cruiser</div>
-            <div class="fleet-specs">13,000t • 30+ kts • 112 VLS • YJ-21</div>
-            <div class="fleet-tags">
-              <span class="tag">112 VLS</span>
-              <span class="tag">YJ-21</span>
-              <span class="tag">Hypersonic</span>
-              <span class="tag">PLAN</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Type 052D -->
-        <div class="fleet-card" id="maritime-type052d" data-detail-id="type052d">
-          <div class="fleet-img-wrap">
-            <img src="images/type-052d.jpg" alt="Type 052D Destroyer">
-            <span class="fleet-type-badge adversary">Chinese DDG</span>
-          </div>
-          <div class="fleet-card-body">
-            <div class="fleet-designation">DDG (Adversary)</div>
-            <div class="fleet-name">Type 052D (Luyang III)</div>
-            <div class="fleet-role">Chinese Multi-role Destroyer</div>
-            <div class="fleet-specs">7,500t • 30+ kts • 64 VLS • YJ-18</div>
-            <div class="fleet-tags">
-              <span class="tag">64 VLS</span>
-              <span class="tag">YJ-18</span>
-              <span class="tag">Supersonic</span>
-              <span class="tag">PLAN</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Kilo -->
-        <div class="fleet-card" id="maritime-kilo" data-detail-id="kilo">
-          <div class="fleet-img-wrap">
-            <img src="images/kilo-class.jpg" alt="Kilo-class Submarine">
-            <span class="fleet-type-badge adversary">Russian SSK</span>
-          </div>
-          <div class="fleet-card-body">
-            <div class="fleet-designation">SSK (Adversary)</div>
-            <div class="fleet-name">Kilo / Improved Kilo</div>
-            <div class="fleet-role">Diesel-Electric Submarine</div>
-            <div class="fleet-specs">2,400t • Very quiet • Kalibr (some)</div>
-            <div class="fleet-tags">
-              <span class="tag">Very Quiet</span>
-              <span class="tag">Kalibr</span>
-              <span class="tag">Mine Layer</span>
-              <span class="tag">SSK</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Gorshkov -->
-        <div class="fleet-card" id="maritime-gorshkov" data-detail-id="gorshkov">
-          <div class="fleet-img-wrap">
-            <img src="images/gorshkov-class.jpg" alt="Admiral Gorshkov-class Frigate">
-            <span class="fleet-type-badge adversary">Russian FFG</span>
-          </div>
-          <div class="fleet-card-body">
-            <div class="fleet-designation">FFG (Adversary)</div>
-            <div class="fleet-name">Admiral Gorshkov Class</div>
-            <div class="fleet-role">Russian Multi-role Frigate</div>
-            <div class="fleet-specs">5,400t • 29+ kts • 16 VLS • Kalibr / Tsirkon</div>
-            <div class="fleet-tags">
-              <span class="tag">Kalibr</span>
-              <span class="tag">Tsirkon</span>
-              <span class="tag">Hypersonic</span>
-              <span class="tag">Stealth</span>
-            </div>
-          </div>
-        </div>
-
+      <div id="navyGrid">
+        <!-- Populated dynamically by buildNavyGrid() from NAVY data in data.js.
+             This makes Navy rendering consistent with Air Force / Army / Weapons (no more static duplication). -->
       </div>
   </div>
 </section>
@@ -861,7 +671,7 @@
     </div>
 
     <p style="margin-top: 28px; font-size: 13px; color: var(--text-dim); max-width: 720px;">
-      All information is drawn from open sources. Click any card for full technical detail, guidance systems, and plain-English explanations.
+      All information drawn from open sources. Click any card for full technical detail, guidance systems, and plain-English explanations.
     </p>
 
   </div>
@@ -1049,7 +859,7 @@
         <!-- Minister for Defence -->
         <div class="leadership-card">
           <div class="leader-photo">
-            <img src="images/richard-marles.jpg" alt="The Hon. Richard Marles MP">
+            <img src="images/richard-marles.jpg" alt="The Hon. Richard Marles MP" loading="lazy">
           </div>
           <div class="leader-info">
             <div class="leader-rank">Minister for Defence</div>
@@ -1062,7 +872,7 @@
         <!-- Chief of the Defence Force -->
         <div class="leadership-card">
           <div class="leader-photo">
-            <img src="images/david-johnston.jpg" alt="Admiral David Johnston AC RAN">
+            <img src="images/david-johnston.jpg" alt="Admiral David Johnston AC RAN" loading="lazy">
           </div>
           <div class="leader-info">
             <div class="leader-rank">Admiral</div>
@@ -1078,14 +888,14 @@
     <!-- RAAF SENIOR LEADERSHIP - now pure 6 Air Force officials (Minister's original slot replaced + 1 additional top AF leader added to complete the set of 6) -->
     <div class="leadership-block">
       <h3>Royal Australian Air Force – Current Senior Leadership (6)</h3>
-      <p class="leadership-intro">Key leaders responsible for the Royal Australian Air Force (as of 2026). These are the officers and senior airmen/airwomen you should know when discussing RAAF command and capability.</p>
+      <p class="leadership-intro">Key leaders responsible for the Royal Australian Air Force (as of 2026). These are the officers and senior airmen/airwomen you should be able to discuss in detail.</p>
 
       <div class="leadership-grid">
 
         <!-- 1. Chief of Air Force -->
         <div class="leadership-card">
           <div class="leader-photo">
-            <img src="images/stephen-chappell.jpg" alt="Air Marshal Stephen Chappell">
+            <img src="images/stephen-chappell.jpg" alt="Air Marshal Stephen Chappell" loading="lazy">
           </div>
           <div class="leader-info">
             <div class="leader-rank">Air Marshal</div>
@@ -1098,7 +908,7 @@
         <!-- 2. Deputy Chief of Air Force -->
         <div class="leadership-card">
           <div class="leader-photo">
-            <img src="images/steve-pesce.jpg" alt="Air Vice-Marshal Steve Pesce AM">
+            <img src="images/steve-pesce.jpg" alt="Air Vice-Marshal Steve Pesce AM" loading="lazy">
           </div>
           <div class="leader-info">
             <div class="leader-rank">Air Vice-Marshal</div>
@@ -1111,7 +921,7 @@
         <!-- 3. Air Commander Australia -->
         <div class="leadership-card">
           <div class="leader-photo">
-            <img src="images/harvey-reynolds.jpg" alt="Air Vice-Marshal Harvey Reynolds AM">
+            <img src="images/harvey-reynolds.jpg" alt="Air Vice-Marshal Harvey Reynolds AM" loading="lazy">
           </div>
           <div class="leader-info">
             <div class="leader-rank">Air Vice-Marshal</div>
@@ -1124,7 +934,7 @@
         <!-- 4. Warrant Officer of the Air Force -->
         <div class="leadership-card">
           <div class="leader-photo">
-            <img src="images/ralph-clifton.jpg" alt="Warrant Officer of the Air Force Ralph Clifton">
+            <img src="images/ralph-clifton.jpg" alt="Warrant Officer of the Air Force Ralph Clifton" loading="lazy">
           </div>
           <div class="leader-info">
             <div class="leader-rank">Warrant Officer of the Air Force</div>
@@ -1137,7 +947,7 @@
         <!-- 5. Head of Air Capability (Nicolas Hogan) -->
         <div class="leadership-card">
           <div class="leader-photo">
-            <img src="images/nicolas-hogan.jpg" alt="Air Vice-Marshal Nicolas Hogan AM CSC">
+            <img src="images/nicolas-hogan.jpg" alt="Air Vice-Marshal Nicolas Hogan AM CSC" loading="lazy">
           </div>
           <div class="leader-info">
             <div class="leader-rank">Air Vice-Marshal</div>
@@ -1150,7 +960,7 @@
         <!-- 6. Commander Air Combat Group -->
         <div class="leadership-card">
           <div class="leader-photo">
-            <img src="images/matthew-mccormack.jpg" alt="Air Commodore Matthew McCormack">
+            <img src="images/matthew-mccormack.jpg" alt="Air Commodore Matthew McCormack" loading="lazy">
           </div>
           <div class="leader-info">
             <div class="leader-rank">Air Commodore</div>
@@ -1168,14 +978,14 @@
     <!-- NAVY SENIOR LEADERSHIP -->
     <div class="leadership-block">
       <h3>Royal Australian Navy – Current Senior Leadership</h3>
-      <p class="leadership-intro">Key leaders responsible for the Royal Australian Navy (as of 2026). These are the officers and senior sailors you should know when discussing RAN command and capability.</p>
+      <p class="leadership-intro">Key leaders responsible for the Royal Australian Navy (as of 2026). These are the officers and senior sailors you should be able to discuss in detail.</p>
 
       <div class="leadership-grid">
 
         <!-- Navy 1 -->
         <div class="leadership-card">
           <div class="leader-photo">
-            <img src="images/matthew-buckley.jpg" alt="Vice Admiral Matthew Buckley AM CSC RAN">
+            <img src="images/matthew-buckley.jpg" alt="Vice Admiral Matthew Buckley AM CSC RAN" loading="lazy">
           </div>
           <div class="leader-info">
             <div class="leader-rank">Vice Admiral</div>
@@ -1188,7 +998,7 @@
         <!-- Navy 2 -->
         <div class="leadership-card">
           <div class="leader-photo">
-            <img src="images/chris-smith-ran.jpg" alt="Rear Admiral Chris Smith AM CSM RAN">
+            <img src="images/chris-smith-ran.jpg" alt="Rear Admiral Chris Smith AM CSM RAN" loading="lazy">
           </div>
           <div class="leader-info">
             <div class="leader-rank">Rear Admiral</div>
@@ -1201,7 +1011,7 @@
         <!-- Navy 3 -->
         <div class="leadership-card">
           <div class="leader-photo">
-            <img src="images/andrew-bertoncin.jpg" alt="Warrant Officer of the Navy Andrew Bertoncin OAM">
+            <img src="images/andrew-bertoncin.jpg" alt="Warrant Officer of the Navy Andrew Bertoncin OAM" loading="lazy">
           </div>
           <div class="leader-info">
             <div class="leader-rank">Warrant Officer of the Navy</div>
@@ -1214,7 +1024,7 @@
         <!-- Navy 4 -->
         <div class="leadership-card">
           <div class="leader-photo">
-            <img src="images/david-greaves-ran.jpg" alt="Rear Admiral David Greaves AM CSC RAN">
+            <img src="images/david-greaves-ran.jpg" alt="Rear Admiral David Greaves AM CSC RAN" loading="lazy">
           </div>
           <div class="leader-info">
             <div class="leader-rank">Rear Admiral</div>
@@ -1227,7 +1037,7 @@
         <!-- Navy 5 -->
         <div class="leadership-card">
           <div class="leader-photo">
-            <img src="images/rachel-durbin.jpg" alt="Rear Admiral Rachel Durbin CSC RAN">
+            <img src="images/rachel-durbin.jpg" alt="Rear Admiral Rachel Durbin CSC RAN" loading="lazy">
           </div>
           <div class="leader-info">
             <div class="leader-rank">Rear Admiral</div>
@@ -1240,7 +1050,7 @@
         <!-- Navy 6 -->
         <div class="leadership-card">
           <div class="leader-photo">
-            <img src="images/jonathan-earley.jpg" alt="Rear Admiral Jonathan Earley AM RAN">
+            <img src="images/jonathan-earley.jpg" alt="Rear Admiral Jonathan Earley AM RAN" loading="lazy">
           </div>
           <div class="leader-info">
             <div class="leader-rank">Rear Admiral</div>
@@ -1256,14 +1066,14 @@
     <!-- ARMY SENIOR LEADERSHIP -->
     <div class="leadership-block">
       <h3>Australian Army – Current Senior Leadership</h3>
-      <p class="leadership-intro">Key leaders responsible for the Australian Army (as of 2026). These are the officers and senior soldiers you should know when discussing Army command and capability.</p>
+      <p class="leadership-intro">Key leaders responsible for the Australian Army (as of 2026). These are the officers and senior soldiers you should be prepared to discuss.</p>
 
       <div class="leadership-grid">
 
         <!-- Army 1 -->
         <div class="leadership-card">
           <div class="leader-photo">
-            <img src="images/susan-coyle.jpg" alt="Lieutenant General Susan Coyle AM CSC DSM">
+            <img src="images/susan-coyle.jpg" alt="Lieutenant General Susan Coyle AM CSC DSM" loading="lazy">
           </div>
           <div class="leader-info">
             <div class="leader-rank">Lieutenant General</div>
@@ -1276,7 +1086,7 @@
         <!-- Army 2 -->
         <div class="leadership-card">
           <div class="leader-photo">
-            <img src="images/chris-smith-army.jpg" alt="Major General Chris Smith DSC AM CSC">
+            <img src="images/chris-smith-army.jpg" alt="Major General Chris Smith DSC AM CSC" loading="lazy">
           </div>
           <div class="leader-info">
             <div class="leader-rank">Major General</div>
@@ -1289,7 +1099,7 @@
         <!-- Army 3 -->
         <div class="leadership-card">
           <div class="leader-photo">
-            <img src="images/kim-felmingham.jpg" alt="Warrant Officer Kim Felmingham NSC OAM">
+            <img src="images/kim-felmingham.jpg" alt="Warrant Officer Kim Felmingham NSC OAM" loading="lazy">
           </div>
           <div class="leader-info">
             <div class="leader-rank">Regimental Sergeant Major of the Army</div>
@@ -1302,7 +1112,7 @@
         <!-- Army 4 -->
         <div class="leadership-card">
           <div class="leader-photo">
-            <img src="images/natasha-fox.jpg" alt="Lieutenant General Natasha Fox AO CSC">
+            <img src="images/natasha-fox.jpg" alt="Lieutenant General Natasha Fox AO CSC" loading="lazy">
           </div>
           <div class="leader-info">
             <div class="leader-rank">Lieutenant General</div>
@@ -1315,7 +1125,7 @@
         <!-- Army 5 -->
         <div class="leadership-card">
           <div class="leader-photo">
-            <img src="images/ash-collingburn.jpg" alt="Major General Ash Collingburn AM DSM">
+            <img src="images/ash-collingburn.jpg" alt="Major General Ash Collingburn AM DSM" loading="lazy">
           </div>
           <div class="leader-info">
             <div class="leader-rank">Major General</div>
@@ -1328,7 +1138,7 @@
         <!-- Army 6 -->
         <div class="leadership-card">
           <div class="leader-photo">
-            <img src="images/richard-vagg.jpg" alt="Major General Richard Vagg DSC">
+            <img src="images/richard-vagg.jpg" alt="Major General Richard Vagg DSC" loading="lazy">
           </div>
           <div class="leader-info">
             <div class="leader-rank">Major General</div>
@@ -1451,7 +1261,6 @@
 
   </div>
 </section>
-
 
 <!-- PRE-ENTRY FITNESS ASSESSMENT (PFA) SECTION -->
 <section id="pfa">
@@ -1654,8 +1463,46 @@
             <th>Notes</th>
           </tr>
         </thead>
+        <tbody>
+          <tr>
+            <td>Push-ups</td>
+            <td>40</td>
+            <td>Full range, good technique</td>
+          </tr>
+          <tr>
+            <td>Sit-ups (feet held)</td>
+            <td>60</td>
+            <td>High volume required</td>
+          </tr>
+          <tr>
+            <td>Beep Test (20m shuttle)</td>
+            <td>Level 10.1</td>
+            <td>Very high standard</td>
+          </tr>
+          <tr>
+            <td>Pull-ups (Over-grasp heaves)</td>
+            <td>6</td>
+            <td>Strict technique</td>
+          </tr>
+        </tbody>
+      </table>
 
-
+      <div style="margin-top: 32px; padding: 16px; background: rgba(192, 57, 43, 0.1); border: 1px solid var(--threat); border-radius: 6px;">
+        <p style="color: var(--text-muted); font-size: 14px; margin: 0;">
+          <strong>Note for Special Forces:</strong> These figures are the formal pre-entry gate. Successful candidates are typically performing well above these numbers (e.g. 50+ push-ups, 12+ pull-ups, beep test 12+). Special Forces selection involves far more than the PFA, including loaded marches, swimming, and mental resilience testing under extreme fatigue.
+        </p>
+      </div>
+
+      <p style="margin-top: 28px; font-size: 13px; color: var(--text-dim);">
+        Data compiled from official ADF Careers sources (adfcareers.gov.au). Standards are subject to change. Always confirm directly with Defence Force Recruiting before training.
+      </p>
+
+    </div>
+  </div>
+</section>
+
+<!-- NATIONAL DEFENCE SECTION -->
+<section id="national-defence">
   <div class="section-wrap">
     <div class="section-header">
       <h2>National Defence</h2>
@@ -1735,7 +1582,7 @@
   <div class="section-wrap">
     <div class="section-header">
       <h2>Cyberspace <span>in the ADF</span></h2>
-      <p>Australian military cyber capabilities, current threats, preparedness, AI’s impact on cybersecurity, and sovereign AI infrastructure — essential knowledge for anyone working in or studying the cyberspace domain.</p>
+      <p>Australian military cyber capabilities, current threats, preparedness, AI’s impact on cybersecurity, and sovereign AI infrastructure — essential knowledge for Cyber Warfare Officer applicants.</p>
     </div>
 
     <div class="section-with-toc">
@@ -2202,7 +2049,7 @@
         </div>
 
         <div class="highlight-box">
-          <strong>Important for interviews:</strong> While technical tools matter, the real value a CWO brings is the ability to integrate cyber effects into joint operations and advise commanders on risk and opportunity in the cyber domain.
+          <strong>Key point:</strong> While technical tools matter, the real value a CWO brings is the ability to integrate cyber effects into joint operations and advise commanders on risk and opportunity in the cyber domain.
         </div>
       </div>
 
@@ -2211,7 +2058,39 @@
   </div>
 </section>
 
+<!-- GLOSSARY SECTION -->
+<section id="glossary">
+  <div class="section-wrap">
+    <div class="section-header">
+      <h2>ADF & RAAF <span>Glossary</span></h2>
+      <p>Essential acronyms, terms, and concepts across the ADF (tri-service). Search or browse — every entry includes why it matters operationally and technically.</p>
+    </div>
 
+    <div class="glossary-controls">
+      <input type="text" id="glossarySearch" placeholder="Search terms, acronyms or definitions..." onkeyup="filterGlossary()">
+      <div class="glossary-filters">
+        <span class="glossary-filter active" data-cat="all" onclick="filterGlossaryByCategory('all', this)">All</span>
+        <span class="glossary-filter" data-cat="sensors" onclick="filterGlossaryByCategory('sensors', this)">Sensors & Radar</span>
+        <span class="glossary-filter" data-cat="weapons" onclick="filterGlossaryByCategory('weapons', this)">Weapons & Systems</span>
+        <span class="glossary-filter" data-cat="platforms" onclick="filterGlossaryByCategory('platforms', this)">Platforms</span>
+        <span class="glossary-filter" data-cat="doctrine" onclick="filterGlossaryByCategory('doctrine', this)">Doctrine & Strategy</span>
+        <span class="glossary-filter" data-cat="orgs" onclick="filterGlossaryByCategory('orgs', this)">Organisations</span>
+      </div>
+    </div>
+
+    <div id="glossaryGrid" class="glossary-grid">
+      <!-- Populated dynamically by script.js -->
+    </div>
+
+    <p style="margin-top: 24px; font-size: 13px; color: var(--text-dim);">
+      Can't find something? The glossary is designed to grow — let me know any terms you want added.
+    </p>
+  </div>
+</section>
+
+
+
+<!-- STUDY TOOLS SECTION (Flashcards + Quiz) - placed before Glossary for logical study flow -->
 <section id="study-tools">
   <div class="section-wrap">
     <div class="section-header">
@@ -2435,39 +2314,6 @@
 
   </div>
 </section>
-
-
-  <div class="section-wrap">
-    <div class="section-header">
-      <h2>ADF & RAAF <span>Glossary</span></h2>
-      <p>Essential acronyms, terms, and concepts across the ADF. Search or browse — every entry includes context on why it matters operationally and strategically.</p>
-    </div>
-
-    <div class="glossary-controls">
-      <input type="text" id="glossarySearch" placeholder="Search terms, acronyms or definitions..." onkeyup="filterGlossary()">
-      <div class="glossary-filters">
-        <span class="glossary-filter active" data-cat="all" onclick="filterGlossaryByCategory('all', this)">All</span>
-        <span class="glossary-filter" data-cat="sensors" onclick="filterGlossaryByCategory('sensors', this)">Sensors & Radar</span>
-        <span class="glossary-filter" data-cat="weapons" onclick="filterGlossaryByCategory('weapons', this)">Weapons & Systems</span>
-        <span class="glossary-filter" data-cat="platforms" onclick="filterGlossaryByCategory('platforms', this)">Platforms</span>
-        <span class="glossary-filter" data-cat="doctrine" onclick="filterGlossaryByCategory('doctrine', this)">Doctrine & Strategy</span>
-        <span class="glossary-filter" data-cat="orgs" onclick="filterGlossaryByCategory('orgs', this)">Organisations</span>
-      </div>
-    </div>
-
-    <div id="glossaryGrid" class="glossary-grid">
-      <!-- Populated dynamically by script.js -->
-    </div>
-
-    <p style="margin-top: 24px; font-size: 13px; color: var(--text-dim);">
-      Can't find something? The glossary is designed to grow — let me know any terms you want added.
-    </p>
-  </div>
-</section>
-
-
-
-
 
 <!-- Load data first, then the logic -->
 <script src="data.js"></script>
