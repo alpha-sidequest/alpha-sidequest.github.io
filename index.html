@@ -10,6 +10,15 @@
 
   <!-- Our styles -->
   <link rel="stylesheet" href="styles.css">
+
+  <!-- Google Maps JS API (loaded always so we can default-attempt online satellite view with markers for bases + ops).
+       Enable "Maps JavaScript API" in Google Cloud Console for your key.
+       For restrictions / "Application restrictions" section (if the upgrade prompt blocks you):
+         - Temporarily set key restrictions to "None" for localhost testing (safe for dev; re-restrict later).
+         - Or add: http://localhost:*/* and http://127.0.0.1:*/*
+       Our code defaults map containers to the reliable offline SVG (labels, dots, cards, calib) + auto-fallback if Google shows error UI.
+       We removed callback= + added loading=async. We drive init ourselves. -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC-kdqaFYM6iWR1PjJnK4jJPPVRfepZEPc&loading=async&v=weekly" async defer></script>
 </head>
 <body>
 
@@ -65,11 +74,12 @@
     <span class="nav-link" data-section="airforce">Air Force</span>
     <span class="nav-link" data-section="navy">Navy</span>
     <span class="nav-link" data-section="army">Army</span>
+    <span class="nav-link" data-section="space">Space</span>
+    <span class="nav-link" data-section="cyberspace">Cyberspace</span>
     <span class="nav-link" data-section="weapons">Weapons &amp; Systems</span>
     <span class="nav-link" data-section="ranks-leadership">Ranks &amp; Leadership</span>
     <span class="nav-link" data-section="pfa">Pre-entry Fitness (PFA)</span>
     <span class="nav-link" data-section="national-defence">National Defence</span>
-    <span class="nav-link" data-section="cyberspace">Cyberspace</span>
     <span class="nav-link" data-section="study-tools">Study Tools</span>
     <span class="nav-link" data-section="glossary">Glossary</span>
   </div>
@@ -182,6 +192,24 @@
         <div class="feature-card-link">View army →</div>
       </div>
 
+      <!-- Space -->
+      <div class="feature-card" data-section="space">
+        <div class="feature-card-title">Space</div>
+        <div class="feature-card-desc">
+          Space domain operations for the ADF: capabilities, adversary threats, allied partnerships, and essential knowledge for Space Operations Officers.
+        </div>
+        <div class="feature-card-link">Explore Space →</div>
+      </div>
+
+      <!-- Cyberspace (moved after Space) -->
+      <div class="feature-card" data-section="cyberspace">
+        <div class="feature-card-title">Cyberspace</div>
+        <div class="feature-card-desc">
+          The cyber domain in ADF operations, with deep focus on the Cyber Warfare Officer role, plus intersections with Space Operations and Air Intelligence.
+        </div>
+        <div class="feature-card-link">Explore Cyberspace →</div>
+      </div>
+
       <!-- Weapons -->
       <div class="feature-card" data-section="weapons">
         <div class="feature-card-title">Weapons & Systems</div>
@@ -213,18 +241,9 @@
       <div class="feature-card" data-section="national-defence">
         <div class="feature-card-title">National Defence</div>
         <div class="feature-card-desc">
-          Australia’s strategic framework: the 2023 Defence Strategic Review, Strategy of Denial, and the 2024 & 2026 National Defence Strategies.
+          The 2026 National Defence Strategy and 2026 Integrated Investment Program: Australia’s latest strategy of denial, self-reliance, five ADF tasks, capability priorities and $425B+ decade investment plan.
         </div>
-        <div class="feature-card-link">View strategy →</div>
-      </div>
-
-      <!-- Cyberspace -->
-      <div class="feature-card" data-section="cyberspace">
-        <div class="feature-card-title">Cyberspace</div>
-        <div class="feature-card-desc">
-          The cyber domain in ADF operations, with deep focus on the Cyber Warfare Officer role, plus intersections with Space Operations and Air Intelligence.
-        </div>
-        <div class="feature-card-link">Explore Cyberspace →</div>
+        <div class="feature-card-link">View 2026 NDS &amp; IIP →</div>
       </div>
 
       <!-- Study Tools -->
@@ -254,12 +273,15 @@
   <div class="section-wrap">
     <div class="section-header">
       <h2>ADF <span>Bases</span></h2>
-      <p>Click any base marker on the map to see its units, aircraft and role. Tri-service (RAAF, Army, Navy). Aircraft names link to the Air Force section for full details.</p>
+      <p>Click any base marker on the map or a base in the list below to see its units, aircraft and role. Tri-service (RAAF, Army, Navy). Click the name chips in a base card to pop up full details (stays here — close the popup to keep browsing bases).</p>
     </div>
 
     <div class="map-layout">
       <!-- Australia Map -->
       <div class="map-container">
+        <!-- ONLINE Google (we attempt this; if key/referrers fail we auto fallback to the offline SVG below) -->
+        <div id="bases-google-map" style="width:100%; height:560px; border-radius:8px; overflow:hidden; display:none;"></div>
+
         <svg id="australia-svg" viewBox="0 0 4000 2588" xmlns="http://www.w3.org/2000/svg">
           <!-- Clean vector Australia map background (rolled back from topographic JPG) -->
           <rect width="4000" height="2588" fill="#0A1628"/>
@@ -386,6 +408,38 @@
             <circle class="inner" cx="2971" cy="1426" r="11" fill="#228B22" stroke="#FFFFFF" stroke-width="2"/>
           </g>
 
+          <!-- New: Additional Navy ports and RAAF bare bases -->
+          <!-- HMAS Kuttabul (Fleet Base East, Garden Island Sydney) -->
+          <g class="base-dot" data-base="kuttabul" onclick="selectBase('kuttabul',event)">
+            <circle class="outer" cx="2835" cy="1785" r="19" fill="#4A9EDB" opacity="0.7"/>
+            <circle class="inner" cx="2835" cy="1785" r="11" fill="#4A9EDB" stroke="#FFFFFF" stroke-width="2"/>
+          </g>
+          <!-- HMAS Coonawarra (Darwin NT) -->
+          <g class="base-dot" data-base="coonawarra" onclick="selectBase('coonawarra',event)">
+            <circle class="outer" cx="1870" cy="535" r="19" fill="#4A9EDB" opacity="0.7"/>
+            <circle class="inner" cx="1870" cy="535" r="11" fill="#4A9EDB" stroke="#FFFFFF" stroke-width="2"/>
+          </g>
+          <!-- HMAS Cerberus (Crib Point VIC) -->
+          <g class="base-dot" data-base="cerberus" onclick="selectBase('cerberus',event)">
+            <circle class="outer" cx="2680" cy="2120" r="19" fill="#4A9EDB" opacity="0.7"/>
+            <circle class="inner" cx="2680" cy="2120" r="11" fill="#4A9EDB" stroke="#FFFFFF" stroke-width="2"/>
+          </g>
+          <!-- HMAS Cairns (QLD) -->
+          <g class="base-dot" data-base="cairns" onclick="selectBase('cairns',event)">
+            <circle class="outer" cx="2710" cy="820" r="19" fill="#4A9EDB" opacity="0.7"/>
+            <circle class="inner" cx="2710" cy="820" r="11" fill="#4A9EDB" stroke="#FFFFFF" stroke-width="2"/>
+          </g>
+          <!-- RAAF Base Scherger (Weipa QLD bare base) -->
+          <g class="base-dot" data-base="scherger" onclick="selectBase('scherger',event)">
+            <circle class="outer" cx="2580" cy="680" r="19" fill="#E05A40" opacity="0.7"/>
+            <circle class="inner" cx="2580" cy="680" r="11" fill="#E05A40" stroke="#FFFFFF" stroke-width="2"/>
+          </g>
+          <!-- RAAF Base Curtin (Derby WA bare base) -->
+          <g class="base-dot" data-base="curtin" onclick="selectBase('curtin',event)">
+            <circle class="outer" cx="1150" cy="1380" r="19" fill="#E05A40" opacity="0.7"/>
+            <circle class="inner" cx="1150" cy="1380" r="11" fill="#E05A40" stroke="#FFFFFF" stroke-width="2"/>
+          </g>
+
           <!-- Labels (moved in lockstep with their dots) -->
           <!-- Stronger visibility for colorful topographic background: thicker stroke + brighter fill -->
           <text x="1009" y="1204" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="38" fill="#FFFFFF">Learmonth</text>
@@ -408,6 +462,14 @@
           <text x="2617" y="1948" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="34" fill="#FFFFFF">Puckapunyal</text>
           <text x="2896" y="1827" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="34" fill="#FFFFFF">Holsworthy</text>
           <text x="2996" y="1432" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="34" fill="#FFFFFF">Oakey</text>
+
+          <!-- New base labels for added navy ports and bare bases (positions approx; use Calib to fine-tune) -->
+          <text x="2810" y="1770" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="30" fill="#FFFFFF">Kuttabul</text>
+          <text x="1895" y="560" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="30" fill="#FFFFFF">Coonawarra</text>
+          <text x="2655" y="2100" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="30" fill="#FFFFFF">Cerberus</text>
+          <text x="2685" y="845" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="30" fill="#FFFFFF">Cairns</text>
+          <text x="2555" y="705" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="28" fill="#FFFFFF">Scherger</text>
+          <text x="1125" y="1360" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="28" fill="#FFFFFF">Curtin</text>
         </svg>
 
         <div class="map-legend">
@@ -425,17 +487,30 @@
           <button id="calibToggleBtn" class="calib-btn" title="Toggle calibration helpers (yellow label + clickable rect for logging coords). Off by default.">Calib</button>
           <span id="calibState" class="calib-state">OFF</span>
         </div>
+
+        <div style="margin-top:4px; font-size:11px;">
+          <button onclick="switchToOnlineBasesMap()" style="font-size:10px; padding:2px 6px; background:var(--navy-mid); color:var(--gold); border:1px solid rgba(201,168,76,0.4); border-radius:2px; cursor:pointer;">
+            🛰️ Online Google (with points)
+          </button>
+          <button onclick="switchToOfflineBasesMap()" style="font-size:10px; padding:2px 6px; background:var(--navy-mid); color:var(--gold); border:1px solid rgba(201,168,76,0.4); border-radius:2px; cursor:pointer; margin-left:4px;">
+            📍 Offline local
+          </button>
+        </div>
       </div>
 
-      <!-- Side panel -->
+      <!-- Side panel (card) on the right. Equal 50/50 split (map left, card right).
+           Map still shows full Australia + ocean around. -->
       <div class="base-panel">
         <div class="base-panel-placeholder" id="basePlaceholder">
           <div class="icon">📍</div>
-          <p>Click a base marker on the map to view units, aircraft and role details</p>
+          <p>Click a base marker on the map or a base in the list below to view units, aircraft and role details. Click chips inside a base card for pop-up specs (no page change).</p>
         </div>
         <div class="base-card" id="baseCard"></div>
       </div>
     </div>
+
+    <!-- Compact list of bases below the map+panel -->
+    <div id="basesList" class="ops-compact-list"></div>
   </div>
 </section>
 
@@ -444,72 +519,195 @@
   <div class="section-wrap">
     <div class="section-header">
       <h2>ADF International <span>Operations</span></h2>
-      <p>Current and recent ADF deployments worldwide. Click a card or map marker to see mission details, deployed assets and objectives.</p>
+      <p>Current and recent ADF deployments worldwide. Click a marker on the map or an operation in the list below to see full details in the panel.</p>
     </div>
 
-    <div class="world-map-wrap">
-      <svg id="world-svg" viewBox="0 0 960 480" xmlns="http://www.w3.org/2000/svg">
+    <div class="map-layout">
+      <div class="world-map-wrap">
+      <!-- ONLINE: Google Maps satellite (attempted by default; auto-falls back to offline SVG if key/referrers cause "Something went wrong") -->
+      <div id="ops-google-map" style="width:100%; height:480px; border-radius:8px; overflow:hidden; display:none;"></div>
+
+      <!-- OFFLINE: Local calibrated map (fallback) -->
+      <div id="ops-offline-map">
+        <svg id="world-svg" viewBox="0 0 960 480" xmlns="http://www.w3.org/2000/svg">
         <rect width="960" height="480" fill="#0A1628"/>
-        <!-- Real world map as background -->
+        <!-- Real world map as background (new JPEG) -->
         <image href="images/world-map.jpg" width="960" height="480" preserveAspectRatio="xMidYMid meet"/>
 
-        <!-- Operation Markers - all shifted +70 SVG units right (≈ 1 inch on 16" MacBook Pro screen) so they better align with the continents -->
+        <!-- Operation Markers - positions calibrated for current world-map.jpg using equirectangular projection (lon/lat to 960x480 px). All 17+ current public ADF operations included from official Defence sources. -->
 
         <!-- Operation Accordion - UAE (Al Minhad Air Base) -->
         <g class="op-dot" data-op="accordion" onclick="selectOp('accordion',event)">
-          <circle class="op-ring" cx="581.3" cy="161.7" r="8.5" fill="#C9A84C" opacity="0.3"/>
-          <circle cx="581.3" cy="161.7" r="4" fill="#C9A84C"/>
+          <circle class="op-ring" cx="628" cy="173" r="8.5" fill="#C9A84C" opacity="0.3"/>
+          <circle cx="628" cy="173" r="4" fill="#C9A84C"/>
+        </g>
+
+        <!-- Operation Argos - North Korea sanctions (North East Asia) -->
+        <g class="op-dot" data-op="argos" onclick="selectOp('argos',event)">
+          <circle class="op-ring" cx="827" cy="139" r="7.5" fill="#4A9EDB" opacity="0.3"/>
+          <circle cx="827" cy="139" r="3.5" fill="#4A9EDB"/>
+        </g>
+
+        <!-- Operation Aslan - South Sudan (UNMISS) -->
+        <g class="op-dot" data-op="aslan" onclick="selectOp('aslan',event)">
+          <circle class="op-ring" cx="560" cy="221" r="7.5" fill="#9B59B6" opacity="0.3"/>
+          <circle cx="560" cy="221" r="3.5" fill="#9B59B6"/>
+        </g>
+
+        <!-- Operation Augury - Global CT / VEO (representative position; specifics often not public) -->
+        <g class="op-dot" data-op="augury" onclick="selectOp('augury',event)">
+          <circle class="op-ring" cx="600" cy="213" r="7.5" fill="#E05A40" opacity="0.3"/>
+          <circle cx="600" cy="213" r="3.5" fill="#E05A40"/>
+        </g>
+
+        <!-- Operation Beech - Middle East conflict support -->
+        <g class="op-dot" data-op="beech" onclick="selectOp('beech',event)">
+          <circle class="op-ring" cx="573" cy="155" r="7.5" fill="#C9A84C" opacity="0.3"/>
+          <circle cx="573" cy="155" r="3.5" fill="#C9A84C"/>
+        </g>
+
+        <!-- Operation Dyurra - Space domain (representative ground segment / Aus assets) -->
+        <g class="op-dot" data-op="dyurra" onclick="selectOp('dyurra',event)">
+          <circle class="op-ring" cx="840" cy="307" r="7.5" fill="#2EC4A0" opacity="0.3"/>
+          <circle cx="840" cy="307" r="3.5" fill="#2EC4A0"/>
+        </g>
+
+        <!-- Operation Fortitude - Syria (UNDOF) -->
+        <g class="op-dot" data-op="fortitude" onclick="selectOp('fortitude',event)">
+          <circle class="op-ring" cx="587" cy="147" r="7.5" fill="#9B59B6" opacity="0.3"/>
+          <circle cx="587" cy="147" r="3.5" fill="#9B59B6"/>
+        </g>
+
+        <!-- Operation Okra (Concluded) - Iraq & Syria against Daesh -->
+        <g class="op-dot concluded" data-op="okra" onclick="selectOp('okra',event)">
+          <circle class="op-ring" cx="595" cy="152" r="7" fill="#888888" opacity="0.3"/>
+          <circle cx="595" cy="152" r="3" fill="#888888"/>
+        </g>
+
+        <!-- Operation Steadfast (Concluded) - Iraq (NATO Mission) -->
+        <g class="op-dot concluded" data-op="steadfast" onclick="selectOp('steadfast',event)">
+          <circle class="op-ring" cx="600" cy="148" r="7" fill="#888888" opacity="0.3"/>
+          <circle cx="600" cy="148" r="3" fill="#888888"/>
         </g>
 
         <!-- Operation Gateway - Malaysia / Butterworth area -->
         <g class="op-dot" data-op="gateway" onclick="selectOp('gateway',event)">
-          <circle class="op-ring" cx="730.7" cy="224.3" r="8" fill="#4A9EDB" opacity="0.3"/>
-          <circle cx="730.7" cy="224.3" r="4" fill="#4A9EDB"/>
-        </g>
-
-        <!-- Operation Resolute - Australia (broad maritime borders, centered on continent) -->
-        <g class="op-dot" data-op="resolute" onclick="selectOp('resolute',event)">
-          <circle class="op-ring" cx="725.3" cy="339.1" r="8" fill="#2EC4A0" opacity="0.3"/>
-          <circle cx="725.3" cy="339.1" r="4" fill="#2EC4A0"/>
-        </g>
-
-        <!-- Operation Solania - Pacific (near Solomon Islands / PNG area) -->
-        <g class="op-dot" data-op="solania" onclick="selectOp('solania',event)">
-          <circle class="op-ring" cx="880.0" cy="297.4" r="8" fill="#4A9EDB" opacity="0.3"/>
-          <circle cx="880.0" cy="297.4" r="4" fill="#4A9EDB"/>
-        </g>
-
-        <!-- Indo-Pacific Endeavour (broad regional - centered more on SE Asia / Timor area) -->
-        <g class="op-dot" data-op="ipe" onclick="selectOp('ipe',event)">
-          <circle class="op-ring" cx="746.7" cy="276.5" r="8" fill="#9B59B6" opacity="0.3"/>
-          <circle cx="746.7" cy="276.5" r="4" fill="#9B59B6"/>
+          <circle class="op-ring" cx="748" cy="225" r="8" fill="#4A9EDB" opacity="0.3"/>
+          <circle cx="748" cy="225" r="4" fill="#4A9EDB"/>
         </g>
 
         <!-- Operation Hydranth - Red Sea -->
         <g class="op-dot" data-op="hydranth" onclick="selectOp('hydranth',event)">
-          <circle class="op-ring" cx="549.3" cy="177.4" r="8" fill="#E05A40" opacity="0.3"/>
-          <circle cx="549.3" cy="177.4" r="4" fill="#E05A40"/>
+          <circle class="op-ring" cx="587" cy="187" r="8" fill="#E05A40" opacity="0.3"/>
+          <circle cx="587" cy="187" r="4" fill="#E05A40"/>
+        </g>
+
+        <!-- Operation IPE - Indo-Pacific Endeavour (SE Asia / Timor) -->
+        <g class="op-dot" data-op="ipe" onclick="selectOp('ipe',event)">
+          <circle class="op-ring" cx="773" cy="240" r="8" fill="#9B59B6" opacity="0.3"/>
+          <circle cx="773" cy="240" r="4" fill="#9B59B6"/>
         </g>
 
         <!-- Operation Kudu - Europe / UK training support -->
         <g class="op-dot" data-op="kudu" onclick="selectOp('kudu',event)">
-          <circle class="op-ring" cx="448.0" cy="104.3" r="8" fill="#E05A40" opacity="0.3"/>
-          <circle cx="448.0" cy="104.3" r="4" fill="#E05A40"/>
+          <circle class="op-ring" cx="475" cy="96" r="8" fill="#E05A40" opacity="0.3"/>
+          <circle cx="475" cy="96" r="4" fill="#E05A40"/>
+        </g>
+
+        <!-- Operation Linesmen - Korea DMZ / Inter-Korean peace -->
+        <g class="op-dot" data-op="linesmen" onclick="selectOp('linesmen',event)">
+          <circle class="op-ring" cx="818" cy="139" r="7.5" fill="#4A9EDB" opacity="0.3"/>
+          <circle cx="818" cy="139" r="3.5" fill="#4A9EDB"/>
         </g>
 
         <!-- Operation Manitou - Persian Gulf / Arabian Sea -->
         <g class="op-dot" data-op="manitou" onclick="selectOp('manitou',event)">
-          <circle class="op-ring" cx="592.0" cy="189.9" r="8" fill="#C9A84C" opacity="0.3"/>
-          <circle cx="592.0" cy="189.9" r="4" fill="#C9A84C"/>
+          <circle class="op-ring" cx="619" cy="171" r="8" fill="#C9A84C" opacity="0.3"/>
+          <circle cx="619" cy="171" r="4" fill="#C9A84C"/>
         </g>
-      </svg>
 
-      <div style="padding:12px 16px;border-top:1px solid rgba(201,168,76,0.1);display:flex;gap:20px;font-size:12px;color:var(--text-muted)">
-        <span>● Click markers on map or cards below for details</span>
+        <!-- Operation Mazurka - Sinai Peninsula (MFO) -->
+        <g class="op-dot" data-op="mazurka" onclick="selectOp('mazurka',event)">
+          <circle class="op-ring" cx="571" cy="163" r="7.5" fill="#9B59B6" opacity="0.3"/>
+          <circle cx="571" cy="163" r="3.5" fill="#9B59B6"/>
+        </g>
+
+        <!-- Operation Paladin - Israel / UNTSO -->
+        <g class="op-dot" data-op="paladin" onclick="selectOp('paladin',event)">
+          <circle class="op-ring" cx="574" cy="156" r="7.5" fill="#C9A84C" opacity="0.3"/>
+          <circle cx="574" cy="156" r="3.5" fill="#C9A84C"/>
+        </g>
+
+        <!-- Operation Resolute - Australia (broad maritime borders, centered on continent) -->
+        <g class="op-dot" data-op="resolute" onclick="selectOp('resolute',event)">
+          <circle class="op-ring" cx="840" cy="307" r="8" fill="#2EC4A0" opacity="0.3"/>
+          <circle cx="840" cy="307" r="4" fill="#2EC4A0"/>
+        </g>
+
+        <!-- Operation Solania - Pacific (near Solomon Islands / PNG area) -->
+        <g class="op-dot" data-op="solania" onclick="selectOp('solania',event)">
+          <circle class="op-ring" cx="907" cy="264" r="8" fill="#4A9EDB" opacity="0.3"/>
+          <circle cx="907" cy="264" r="4" fill="#4A9EDB"/>
+        </g>
+
+        <!-- Labels: Rajdhani white with dark stroke for visibility over colorful map background. Positions adjusted to avoid overlap (right for most, left/text-anchor end for dense left-side ME/Europe cluster). -->
+        <text x="640" y="176" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="9" fill="#FFFFFF" stroke="#0A1628" stroke-width="1">Accordion</text>
+        <text x="839" y="139" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="8" fill="#FFFFFF" stroke="#0A1628" stroke-width="1">Argos</text>
+        <text x="548" y="221" text-anchor="end" font-family="Rajdhani,sans-serif" font-size="8" fill="#FFFFFF" stroke="#0A1628" stroke-width="1">Aslan</text>
+        <text x="588" y="213" text-anchor="end" font-family="Rajdhani,sans-serif" font-size="8" fill="#FFFFFF" stroke="#0A1628" stroke-width="1">Augury</text>
+        <text x="561" y="155" text-anchor="end" font-family="Rajdhani,sans-serif" font-size="8" fill="#FFFFFF" stroke="#0A1628" stroke-width="1">Beech</text>
+        <text x="852" y="307" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="8" fill="#FFFFFF" stroke="#0A1628" stroke-width="1">Dyurra</text>
+        <text x="575" y="147" text-anchor="end" font-family="Rajdhani,sans-serif" font-size="8" fill="#FFFFFF" stroke="#0A1628" stroke-width="1">Fortitude</text>
+        <text x="760" y="228" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="9" fill="#FFFFFF" stroke="#0A1628" stroke-width="1">Gateway</text>
+        <text x="599" y="190" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="9" fill="#FFFFFF" stroke="#0A1628" stroke-width="1">Hydranth</text>
+        <text x="785" y="240" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="9" fill="#FFFFFF" stroke="#0A1628" stroke-width="1">IPE</text>
+        <text x="487" y="99" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="9" fill="#FFFFFF" stroke="#0A1628" stroke-width="1">Kudu</text>
+        <text x="830" y="139" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="8" fill="#FFFFFF" stroke="#0A1628" stroke-width="1">Linesmen</text>
+        <text x="631" y="174" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="9" fill="#FFFFFF" stroke="#0A1628" stroke-width="1">Manitou</text>
+        <text x="559" y="163" text-anchor="end" font-family="Rajdhani,sans-serif" font-size="8" fill="#FFFFFF" stroke="#0A1628" stroke-width="1">Mazurka</text>
+        <text x="562" y="156" text-anchor="end" font-family="Rajdhani,sans-serif" font-size="8" fill="#FFFFFF" stroke="#0A1628" stroke-width="1">Paladin</text>
+        <text x="852" y="310" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="9" fill="#FFFFFF" stroke="#0A1628" stroke-width="1">Resolute</text>
+        <text x="919" y="264" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="9" fill="#FFFFFF" stroke="#0A1628" stroke-width="1">Solania</text>
+        <text x="607" y="152" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="8" fill="#FFFFFF" stroke="#0A1628" stroke-width="1">Okra (Concluded)</text>
+        <text x="612" y="148" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="8" fill="#FFFFFF" stroke="#0A1628" stroke-width="1">Steadfast (Concluded)</text>
+
+        <!-- Representative last-known asset locations (static for now; white font for visibility on colorful map). Live tracking deferred to future asset page. -->
+        <text x="820" y="290" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="7" fill="#FFFFFF" stroke="#0A1628" stroke-width="0.6">P-8A (Resolute)</text>
+        <text x="760" y="210" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="7" fill="#FFFFFF" stroke="#0A1628" stroke-width="0.6">P-8A (Gateway/Argos)</text>
+        <text x="900" y="245" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="7" fill="#FFFFFF" stroke="#0A1628" stroke-width="0.6">P-8A (Solania)</text>
+        <text x="780" y="255" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="7" fill="#FFFFFF" stroke="#0A1628" stroke-width="0.6">HMAS Choules (IPE)</text>
+        <text x="630" y="155" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="7" fill="#FFFFFF" stroke="#0A1628" stroke-width="0.6">RAN (Manitou)</text>
+        <text x="490" y="110" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="7" fill="#FFFFFF" stroke="#0A1628" stroke-width="0.6">Army trainers (Kudu)</text>
+        <text x="565" y="230" text-anchor="start" font-family="Rajdhani,sans-serif" font-size="7" fill="#FFFFFF" stroke="#0A1628" stroke-width="0.6">Army (Aslan)</text>
+      </svg>
+    </div>
+
+    <div style="padding:12px 16px;border-top:1px solid rgba(201,168,76,0.1);display:flex;gap:20px;font-size:12px;color:var(--text-muted); flex-wrap: wrap;">
+      <span>● Click markers on map or names in the list below for details (right panel)</span>
+      <span style="margin-left: auto;">Gold = active | Gray = concluded | Small labels on map</span>
+    </div>
+
+    <div style="padding: 8px 16px; border-top: 1px solid rgba(201,168,76,0.1); display:flex; gap:8px; align-items:center;">
+      <button onclick="switchToOnlineOpsMap()" style="font-size:11px; padding:4px 10px; background:var(--navy-mid); color:var(--gold); border:1px solid rgba(201,168,76,0.4); border-radius:3px; cursor:pointer;">
+        🛰️ Online Google Maps (with all points)
+      </button>
+      <button onclick="switchToOfflineOpsMap()" style="font-size:11px; padding:4px 10px; background:var(--navy-mid); color:var(--gold); border:1px solid rgba(201,168,76,0.4); border-radius:3px; cursor:pointer;">
+        📍 Offline local map (no internet)
+      </button>
+    </div>
+  </div>
+      <!-- Side panel for selected operation details (mirrors Bases page) -->
+      <div class="ops-panel">
+        <div class="ops-panel-placeholder" id="opsPlaceholder">
+          <div class="icon">🌍</div>
+          <p>Click a marker on the map or an operation in the list below to view full mission details, assets and objectives.</p>
+        </div>
+        <div class="op-details" id="opsCard"></div>
       </div>
     </div>
 
-    <div class="ops-grid" id="opsGrid"></div>
+    <!-- Compact list of operations (simplified links below the map+panel, like a clean index) -->
+    <div id="opsList" class="ops-compact-list"></div>
   </div>
 </section>
 
@@ -564,6 +762,108 @@
       <p style="text-align:center; margin-top: 16px; font-size:13px; color:var(--text-dim);">
         Adversary vehicles (China / Russia) shown below for threat recognition. More platforms will be added over time.
       </p>
+  </div>
+</section>
+
+<!-- SPACE SECTION -->
+<section id="space">
+  <div class="section-wrap">
+    <div class="section-header">
+      <h2>Space <span>Defence</span></h2>
+      <p>Space domain operations, capabilities, threats, and doctrine for the Australian Defence Force. Essential knowledge for Space Operations Officers, aircrew, and joint planners operating in a contested space environment.</p>
+    </div>
+
+    <div class="section-main" style="max-width: 980px; margin: 0 auto;">
+
+      <div>
+        <h3 id="space-adf" style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 12px; font-size: 20px;">ADF Space Defence Capabilities</h3>
+        <p style="font-size: 14px; line-height: 1.7;">The ADF is rapidly developing sovereign space capabilities to support joint operations, enable precision effects, and maintain space domain awareness. Key initiatives include protected satellite communications (JP9102 and follow-on programs), space domain awareness sensors (radars and telescopes), and small satellite / cubesat programs for resilient ISR and communications. Australia participates in US-led space architectures while pursuing sovereign options to reduce single points of failure.</p>
+        <ul style="margin: 12px 0 20px 20px; font-size: 13.5px;">
+          <li><strong>Space Domain Awareness (SDA):</strong> Tracking satellites, debris, and threats in orbit. Critical for attribution and protection of ADF assets.</li>
+          <li><strong>Protected Satcom:</strong> Anti-jam, secure communications resistant to adversary counterspace attacks.</li>
+          <li><strong>Resilient Architectures:</strong> Proliferated LEO constellations, smallsats, and alternative PNT to survive attacks on GEO assets.</li>
+          <li><strong>Ground Infrastructure:</strong> Distributed ground stations and command nodes less vulnerable to attack.</li>
+        </ul>
+      </div>
+
+      <div style="margin-top: 32px;">
+        <h3 id="space-adversary" style="font-family: 'Rajdhani', sans-serif; color: var(--threat); margin-bottom: 12px; font-size: 20px;">Adversary Space Capabilities (China &amp; Russia)</h3>
+        <p style="font-size: 14px; line-height: 1.7;">Both China and Russia have mature counterspace programs designed to deny the US and its allies the use of space in a conflict.</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
+          <div style="background: rgba(224,90,64,0.08); padding: 12px; border-radius: 6px;">
+            <strong style="color: var(--threat);">China</strong><br>
+            Direct-ascent ASAT (SC-19, DN-3), co-orbital attack satellites, ground-based lasers and jammers, cyber attacks on satellite ground segments, and rapid launch reconstitution. China has demonstrated the ability to destroy LEO satellites and is developing capabilities against higher orbits.
+          </div>
+          <div style="background: rgba(224,90,64,0.08); padding: 12px; border-radius: 6px;">
+            <strong style="color: var(--threat);">Russia</strong><br>
+            Co-orbital ASAT systems (Nudol/PL-19), legacy direct-ascent, electronic warfare (jamming GPS and satcom), and cyber. Russia has conducted ASAT tests that created dangerous debris fields affecting all space users.
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 32px;">
+        <h3 id="space-allied" style="font-family: 'Rajdhani', sans-serif; color: var(--accent-blue); margin-bottom: 12px; font-size: 20px;">Allied Space Capabilities &amp; Partnerships</h3>
+        <p style="font-size: 14px; line-height: 1.7;">Australia operates as part of a broader allied space enterprise, primarily with the United States.</p>
+        <ul style="margin: 12px 0 20px 20px; font-size: 13.5px;">
+          <li><strong>United States:</strong> US Space Force provides GPS (with M-Code), SBIRS missile warning, AEHF protected comms, and proliferated LEO via Starshield. Australia has access arrangements and contributes sensors and ground infrastructure.</li>
+          <li><strong>Five Eyes / AUKUS:</strong> Deep integration in space domain awareness, intelligence, and resilient comms. AUKUS Pillar II includes advanced space capabilities.</li>
+          <li><strong>Commercial:</strong> Access to commercial mega-constellations (Starlink/Starshield derivatives) for surge capacity and resilience in denied environments.</li>
+        </ul>
+      </div>
+
+      <div style="margin-top: 32px;">
+        <h3 id="space-concepts" style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 12px; font-size: 20px;">Key Concepts Every Space Operations Officer Must Master</h3>
+        <div class="info-grid" style="margin: 12px 0;">
+          <div class="info-grid-item"><dt>Orbital Regimes</dt><dd>LEO (low latency, high drag/debris), MEO (GPS), GEO (persistent comms). Different threats, physics, and response options apply to each.<br><br>
+<b>Low Earth Orbit (LEO, ~160-2000 km):</b> Used for high-resolution ISR, broadband comms (Starlink), and some navigation. Advantages: low latency, high resolution, cheaper to launch. Disadvantages: short dwell time over targets (need constellations), atmospheric drag requires frequent station-keeping, high debris density (Kessler risk highest here). Direct-ascent ASATs are most effective against LEO.<br><br>
+<b>Medium Earth Orbit (MEO, ~2000-35,000 km):</b> Primarily navigation (GPS, Galileo, BeiDou, GLONASS). Good global coverage with fewer satellites, moderate latency. Less debris than LEO but still vulnerable to certain ASATs. Critical for precision weapons and timing.<br><br>
+<b>Geostationary Orbit (GEO, ~35,786 km):</b> Fixed position over equator for persistent comms, weather, and missile warning (SBIRS). High latency (~0.5s round trip), expensive to launch, limited slots. Harder to attack kinetically but vulnerable to jamming, laser dazzling, and co-orbital threats. Ideal for strategic C2 but single points of failure if not proliferated.<br><br>
+<b>Highly Elliptical Orbits (HEO) and others:</b> Molniya for high-latitude coverage, etc. Understanding regime physics is essential for predicting satellite behavior, vulnerability windows, and maneuver options.</dd></div>
+          <div class="info-grid-item"><dt>Counterspace Threats</dt><dd>Kinetic ASATs, co-orbital “inspector/killer” satellites, directed energy (lasers), EW/jamming of links, cyber attacks on ground segments and satellites, and supply-chain attacks on launch and manufacturing.<br><br>
+<b>Kinetic Physical (Direct Ascent & Co-orbital):</b> Missiles or satellites that physically destroy or disable targets. China’s SC-19/DN-3 and Russia’s Nudol have demonstrated LEO kills. Creates debris. Reversible? No. Detection via SSA.<br><br>
+<b>Directed Energy (Lasers, RF):</b> Ground or space-based lasers can blind or damage sensors (dazzling) or destroy electronics. Hard to attribute. Reversible if low power.<br><br>
+<b>Electronic Warfare (Jamming/Spoofing):</b> Uplink/downlink jamming of comms, PNT spoofing (fake GPS signals). Widely used (e.g. Russia in Ukraine, China in exercises). Reversible, hard to geo-locate sometimes. Mitigated by M-Code, directional antennas, inertial backup.<br><br>
+<b>Cyber:</b> Hacking ground stations, command links, or onboard systems. Can take control or cause denial. Supply chain (e.g. compromised chips in sats). Reversible with patches but attribution difficult.<br><br>
+<b>Supply Chain & Launch Denial:</b> Attacks on manufacturers, launch sites, or pre-positioned threats. Long-term effect on reconstitution.</dd></div>
+          <div class="info-grid-item"><dt>Resilience &amp; Reconstitution</dt><dd>Proliferated architectures, smallsats/cubesats, responsive launch, pre-positioned spares, and distributed ground infrastructure. “Shoot the archer, not the arrow.”<br><br>
+<b>Proliferation & Disaggregation:</b> Hundreds/thousands of small sats instead of a few large ones. Harder to kill all (e.g. Starshield). Redundancy in coverage and function.<br><br>
+<b>Maneuver, Deception, Stealth:</b> Onboard propulsion for evasion, decoys, low-observable designs, frequency hopping, burst transmissions.<br><br>
+<b>Reconstitution:</b> Pre-positioned spares on orbit or rapid launch capability (days/weeks not months/years). Commercial surge (SpaceX, etc.) as backup. Dispersed, hardened ground segments (mobile, underground, allied hosted).<br><br>
+<b>“Shoot the Archer”:</b> Prioritize attacking the adversary’s ASAT launchers, ground lasers, jammers, and C2 nodes rather than (or in addition to) the satellites themselves. This is a core tenet of space superiority planning – deny the counterspace capability at source.<br><br>
+An officer must plan for “space denied” operations from day one: what happens to ops when PNT, comms, and ISR are degraded or lost?</dd></div>
+          <div class="info-grid-item"><dt>Space Law, Norms &amp; Escalation</dt><dd>Outer Space Treaty (no WMD or claims of sovereignty), IHL in space, attribution challenges, and the risk that debris-generating attacks create long-term denial for everyone.<br><br>
+<b>Outer Space Treaty 1967:</b> Article I: exploration and use for benefit of all. Article II: no national appropriation. Article III: international law applies. Article IV: no WMD in orbit or on celestial bodies. No explicit ban on conventional ASATs or jamming.<br><br>
+<b>International Humanitarian Law (IHL) in Space:</b> Distinction (military vs civilian objects – hard when dual-use), proportionality (collateral damage to debris/global access), precautions. Attacks causing long-term debris may violate if excessive civilian harm (global comms, weather, etc.).<br><br>
+<b>Attribution & Escalation:</b> Hard to attribute (spoofing, false flags). Debris from ASAT can affect neutral parties (all spacefaring nations). Escalation ladder: reversible (jamming) → irreversible kinetic. Risk of miscalculation high. Norms developing via UN, but China/Russia often oppose binding rules.<br><br>
+<b>Why it matters:</b> A Space Ops Officer advises on legal risk of actions, ROE in space, and how to operate within (or challenge) norms without triggering broader conflict. Must understand “due regard” obligations and potential for space to become a domain of armed conflict.</dd></div>
+          <div class="info-grid-item"><dt>Space Weather, Debris &amp; Sustainability</dt><dd>Solar flares, radiation belts, and Kessler Syndrome (cascading collisions). Natural and man-made hazards can be as dangerous as deliberate attack.<br><br>
+<b>Space Weather:</b> Solar flares, coronal mass ejections (CMEs), geomagnetic storms can disrupt comms, GPS, power grids on Earth, and damage satellite electronics/radiation. Real-time monitoring (e.g. via US or allied) is critical for ops planning. ADF must factor in “space weather windows” for sensitive activities.<br><br>
+<b>Orbital Debris:</b> Millions of pieces >1cm tracked by USSPACECOM and others. Collision risk high in LEO. Every launch adds risk. ASAT tests (China 2007, Russia 2021) created thousands of pieces with decades-long lifetimes.<br><br>
+<b>Kessler Syndrome:</b> Cascade where one collision generates debris that causes more, potentially closing orbits for centuries. Not sci-fi – models show tipping points. Sustainability is national security: if LEO becomes unusable, modern military and economy suffer.<br><br>
+<b>International Efforts:</b> IADC (Inter-Agency Space Debris Coordination), UN COPUOS guidelines, active debris removal concepts (e.g. nets, harpoons, lasers). ADF contribution via SSA data sharing helps global catalog and conjunction warnings.<br><br>
+<b>Officer Implication:</b> Must advocate for responsible ops, understand conjunction assessment (avoiding collisions), and plan around natural hazards as part of threat/risk matrix.</dd></div>
+          <div class="info-grid-item"><dt>Joint &amp; Multi-Domain Integration</dt><dd>Space enables P-8A targeting, Army manoeuvre, Navy navigation, and air mobility. Officers must understand effects across domains and advise commanders on risk and opportunity.<br><br>
+<b>Space as Enabler:</b> PNT for precision munitions and navigation (without GPS, JDAMs become dumb bombs, aircraft lose accuracy). Satcom for beyond-line-of-sight C2, drone control, data links. ISR from space for targeting, BDA, maritime surveillance. Missile warning (SBIRS) for defense.<br><br>
+<b>Space as Target & Dependency:</b> Adversary will attack space first in high-end conflict. Degraded space = degraded everything (air, land, sea, cyber). “Space denied” CONOPS are essential: inertial nav, HF radio fallback, terrestrial comms, celestial navigation, local ISR.<br><br>
+<b>Multi-Domain Command & Control (MDC2):</b> Space effects must be integrated with air, land, maritime, cyber, info ops. A Space Ops Officer sits at the JOC or equivalent, providing space picture, recommending effects (e.g. jamming adversary satcom to support air strike), assessing risk to own assets.<br><br>
+<b>Allied Integration:</b> Deep reliance on US Space Force for many capabilities. Must understand sharing agreements, combined planning, and how AUKUS/Quad space cooperation enhances resilience.<br><br>
+<b>Why Critical for Officer:</b> You are the translator between space physics/capabilities and joint warfighting outcomes. You advise on when to accept risk in space vs when to protect it at all costs. Space is not a separate domain in practice – it is the backbone of the joint force.</dd></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Space Assets Cards (navy-style fleet cards for satellites, vehicles, and concepts) -->
+    <div style="margin-top: 48px;">
+      <div class="section-header" style="margin-bottom: 8px;">
+        <h2 style="font-size: 22px;">Space Assets, Vehicles &amp; Capabilities</h2>
+        <p style="max-width: 720px;">Click any card for detailed overview. Covers ADF sovereign capabilities, adversary counterspace, allied systems, and foundational concepts a Space Operations Officer must know.</p>
+      </div>
+      <div id="spaceGrid">
+        <!-- Populated dynamically by buildSpaceGrid() from SPACE data in data.js -->
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -1506,7 +1806,7 @@
   <div class="section-wrap">
     <div class="section-header">
       <h2>National Defence</h2>
-      <p>Australia’s evolving strategic framework — from the 2023 Defence Strategic Review to the current 2026 National Defence Strategy.</p>
+      <p>The 2026 National Defence Strategy and 2026 Integrated Investment Program — Australia’s authoritative strategic and resourcing framework for an integrated, focused force.</p>
     </div>
 
     <div style="max-width: 860px;">
@@ -1514,63 +1814,284 @@
       <!-- Strategic Context -->
       <div class="highlight-box" style="margin-bottom: 28px;">
         <p style="margin:0; color: var(--text-muted);">
-          Australia faces its most challenging strategic environment since the Second World War. Major power competition in the Indo-Pacific has intensified, with reduced warning time for potential conflict. The 2023 Defence Strategic Review (DSR) was the catalyst for a fundamental rethink of Australia’s defence planning.
+          Australia faces its most challenging strategic environment since the Second World War. Major power competition in the Indo-Pacific has intensified and broadened. The 2026 National Defence Strategy (NDS), released 16 April 2026 alongside the 2026 Integrated Investment Program (IIP), updates and strengthens the framework first set in the 2024 NDS.
         </p>
       </div>
 
+      <!-- Clarifying Documents -->
+      <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin: 8px 0 12px;">Clarifying the Documents</h3>
+      <p style="color: var(--text-muted); margin-bottom: 14px;">
+        People often confuse the independent <strong>review</strong> with the Government’s <strong>strategy</strong> and its <strong>funding plan</strong>. Here is the accurate sequence:
+      </p>
+      <div class="info-grid">
+        <div class="info-grid-item">
+          <dt>2023 Defence Strategic Review (DSR)</dt>
+          <dd>An <strong>independent review</strong> led by the Hon Stephen Smith and Air Chief Marshal Sir Angus Houston (Ret’d), commissioned by the Albanese Government and reported February 2023 (public version released April 2023). Conducted in just 28 weeks with a sense of urgency. It was not Government policy but a first-principles assessment recommending fundamental reform. The Review diagnosed that Australia’s strategic circumstances had deteriorated sharply: loss of warning time for major conflict (no longer the traditional 10 years), intense US-China competition as the defining feature of the Indo-Pacific, the return of major power strategic risk for the first time in 80 years, and the erosion of Australia’s geographic advantages due to long-range strike, cyber, and missile proliferation. It called for a shift from a “balanced force” (suited to low-level threats) to a “focused force” optimised for the Indo-Pacific, adoption of a Strategy of Denial, and a new conceptual approach of <strong>National Defence</strong> — a whole-of-government and whole-of-nation effort far broader than the old “Defence of Australia” doctrine.</dd>
+        </div>
+        <div class="info-grid-item">
+          <dt>2024 National Defence Strategy + IIP</dt>
+          <dd>Government’s <strong>first formal National Defence Strategy</strong> (April 2024). Translated the DSR recommendations into official policy. Introduced the concepts of <strong>National Defence</strong> (whole-of-nation) and <strong>Strategy of Denial</strong>. Established the biennial cycle. Accompanied by the first Integrated Investment Program.</dd>
+        </div>
+        <div class="info-grid-item">
+          <dt>2026 National Defence Strategy + IIP (Current)</dt>
+          <dd>Released 16 April 2026 by Deputy Prime Minister and Minister for Defence. <strong>Not a departure</strong> — a strengthening of resolve with greater emphasis on self-reliance, lessons from Ukraine and the Middle East, sovereign industrial capacity, national resilience/civil preparedness, and deeper regional partnerships. The accompanying 2026 IIP is the detailed resourcing roadmap.</dd>
+        </div>
+      </div>
+
       <!-- Core Concepts -->
-      <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin: 8px 0 12px;">Core Concepts</h3>
+      <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin: 28px 0 12px;">Core Concepts</h3>
       <div class="info-grid">
         <div class="info-grid-item">
           <dt>National Defence</dt>
-          <dd>A whole-of-nation approach. Defence is no longer viewed as the responsibility of the military alone — it requires the integration of diplomacy, industry, science, technology, and national resilience.</dd>
+          <dd>A coordinated, whole-of-government and whole-of-nation approach that harnesses all arms of national power — diplomacy, industry, science &amp; technology, intelligence, economic security, supply-chain resilience, civil preparedness and the military — to protect Australia’s security and advance its interests. It is broader than the old “Defence of Australia” concept.</dd>
         </div>
         <div class="info-grid-item">
           <dt>Strategy of Denial</dt>
-          <dd>The central strategic idea: to deter an adversary from projecting military force into Australia’s region by making the costs and risks of aggression too high.</dd>
+          <dd>The cornerstone of defence planning. The aim is to deter a potential adversary from projecting military force against Australia or coercing us through the threat of force, by demonstrating the capability, capacity and resolve to make the costs and risks of aggression unacceptably high — before conflict begins. It spans all five domains and requires impactful projection, holding adversary forces at risk, and the ability to sustain operations.</dd>
         </div>
       </div>
 
-      <!-- 2023 DSR -->
-      <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin: 28px 0 12px;">2023 Defence Strategic Review (DSR)</h3>
-      <p style="color: var(--text-muted); margin-bottom: 12px;">An independent review commissioned by the Albanese Government. Released April 2023 — it fundamentally changed how Australia thinks about defence.</p>
-      
+      <!-- 2023 DSR Detailed Findings -->
+      <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin: 32px 0 12px;">The 2023 Defence Strategic Review — Key Findings &amp; Recommendations</h3>
+
+      <p style="color: var(--text-muted); margin-bottom: 14px;">
+        The Review provided a strategic assessment and a roadmap. Its public version is less detailed than the classified report, but it sets out the urgent case for reform. The Government largely accepted the direction and translated key elements into the 2024 National Defence Strategy and subsequent updates.
+      </p>
+
       <div class="content-grid-2">
         <div class="tool-category">
-          <h4>Key Shifts Recommended</h4>
-          <ul>
-            <li>Move from a “balanced force” to a “focused force” optimised for the Indo-Pacific</li>
-            <li>Adopt Strategy of Denial as the foundation of defence planning</li>
-            <li>Significantly improve long-range strike, munitions stocks, and northern basing</li>
-            <li>Accelerate capability delivery and accept more risk in acquisition</li>
+          <h4>National Defence — Whole-of-Nation Approach</h4>
+          <ul style="font-size:13px;">
+            <li>Replaces the “Defence of Australia” doctrine (focused on deterring low-level threats from small/middle powers in the immediate region).</li>
+            <li>Requires genuine whole-of-government and whole-of-nation effort: diplomacy/statecraft (DFAT leading), industry, science &amp; technology, economic security, supply-chain resilience, civil preparedness, plus military power.</li>
+            <li>Active statecraft to support regional balance of power and deter coercion.</li>
           </ul>
         </div>
         <div class="tool-category">
-          <h4>Government’s Six Priority Areas</h4>
-          <ol style="margin:0; padding-left:20px; line-height:1.65;">
-            <li>AUKUS nuclear-powered submarines</li>
-            <li>Long-range strike and sovereign munitions production</li>
-            <li>Northern basing and posture</li>
-            <li>Workforce growth and retention</li>
-            <li>Rapid adoption of disruptive technologies (led to ASCA)</li>
-            <li>Deepening regional partnerships</li>
-          </ol>
+          <h4>Strategic Circumstances &amp; Warning Time</h4>
+          <ul style="font-size:13px;">
+            <li>Loss of the traditional 10-year warning time for conventional conflict. Geography no longer provides reliable protection due to long-range precision strike, cyber, and power projection by regional actors (especially China’s unprecedented military build-up without transparency).</li>
+            <li>Three planning timeframes: urgent (2023–2025), medium (2026–2030), and beyond (2031+).</li>
+            <li>Highest strategic risk: prospect of major conflict in the region directly threatening Australia’s national interest.</li>
+          </ul>
+        </div>
+        <div class="tool-category">
+          <h4>The Integrated Force — Critical Capabilities</h4>
+          <ul style="font-size:13px;">
+            <li>Undersea warfare (crewed &amp; uncrewed) for persistent long-range ISR and strike.</li>
+            <li>Enhanced integrated targeting capability.</li>
+            <li>Enhanced long-range strike in all domains.</li>
+            <li>Fully enabled, integrated amphibious-capable combined-arms land system.</li>
+            <li>Enhanced all-domain maritime capabilities for sea denial and localised sea control.</li>
+            <li>Networked expeditionary air operations.</li>
+            <li>Enhanced all-domain integrated air and missile defence (IAMD).</li>
+            <li>Joint expeditionary theatre logistics with strategic depth.</li>
+            <li>Theatre command &amp; control enabling the Integrated Force.</li>
+            <li>Developed network of northern bases for logistics, denial and deterrence.</li>
+          </ul>
+        </div>
+        <div class="tool-category">
+          <h4>Force Design Principles</h4>
+          <ul style="font-size:13px;">
+            <li>Shift from “balanced force” to “focused force” optimised for the Indo-Pacific and Strategy of Denial.</li>
+            <li>Evolve from joint to genuinely <strong>Integrated Force</strong> across all five domains (maritime, land, air, space, cyber).</li>
+            <li>Strong support for conventionally-armed nuclear-powered submarines (AUKUS Pillar I) in the shortest possible timeframe and commitment to continuous naval shipbuilding.</li>
+            <li>Defence Science &amp; Technology Group and new Advanced Strategic Capabilities Accelerator (ASCA) to focus on asymmetric advantage and critical technologies (AUKUS Pillar II).</li>
+          </ul>
         </div>
       </div>
 
-      <!-- Evolution of Strategy -->
-      <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin: 32px 0 12px;">Evolution of the National Defence Strategy</h3>
-      
+      <h4 style="color: var(--gold); margin: 20px 0 10px;">Accelerated Preparedness, Acquisition Reform &amp; Other Priorities</h4>
       <div class="info-grid">
         <div class="info-grid-item">
-          <dt>2024 National Defence Strategy</dt>
-          <dd>Government’s first formal National Defence Strategy. Translated the 2023 DSR into official policy. Adopted <strong>National Defence</strong> and <strong>Strategy of Denial</strong> as the strategic framework. Confirmed the shift to a focused, integrated force. Marked the start of a biennial strategy cycle.</dd>
+          <dt>Posture &amp; Northern Basing</dt>
+          <dd>Immediate upgrades and development of northern network of bases, ports and barracks. Fuel storage, supply and resilience must be rectified urgently. Enterprise-wide audit of estate and infrastructure. Leverage state/local and industry infrastructure in northern/central Australia.</dd>
         </div>
         <div class="info-grid-item">
-          <dt>2026 National Defence Strategy (Current)</dt>
-          <dd>Describes an even more dangerous environment than 2024. Places significantly greater emphasis on <strong>self-reliance</strong> and sovereign industrial capacity. Incorporates lessons from Ukraine and the Middle East. Further accelerates priority capabilities and strengthens focus on national resilience and civil preparedness.</dd>
+          <dt>Workforce</dt>
+          <dd>Significant challenges — both ADF and APS understrength while contractor workforce is the largest component. Bold changes to recruitment (new markets, policy/risk settings), retention (competitive pay/conditions/culture), centralised personnel management, and a comprehensive review of the ADF Reserves (including possible Ready Reserve Scheme).</dd>
+        </div>
+        <div class="info-grid-item">
+          <dt>Acquisition &amp; Risk Reform</dt>
+          <dd>Current system “not fit for purpose.” Abandon pursuit of perfect solutions; focus on <strong>minimum viable capability in the shortest possible time</strong>. Reprioritise the Integrated Investment Program (IIP) — delay or cancel lower-priority projects to free resources and workforce for higher-priority capabilities. Risk-based behaviours (strategic risk over project-management risk). Value for money and timely delivery are the priority.</dd>
+        </div>
+        <div class="info-grid-item">
+          <dt>Finances &amp; Biennial Strategy</dt>
+          <dd>More funding required; Defence spending must reflect the strategic circumstances. Move from intermittent White Papers to a <strong>biennial National Defence Strategy</strong> (first one no later than Q2 2024 — delivered as the 2024 NDS) for consistency and to keep pace with the environment.</dd>
         </div>
       </div>
+
+      <div class="highlight-box" style="margin: 18px 0 24px;">
+        <strong>Government Response (from the Review document):</strong> The Albanese Government agreed (or agreed in-principle) to the vast majority of the Review’s recommendations. It adopted six immediate priorities that directly flowed from the DSR: AUKUS nuclear-powered submarines; long-range strike and sovereign munitions; northern basing and posture; workforce growth and retention; rapid adoption of disruptive technologies (leading to ASCA); and deepening regional partnerships. Many detailed recommendations (e.g. specific project accelerations/cancellations, surface fleet analysis, GWEO enterprise leadership, fuel council) were to be further developed in the inaugural National Defence Strategy.
+      </div>
+
+      <!-- 2026 NDS Key Elements -->
+      <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin: 32px 0 12px;">2026 National Defence Strategy — Key Elements</h3>
+
+      <p style="color: var(--text-muted); margin-bottom: 14px;">
+        The 2026 NDS builds on the 2024 foundations in five explicit ways:
+      </p>
+      <ol style="color: var(--text-muted); margin-bottom: 18px; padding-left: 20px; line-height: 1.7;">
+        <li><strong>Greater self-reliance</strong> over the longer term so Defence can more ably and independently deter force projection against Australia.</li>
+        <li><strong>Prioritise capability acquisition and sustainment</strong> drawing on lessons from the war in Ukraine and conflicts in the Middle East (attrition, mass of cheap systems, rapid innovation, industrial scaling, fuel &amp; logistics resilience).</li>
+        <li><strong>Strengthen the resilience of Australia’s sovereign defence industrial base</strong> and build stronger, more diverse international industrial partnerships and supply chains.</li>
+        <li><strong>Improve national civil preparedness and national resilience</strong> as part of National Defence to help shield Australia from regional or global disruption.</li>
+        <li><strong>Increase coordination with regional partners</strong> to collectively deter actions inimical to shared interests and shape a region governed by rights and rules, not fear or force.</li>
+      </ol>
+
+      <div class="highlight-box" style="margin: 18px 0 24px;">
+        <strong>Self-reliance defined (official):</strong> “Increased self-reliance means enhancing Australia’s ability to employ and sustain credible military power to defend Australia in a crisis or conflict, including when support from allies or partners may be limited. Self-reliance does not mean self-sufficiency… It balances critical tasks Australia must be able to undertake ourselves with those that can be assured through trusted partnerships.”
+      </div>
+
+      <!-- The Five Tasks -->
+      <h4 style="color: var(--gold); margin: 20px 0 10px;">The ADF’s Five Tasks (Strategy of Denial in action)</h4>
+      <div class="content-grid-2">
+        <div class="tool-category">
+          <h4>1. Defend Australia and our immediate region</h4>
+          <p style="font-size:13px; color:var(--text-muted); margin:6px 0 0;">The most consequential task: defend sovereign territory, people and economic connections against military attack by any potential adversary.</p>
+        </div>
+        <div class="tool-category">
+          <h4>2. Deter through denial any potential adversary’s attempt to project power against Australia through our northern approaches</h4>
+          <p style="font-size:13px; color:var(--text-muted); margin:6px 0 0;">Demonstrate capability, capacity and resolve; work with allies/partners on collective deterrence.</p>
+        </div>
+        <div class="tool-category">
+          <h4>3. Protect Australia’s economic connection to our region and the world</h4>
+          <p style="font-size:13px; color:var(--text-muted); margin:6px 0 0;">Safeguard sea lines of communication, maritime approaches and respond to coercion or threats to trade and supply chains.</p>
+        </div>
+        <div class="tool-category">
+          <h4>4. Contribute with our partners to the collective security of the Indo-Pacific</h4>
+          <p style="font-size:13px; color:var(--text-muted); margin:6px 0 0;">Enhance maritime domain awareness, training, exercises, HADR and regional crisis response.</p>
+        </div>
+        <div class="tool-category">
+          <h4>5. Contribute with our partners to protecting and upholding global rules and norms</h4>
+          <p style="font-size:13px; color:var(--text-muted); margin:6px 0 0;">Exercise rights under international law and support global peace and security in concert with allies.</p>
+        </div>
+      </div>
+
+      <!-- Six Capability Effects -->
+      <h4 style="color: var(--gold); margin: 24px 0 10px;">Six Capability Effects the Integrated, Focused Force Must Deliver</h4>
+      <div class="info-grid">
+        <div class="info-grid-item"><dt>1. Project force</dt><dd>Optimised for impactful projection to deter attempts to project power against Australia; rapidly deploy and employ forces.</dd></div>
+        <div class="info-grid-item"><dt>2. Hold a potential adversary’s forces at risk</dt><dd>Credible ability to hold at risk forces that could target Australia’s interests, complicating their cost/risk calculus.</dd></div>
+        <div class="info-grid-item"><dt>3. Protect ADF forces and supporting critical infrastructure in Australia</dt><dd>Protect personnel, facilities and information; withstand and recover from attack — signals resolve.</dd></div>
+        <div class="info-grid-item"><dt>4. Sustain protracted combat operations</dt><dd>Ability to sustain operations despite disruptions to C2, infrastructure, logistics and communications.</dd></div>
+        <div class="info-grid-item"><dt>5. Maintain persistent situational awareness in our primary area of military interest</dt><dd>Timely ISR across the immediate region and northern approaches; warning time and decision space for Government.</dd></div>
+        <div class="info-grid-item"><dt>6. Achieve decision advantage</dt><dd>Exercise effective command and control in conflict, including under disruption, while undermining an adversary’s ability to do the same.</dd></div>
+      </div>
+
+      <!-- Three Epochs -->
+      <p style="color: var(--text-muted); margin: 16px 0 8px; font-size: 14px;">
+        Planning uses three rolling epochs: <strong>Enhanced Force-in-Being</strong> (mid-2026 to mid-2028 — immediate enhancements to current force), <strong>Objective Integrated Force</strong> (mid-2028 to mid-2030 — accelerated acquisition of critical capabilities), and <strong>Future Integrated Force</strong> (mid-2030 and beyond — ADF fit for purpose across all five domains and enablers).
+      </p>
+
+      <!-- 2026 IIP -->
+      <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin: 32px 0 12px;">2026 Integrated Investment Program — The Funding Roadmap</h3>
+
+      <div class="highlight-box" style="margin-bottom: 18px;">
+        <p style="margin:0; color: var(--text-muted);">
+          The IIP translates strategy into concrete capability investment. The Government is allocating around <strong>$425 billion</strong> over the decade (2026-27 to 2035-36) to deliver the integrated, focused force. This includes an <strong>additional $14 billion over the next four years and $53 billion over the decade</strong> (new funding on top of the 2024 trajectory). Since coming to office the Albanese Government has increased defence spending by $30 billion over the forward estimates and $117 billion over the decade. Defence spending is currently 2.8% of GDP (highest among comparable like-minded Indo-Pacific countries) and is on track for 3% of GDP by 2033 under the NATO definition.
+        </p>
+      </div>
+
+      <p style="color: var(--text-muted); margin-bottom: 10px;">The 2026 IIP prioritises 11 capability investment areas (with major examples):</p>
+
+      <div class="content-grid-2">
+        <div class="tool-category">
+          <h4>Undersea Warfare</h4>
+          <ul style="font-size:13px;">
+            <li>Conventionally-armed nuclear-powered submarines (AUKUS SSN pathway, Osborne yard, steel cut end of decade, SRF-West at Stirling from late 2027)</li>
+            <li>Enhanced undersea warfare &amp; uncrewed maritime systems (Ghost Shark autonomous underwater vessels)</li>
+            <li>Protection of critical undersea infrastructure</li>
+          </ul>
+        </div>
+        <div class="tool-category">
+          <h4>Maritime Capabilities for Sea Denial &amp; Localised Sea Control</h4>
+          <ul style="font-size:13px;">
+            <li>11 upgraded Japanese Mogami-class general purpose frigates (new factory opportunities)</li>
+            <li>6 Hunter-class frigates + Hobart-class upgrades (Tomahawk, Naval Strike Missile, SM-6)</li>
+            <li>Continuous naval shipbuilding &amp; sustainment at Osborne &amp; Henderson Defence Precinct ($12B+ announced for Henderson)</li>
+            <li>Optionally Large Crewed Surface Vessels + 25 minor war vessels (with ABF)</li>
+          </ul>
+        </div>
+        <div class="tool-category">
+          <h4>Targeting &amp; Long-Range Strike</h4>
+          <ul style="font-size:13px;">
+            <li>$28–35 billion over the decade across domains</li>
+            <li>Navy: Tomahawk on Hobart class (range ~2,500 km), NSM, SM-6</li>
+            <li>Army: HIMARS (first battery full strength mid-2026), Precision Strike Missile (transforming range from 40 km to &gt;1,000 km), second long-range fires regiment</li>
+            <li>Air: LRASM, Joint Strike Missile, JASSM-ER, AARGM-ER, hypersonic development via AUKUS Pillar II</li>
+          </ul>
+        </div>
+        <div class="tool-category">
+          <h4>Space &amp; Cyber</h4>
+          <ul style="font-size:13px;">
+            <li>$9–12 billion space: resilient multi-orbit ADF SATCOM (GEO + LEO elements, ground stations), space domain awareness (Deep-space Advanced Radar Capability with UK/US), space control, advanced geospatial intelligence satellite</li>
+            <li>$15–21 billion cyber: REDSPICE uplift (offensive, persistent hunt, national cyber defence), hardening/modernisation of Defence networks, zero-trust, alternative PNT</li>
+            <li>Electronic warfare $2.4–3.4 billion</li>
+          </ul>
+        </div>
+        <div class="tool-category">
+          <h4>Amphibious Capable Combined-Arms Land System</h4>
+          <ul style="font-size:13px;">
+            <li>$48–59 billion over decade</li>
+            <li>18 Landing Craft Medium + 8 Landing Craft Heavy (Austal at Henderson, sovereign build, first deliveries from 2026)</li>
+            <li>Redback IFVs (domestic), Boxer CRVs, M1A2 Abrams, AS9 Huntsman, new attack helicopters, uncrewed tactical systems</li>
+            <li>Counter-small UAS (domestic &amp; deployable)</li>
+          </ul>
+        </div>
+        <div class="tool-category">
+          <h4>Expeditionary Air Operations, Missile Defence, Theatre Logistics, C2, GWEO, Northern Bases</h4>
+          <ul style="font-size:13px;">
+            <li>Air mobility, ISR, combat (Ghost Bat production), uncrewed air systems</li>
+            <li>Layered integrated air &amp; missile defence (medium-range ground-based active system accelerated)</li>
+            <li>Theatre logistics &amp; health, fuel resilience ($2B+ already + up to $4.8B more)</li>
+            <li>Theatre command &amp; control resilient networks</li>
+            <li>GWEO enterprise: domestic manufacture restart (Port Wakefield missiles), strategic stockpiles, sovereign scaling</li>
+            <li>Northern bases: $13–16 billion — enhanced capacity, resilience, airfields (Tindal, Darwin, Curtin, Learmonth, Townsville etc.), training areas, wharves (Cairns, Coonawarra), dispersed ops</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- People &amp; Posture -->
+      <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin: 32px 0 12px;">People, Posture &amp; Reform</h3>
+      <div class="info-grid">
+        <div class="info-grid-item">
+          <dt>Workforce</dt>
+          <dd>Government remains committed to a permanent ADF of 69,000 by the early 2030s, with continual growth to a combined ADF + APS workforce of around 100,000 by 2040. Focus on inflow velocity, retention (middle ranks critical), diversity, ADF Reserve uplift, health readiness, and the 2026 Defence Workforce Plan. Culture reform continues in response to the Royal Commission into Defence and Veteran Suicide.</dd>
+        </div>
+        <div class="info-grid-item">
+          <dt>Northern Basing &amp; Posture</dt>
+          <dd>Logistically networked, resilient northern bases for force projection and recovery from attack. Southern bases for force generation and sustainment. Enhanced US/partner cooperation (no foreign bases — full Australian sovereignty and concurrence). Estate Audit response: divest legacy sites, reinvest in priority capability needs, co-location and sharing.</dd>
+        </div>
+        <div class="info-grid-item">
+          <dt>Reform &amp; Delivery</dt>
+          <dd>Defence Delivery Agency (from 2027) to streamline capability development and delivery. Response to Defence Estate Audit. Biennial NDS cycle now embedded — next strategy in 2028. Minimum viable capability approach: get next-generation systems into service fast, then spiral upgrade.</dd>
+        </div>
+        <div class="info-grid-item">
+          <dt>Industry &amp; Innovation</dt>
+          <dd>2026 Defence Industry Development Strategy (parallel). ASCA for rapid adoption of disruptive tech. AUKUS Pillar II for advanced capabilities (hypersonics, EW, AI, quantum, etc.). Sovereign manufacturing of missiles, landing craft, vehicles, munitions. Continuous naval shipbuilding as a national endeavour.</dd>
+        </div>
+      </div>
+
+      <!-- Implications -->
+      <div class="tip-box" style="margin-top: 28px;">
+        <strong>What this means for those joining the ADF (including future Space Operations Officers)</strong><br><br>
+        The 2026 NDS and IIP make multi-domain integration and self-reliance operational realities. For space professionals this means:
+        <ul style="margin:10px 0 0 18px; font-size:14px;">
+          <li>Direct delivery of resilient multi-orbit SATCOM and space domain awareness capabilities you will operate and protect.</li>
+          <li>Space effects are now explicitly tied to the six capability effects and the five ADF tasks — your work enables long-range strike, maritime domain awareness, decision advantage and force projection from northern Australia.</li>
+          <li>Greater sovereign industrial base and supply-chain resilience requirements mean you will work with Australian industry and AUKUS partners on sustainment and rapid replenishment.</li>
+          <li>National resilience and civil preparedness are now core to National Defence — space and cyber professionals sit at the intersection of military and whole-of-nation response.</li>
+          <li>The two-year strategy cycle and “minimum viable capability” mindset demand officers who can operate at the speed of relevance in competition, crisis and conflict.</li>
+        </ul>
+        See the dedicated <a href="#" onclick="showSection('space'); return false;">Space</a> section for the detailed capabilities and concepts every Space Operations Officer must master.
+      </div>
+
+      <p style="margin-top: 24px; font-size: 13px; color: var(--text-muted);">
+        Official sources: <a href="https://www.minister.defence.gov.au/media-releases/2026-04-16/2026-national-defence-strategy-integrated-investment-program" target="_blank" rel="noopener">16 April 2026 Joint Media Release</a> • 
+        <a href="https://www.defence.gov.au/about/strategic-planning/2026-national-defence-strategy-2026-integrated-investment-program" target="_blank" rel="noopener">Defence 2026 NDS &amp; IIP page</a> • 
+        <a href="https://www.minister.defence.gov.au/speeches/2026-04-16/speech-national-press-club" target="_blank" rel="noopener">National Press Club address</a> • Full documents at defence.gov.au/nds. All figures and priorities drawn directly from the 2026 National Defence Strategy and 2026 Integrated Investment Program.
+      </p>
 
     </div>
   </div>
@@ -1589,14 +2110,13 @@
       <nav class="section-toc" aria-label="Quick navigation">
         <ul>
           <li><a href="#cyber-threats" data-scroll-to="cyber-threats">Threat Landscape</a></li>
+          <li><a href="#cyber-criminals" data-scroll-to="cyber-criminals">Cyber Criminal Networks</a></li>
           <li><a href="#cyber-preventions" data-scroll-to="cyber-preventions">Successful Preventions</a></li>
           <li><a href="#cyber-capabilities" data-scroll-to="cyber-capabilities">ADF Cyber Capabilities</a></li>
           <li><a href="#cyber-ai" data-scroll-to="cyber-ai">AI in Cybersecurity</a></li>
-          <li><a href="#cyber-infra" data-scroll-to="cyber-infra">Sovereign AI Infrastructure</a></li>
-          <li><a href="#cyber-contracts" data-scroll-to="cyber-contracts">Key Contracts</a></li>
+          <li><a href="#cyber-infra-contracts" data-scroll-to="cyber-infra-contracts">Sovereign Infrastructure, Contracts &amp; Partners</a></li>
           <li><a href="#cyber-ai-use" data-scroll-to="cyber-ai-use">AI Use Cases</a></li>
           <li><a href="#cyber-supply" data-scroll-to="cyber-supply">Supply Chain Risks</a></li>
-          <li><a href="#cyber-palantir" data-scroll-to="cyber-palantir">Palantir &amp; Platforms</a></li>
           <li><a href="#cyber-tools" data-scroll-to="cyber-tools">Tools &amp; Training</a></li>
         </ul>
       </nav>
@@ -1608,7 +2128,7 @@
         
         <div class="highlight-box">
           <p style="color: var(--text-muted); margin: 0;">
-            Australia faces one of the most persistent and sophisticated state-sponsored cyber threat environments in the world. State actors (overwhelmingly linked to China) are responsible for the majority of serious incidents affecting government and critical infrastructure.
+            Australia faces one of the most persistent and sophisticated state-sponsored cyber threat environments in the world. State actors (overwhelmingly linked to China) are responsible for the majority of serious incidents affecting government and critical infrastructure. At the same time, profit-driven cyber criminals — primarily through ransomware and data extortion — represent the most frequent disruptive threat to Australian businesses and the broader economy (138 ransomware incidents responded to by ACSC in FY2024–25). The following sections detail both state espionage actors and the criminal/hybrid networks that also pose significant harm.
           </p>
         </div>
 
@@ -1741,6 +2261,95 @@
           <strong>Why this matters for a Cyber Warfare Officer:</strong><br>
           These are not random criminals — they are state intelligence services running long-term campaigns against Australia’s defence industry and critical systems. A good CWO understands both the technical tradecraft <em>and</em> the strategic intent behind these operations, and knows which threats require immediate effects vs long-term intelligence preparation.
         </div>
+      </div>
+
+      <!-- NEW SECTION: Non-State Cyber Criminal Networks & State-Affiliated Criminal Actors -->
+      <div id="cyber-criminals" style="margin-bottom: 44px;">
+        <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 12px; font-size: 20px;">Non-State Cyber Criminal Networks &amp; State-Affiliated Criminal Actors</h3>
+
+        <div class="highlight-box">
+          <p style="color: var(--text-muted); margin: 0;">
+            While state-sponsored espionage (detailed above) poses the most serious long-term risk to government, defence and critical infrastructure, <strong>profit-driven cyber criminals</strong> are the most frequent and disruptive threat to Australian businesses, the economy, and individuals. In FY2024–25, ASD’s ACSC responded to <strong>138 ransomware incidents</strong>. Ransomware represented 11% of incidents but a far higher proportion of high-impact cases. The majority of serious cybercrime is financially motivated and originates from Russian-speaking or Eastern European ecosystems, often operating as Ransomware-as-a-Service (RaaS) with global affiliates.
+          </p>
+        </div>
+
+        <h4 style="color: var(--gold); margin: 18px 0 12px; font-size: 15px;">Key Non-State Cyber Criminal Groups</h4>
+
+        <!-- BianLian -->
+        <div class="threat-card">
+          <h4>BianLian (Russia-based RaaS / Data Extortion)</h4>
+          <p>A ransomware developer, deployer and data extortion cybercriminal group, assessed as likely Russia-based with multiple Russia-based affiliates. Jointly tracked by ACSC, FBI and CISA.</p>
+          <ul>
+            <li><strong>Australian Impact:</strong> Predominantly targeted private enterprises, including at least one critical infrastructure organisation, professional services and property development sectors. Part of the broader criminal wave causing rising data breaches and extortion demands.</li>
+            <li><strong>Tactics &amp; Capability:</strong> Initial access frequently via purchased or stolen valid Remote Desktop Protocol (RDP) credentials. Uses open-source tools and command-line scripting for discovery and credential harvesting. Exfiltrates data via FTP, Rclone or Mega. Originally used double-extortion (exfil + encrypt); shifted around 2023–2024 to primarily or exclusively exfiltration-based extortion — steal data and threaten to publish it on the dark web regardless of payment.</li>
+            <li><strong>Intent:</strong> Pure financial gain through multi-layered extortion. High volume, professionalised operations typical of the Russian cybercrime ecosystem. Benefits from bulletproof hosting and money-laundering infrastructure.</li>
+          </ul>
+          <div class="highlight-box" style="margin-top:12px; padding:10px 14px; background: rgba(192,57,43,0.08);">
+            <strong>Threat Assessment: High (economy &amp; selected CI)</strong><br>
+            Updated joint ACSC/FBI/CISA advisory (Nov 2024) details evolving TTPs. Contributes directly to the surge in reported data breaches and financial losses for Australian organisations. Enablers of this ecosystem have been subject to coordinated international sanctions.
+          </div>
+        </div>
+
+        <!-- LockBit &amp; RaaS ecosystem -->
+        <div class="threat-card">
+          <h4>LockBit &amp; Major RaaS Affiliates (Clop, BlackSuit/Blacksuit &amp; successors)</h4>
+          <p>LockBit has been one of the most active and damaging Ransomware-as-a-Service operations globally and in Australia (historically accounting for a significant share — e.g. ~18% in some reporting periods — of AU ransomware incidents). Core operators supply the malware and leak infrastructure; affiliates (including some linked to other groups) execute the attacks.</p>
+          <ul>
+            <li><strong>Australian &amp; Allied Harm:</strong> Multiple confirmed incidents against Australian businesses (including financial/reinsurance and other sectors). Globally, LockBit and similar groups have hit thousands of victims across healthcare, government, manufacturing and critical services in Five Eyes nations and allies. Australian Federal Police (AFP) has participated in major international disruption operations against LockBit infrastructure and affiliates.</li>
+            <li><strong>Capability:</strong> Mature affiliate model, rapid exploitation of public vulnerabilities, sophisticated data exfiltration before or instead of encryption, professional leak sites for extortion pressure, and use of initial access brokers. Supported by dark web services for hosting, bulletproof infrastructure and crypto laundering.</li>
+            <li><strong>Other Notable Groups:</strong> Clop (specialises in large-scale data extortion, often via supply-chain compromises such as MOVEit); BlackSuit (successor-style to Royal/Conti, aggressive targeting of healthcare and manufacturing with double extortion).</li>
+          </ul>
+          <div class="highlight-box" style="margin-top:12px; padding:10px 14px; background: rgba(192,57,43,0.08);">
+            <strong>Threat Assessment: High (volume &amp; economic damage)</strong><br>
+            RaaS model lowers the barrier for less-skilled actors while maintaining high capability. International law enforcement actions (US, UK, Australia, Europol etc.) have disrupted infrastructure but the model is resilient and quickly re-forms under new brands or leadership.
+          </div>
+        </div>
+
+        <h4 style="color: var(--gold); margin: 20px 0 8px; font-size: 15px;">State-Affiliated Cyber Criminal Networks (Hybrid Threats)</h4>
+
+        <div class="threat-card" style="border-left-color: #c0392b; background: rgba(192,57,43,0.06);">
+          <h4 style="color:#c0392b;">Lazarus Group (DPRK State-Sponsored – APT38 / Hidden Cobra)</h4>
+          <p>North Korea’s most capable and aggressive cyber unit, directed by the state (under structures such as Lab 110 / Bureau 121). While it conducts classic espionage, it is uniquely and heavily engaged in large-scale <strong>financial crime</strong> — bank heists, cryptocurrency exchange thefts and ransomware — to generate hard currency for the regime’s nuclear weapons and ballistic missile programmes.</p>
+          <ul>
+            <li><strong>Scale of Criminal Operations:</strong> Responsible for theft of hundreds of millions to over $1.5 billion in individual incidents (e.g. Bybit cold wallet heist and multiple prior exchange/bank compromises). Cumulative hauls estimated in the billions. Uses advanced social engineering, supply-chain compromise, and crypto-specific laundering techniques.</li>
+            <li><strong>Australia-Specific Activity:</strong> Multiple attempts and some successes against Australian crypto exchanges and financial entities (for funding). Concurrent espionage targeting of defence research and technology companies. Australia has joined international sanctions against DPRK-linked cyber actors.</li>
+            <li><strong>Threat to Australia and Allies:</strong> Direct economic harm to the financial and crypto sectors. Funds an adversarial state’s strategic capabilities. Extremely high technical capability that overlaps with pure state espionage tradecraft. Global operations affect Five Eyes financial systems, critical infrastructure (via theft or potential disruptive follow-on), and the broader rules-based order. Classic example of a state using criminal methods for deniability and revenue.</li>
+          </ul>
+          <div class="highlight-box" style="margin-top:12px; padding:10px 14px; background: rgba(192,57,43,0.12); border-left-color:#c0392b;">
+            <strong>Threat Assessment: High (Hybrid State-Criminal)</strong><br>
+            Not a pure criminal group — it is state-directed cybercrime at industrial scale. Poses both immediate financial and longer-term strategic risks. Overlaps significantly with the espionage threats detailed earlier in this section.
+          </div>
+        </div>
+
+        <div class="threat-card">
+          <h4>Evil Corp &amp; Russian Cybercrime Enablers (State Ties / Protection)</h4>
+          <p>A long-running Russia-based cybercriminal organisation (active since at least 2009 with Dridex banking malware). Prolific in credential theft, financial fraud and ransomware (both direct operations and through affiliates, including documented links to LockBit actors). One of the most significant cybercrime threats historically, with impacts across 40+ countries and over $100 million in documented losses in earlier campaigns alone.</p>
+          <ul>
+            <li><strong>Australian Impact:</strong> Malware campaigns specifically targeting Australians and Australian financial institutions. Provided infrastructure and services that enabled ransomware attacks (including by syndicates such as LockBit, BlackSuit and Clop) against Australian and international businesses, resulting in data exfiltration, encryption and extortion.</li>
+            <li><strong>State Affiliation:</strong> Extensive and documented relationship with Russian intelligence services. The group and its enablers have operated with a significant degree of impunity inside Russia. Coordinated trilateral sanctions actions (Australia + United States + United Kingdom, 2024–2025) targeted senior members (e.g. Maksim Viktorovich Yakubets and others) and key service providers such as bulletproof hosting companies (Media Land LLC, ML Cloud LLC) that supported the broader criminal ecosystem.</li>
+            <li><strong>Capability &amp; Intent:</strong> Highly professionalised: custom malware development, affiliate recruitment, bulletproof hosting, money laundering. The infrastructure they and similar groups provide lowers barriers for many “non-state” actors. The state ties create safe haven and potential for tasking or intelligence sharing when it suits Russian interests.</li>
+          </ul>
+          <div class="highlight-box" style="margin-top:12px; padding:10px 14px; background: rgba(192,57,43,0.08);">
+            <strong>Threat Assessment: High (with state protection/overlap)</strong><br>
+            Not purely non-state. The blending of criminal profit motives with state protection and occasional alignment makes attribution and disruption more complex. Directly harms Australian businesses and supports the wider ransomware economy that affects allies.
+          </div>
+        </div>
+
+        <div class="highlight-box">
+          <strong>Why this matters for a Cyber Warfare Officer:</strong><br>
+          The line between “state” and “criminal” is often blurry and operationally relevant. Criminal groups (especially Russian-speaking RaaS and IABs) frequently provide the initial access that state actors later exploit or purchase. Lazarus is the textbook case of a state running an industrial-scale criminal enterprise to fund its strategic programmes. Evil Corp-style groups enjoy Russian state protection while harming Western economies. A strong CWO must:
+          <ul style="margin:8px 0 0 18px; font-size:14px;">
+            <li>Understand the criminal ecosystem’s TTPs (many identical to state tradecraft: infostealers, RDP compromise, living-off-the-land, supply-chain abuse).</li>
+            <li>Recognise how paying ransoms or failing to disrupt enablers (hosting, laundering) directly funds state adversaries (especially North Korea).</li>
+            <li>Appreciate the role of sanctions, law enforcement disruption (AFP + ASD’s Operation Aquila and international ops), and public-private partnerships in raising costs for these actors.</li>
+            <li>Defend the economy and critical infrastructure against ransomware as a core national security mission — not just a “crime” problem.</li>
+            <li>Be prepared for hybrid scenarios where criminal access becomes a vector for state pre-positioning or destructive effects.</li>
+          </ul>
+        </div>
+
+        <p style="color: var(--text-muted); font-size: 13px; margin-top: 12px;">
+          Sources: ASD ACSC Annual Cyber Threat Report 2024–25; joint ACSC/FBI/CISA BianLian advisory (updated Nov 2024); Australian, US and UK sanctions announcements on Evil Corp and enablers (2024–2025); international law enforcement disruption reporting (LockBit operations involving AFP).
+        </p>
       </div>
 
       <!-- NEW: Known Successful Preventions & Mitigations -->
@@ -1888,66 +2497,94 @@
         </div>
       </div>
 
-      <!-- 4. SOVEREIGN AI INFRASTRUCTURE -->
-      <div style="margin-bottom: 44px;">
-        <h3 id="cyber-infra" style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 12px; font-size: 20px;">Australia’s Sovereign AI Infrastructure</h3>
-        <p style="color: var(--text-muted); margin-bottom: 14px;">Major investments to reduce reliance on foreign providers for classified national security workloads.</p>
+      <!-- CONSOLIDATED: Sovereign Infrastructure, Key Contracts & Industry Partners -->
+      <div id="cyber-infra-contracts" style="margin-bottom: 44px;">
+        <h3 style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 12px; font-size: 20px;">Sovereign Infrastructure, Key Contracts &amp; Industry Partners</h3>
 
-        <div class="infra-card">
-          <div class="location">Edinburgh, South Australia</div>
-          <h4>Defence Supercomputing Capability (DSTG)</h4>
-          <p>Full Operational Capability April 2025. Significant GPU capacity for AI/ML, modelling &amp; simulation, and classified workloads. ITAR-compliant for Five Eyes interoperability.</p>
-        </div>
-        <div class="infra-card">
-          <div class="location">Sydney, NSW</div>
-          <h4>Cisco Secure AI Factory</h4>
-          <p>Launched 2026 with 1,024 NVIDIA Blackwell Ultra GPUs. Sovereign “AI factory” for government and high-security workloads (Cisco + Sharon AI + NVIDIA).</p>
-        </div>
-        <div class="infra-card">
-          <div class="location">Classified / Sovereign</div>
-          <h4>AWS Top Secret Cloud</h4>
-          <p>Multi-billion dollar partnership with ASD and Defence for classified AI and cloud workloads.</p>
-        </div>
-        <div class="infra-card">
-          <div class="location">Air-gapped Hyperscale</div>
-          <h4>Google Sovereign Cloud</h4>
-          <p>Air-gapped hyperscale capability being developed for classified Australian government use.</p>
-        </div>
-      </div>
+        <p style="color: var(--text-muted); margin-bottom: 16px;">
+          Australia is investing heavily in sovereign compute, cloud, and data platforms to deliver the self-reliant, integrated force described in the 2026 National Defence Strategy and REDSPICE. These capabilities directly support the ADF’s need for decision advantage, resilient C2, and rapid effects in the cyber domain. Major contracts and partnerships with trusted Five Eyes-aligned companies are central to delivery.
+        </p>
 
-      <!-- 5. KEY CONTRACTS &amp; PLATFORMS -->
-      <div style="margin-bottom: 44px;">
-        <h3 id="cyber-contracts" style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 12px; font-size: 20px;">Key Government &amp; Defence Contracts</h3>
-
+        <h4 style="color: var(--gold); margin: 16px 0 10px; font-size: 15px;">Sovereign AI &amp; Compute Infrastructure</h4>
         <div class="info-grid">
           <div class="info-grid-item">
-            <dt>NVIDIA</dt>
-            <dd>GPUs power almost every major sovereign AI platform in Australia. Defence/ASD workloads rely heavily on the CUDA ecosystem.</dd>
+            <dt>Defence Supercomputing (DSTG, Edinburgh SA)</dt>
+            <dd>Full Operational Capability 2025. High-capacity GPU infrastructure for AI/ML, modelling, simulation and classified workloads. ITAR-compliant for Five Eyes interoperability.</dd>
           </div>
           <div class="info-grid-item">
-            <dt>Cisco + Sharon AI + NVIDIA</dt>
-            <dd>2026 contract for the Secure AI Factory Sydney (1,024 Blackwell GPUs).</dd>
+            <dt>Cisco Secure AI Factory (Sydney)</dt>
+            <dd>2026 launch with 1,024 NVIDIA Blackwell Ultra GPUs. Sovereign “AI factory” for government and high-security workloads (Cisco + Sharon AI + NVIDIA partnership).</dd>
           </div>
+          <div class="info-grid-item">
+            <dt>AWS Top Secret Cloud</dt>
+            <dd>Multi-billion dollar partnership with ASD and Defence for classified AI, cloud and data workloads.</dd>
+          </div>
+          <div class="info-grid-item">
+            <dt>Google Sovereign Cloud</dt>
+            <dd>Air-gapped hyperscale capability in development for classified Australian government and Defence use.</dd>
+          </div>
+        </div>
+
+        <h4 style="color: var(--gold); margin: 24px 0 10px; font-size: 15px;">Major Industry Partners &amp; Contracts</h4>
+
+        <div class="info-grid">
+          <!-- Palantir - expanded -->
+          <div class="info-grid-item">
+            <dt>Palantir Technologies</dt>
+            <dd>
+              Multiple contracts with the Australian Department of Defence (cumulative value exceeding A$26–30 million since ~2013; recent awards are the largest to date). Palantir personnel are embedded with Defence teams.
+              <br><br>
+              <strong>Key recent contracts:</strong><br>
+              • Industrial Intelligence Capability (~$7.15M, 2024–2027): Maps Australia’s defence industrial base, supply chains, vendor risk and capacity — directly supporting NDS goals for sovereign industry resilience and self-reliance.<br>
+              • ICT System Platform / Cyber Warfare Division ($7.6M, awarded 2026): Largest single Palantir contract with Defence to date; delivers data integration and analytics platform for cyber operations.
+              <br><br>
+              <strong>Core platforms:</strong> Palantir Foundry (ontology-driven data integration and pipelines that fuse disparate sources into actionable intelligence), Gotham (defence/intelligence analysis environment), and AIP (Artificial Intelligence Platform for governed, secure deployment of AI agents and models).
+              <br><br>
+              <strong>Relevance to ADF/Cyber:</strong> Enables complex data fusion for targeting, logistics, threat intelligence and decision advantage across domains. Critical for operating at machine speed in contested environments while maintaining auditability and sovereignty controls.
+            </dd>
+          </div>
+
           <div class="info-grid-item">
             <dt>Microsoft</dt>
-            <dd>Multi-billion dollar investment in sovereign AI/cloud + Microsoft-ASD Cyber Shield program.</dd>
+            <dd>Multi-billion dollar sovereign AI and cloud investments in Australia. Microsoft-ASD Cyber Shield program for advanced threat detection and response. Azure sovereign cloud capabilities support classified workloads. Strong partner for AI tooling, M365 security, and integration with other platforms (e.g. Leidos).</dd>
           </div>
+
           <div class="info-grid-item">
-            <dt>AWS</dt>
-            <dd>Significant sovereign cloud contracts for classified Defence and intelligence workloads.</dd>
+            <dt>Leidos Australia</dt>
+            <dd>Major long-term Defence partner with ~2,000 local experts. Operates the Mission Software Centre delivering secure, adaptive, rapidly deployable mission software and AI solutions. Supports intelligence, defence, airborne and digital modernisation programs. Maintains an AI innovation lab and works on sovereign secure cloud and systems integration for ADF and ASD.</dd>
           </div>
+
           <div class="info-grid-item">
-            <dt>Fivecast (Australian)</dt>
-            <dd>AI-powered OSINT and threat detection platform. Contracts with Defence and US agencies.</dd>
+            <dt>AWS &amp; Google (Sovereign Cloud)</dt>
+            <dd>AWS Top Secret Cloud and Google air-gapped hyperscale capabilities provide classified compute and storage for Defence and intelligence. These are foundational for sovereign AI workloads and REDSPICE expansion.</dd>
           </div>
+
+          <div class="info-grid-item">
+            <dt>NVIDIA (with partners)</dt>
+            <dd>GPUs (including Blackwell) underpin almost every major sovereign AI platform and supercomputing capability for Defence/ASD. CUDA ecosystem is the de-facto standard for accelerated computing in classified environments.</dd>
+          </div>
+
+          <div class="info-grid-item">
+            <dt>Fivecast (Australian company)</dt>
+            <dd>AI-powered open-source intelligence (OSINT) and threat detection platform. Contracts with Defence and US agencies for automated collection, analysis and alerting on publicly available data.</dd>
+          </div>
+
           <div class="info-grid-item">
             <dt>CrowdStrike</dt>
-            <dd>AI-accelerated endpoint detection in partnership with NVIDIA. Widely used across government and critical infrastructure.</dd>
+            <dd>AI-accelerated endpoint detection and response (EDR/XDR), often paired with NVIDIA GPUs. Widely deployed across Australian government and critical infrastructure for real-time threat prevention.</dd>
           </div>
         </div>
 
         <div class="highlight-box">
-          <strong>Key takeaway for applicants:</strong> Australia is deliberately building sovereign AI and cyber capability through domestic industry, trusted Five Eyes partners, and major tech companies. Understanding who is building what, where, and why demonstrates strategic awareness beyond pure technical skill.
+          <strong>REDSPICE industry opportunity:</strong> The ~$10B+ REDSPICE program (plus broader 2026 IIP cyber investments) creates ~$5 billion in industry opportunities for trusted partners in cyber, ICT, AI and enabling capabilities. ASD and Defence actively seek like-minded, technically advanced Australian and Five Eyes partners.
+        </div>
+
+        <p style="color: var(--text-muted); font-size: 13.5px; margin-top: 12px;">
+          <strong>Emerging / AUKUS-relevant:</strong> Anduril (Lattice platform for AI-enabled autonomy, sensor fusion and C4) has formed partnerships with Palantir and Microsoft; while primarily US-focused, the technology is highly relevant for future ADF multi-domain and AUKUS Pillar II capabilities.
+        </p>
+
+        <div class="tip-box" style="margin-top: 12px;">
+          <strong>For Cyber Warfare Officer applicants:</strong> Demonstrating awareness of the sovereign industrial base — who builds what, how platforms integrate (e.g. Palantir Foundry + AIP with cloud providers and Leidos mission software), and how these deliver decision advantage and resilience — shows strategic understanding well beyond tool proficiency.
         </div>
       </div>
 
@@ -1996,30 +2633,7 @@
         </p>
       </div>
 
-      <!-- 8. PALANTIR &amp; KEY PLATFORMS -->
-      <div style="margin-bottom: 44px;">
-        <h3 id="cyber-palantir" style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 12px; font-size: 20px;">Palantir and Other Key Technology Platforms</h3>
 
-        <div class="info-box">
-          <p style="margin:0 0 14px; color:var(--text-muted);"><strong>Palantir Technologies</strong> has multiple contracts with the Australian Department of Defence (cumulative value exceeding A$26 million since ~2013, with several large recent awards). Palantir staff are embedded inside Defence.</p>
-          
-          <div class="info-grid" style="margin:0;">
-            <div class="info-grid-item">
-              <dt>Industrial Intelligence Capability (IIC)</dt>
-              <dd>~$7.15M (2024–2027). Maps Australia’s defence industry base, supply chains, and vendor risk.</dd>
-            </div>
-            <div class="info-grid-item">
-              <dt>ICT System Platform</dt>
-              <dd>$7.6M (awarded 2026) with the Cyber Warfare Division — largest single Palantir contract with Defence to date.</dd>
-            </div>
-          </div>
-          <p style="margin:14px 0 0; font-size:14px; color:var(--text-muted);"><strong>Platforms in use:</strong> Palantir Foundry (core ontology &amp; data integration), Gotham, and AIP (Artificial Intelligence Platform).</p>
-        </div>
-
-        <p style="color: var(--text-muted); font-size: 14px; margin-top: 12px;">
-          Other major platforms: Microsoft Azure (sovereign cloud), AWS Top Secret Cloud, and various SIEM/SOAR solutions across the ADF and ASD.
-        </p>
-      </div>
 
       <!-- 9. TOOLS &amp; TRAINING FOR CYBER WARFARE OFFICERS -->
       <div>
@@ -2104,6 +2718,7 @@
       <button class="study-tab" onclick="switchStudyMode('quiz', this)">Quiz Mode</button>
       <button class="study-tab" onclick="switchStudyMode('whoami', this)">Who Am I?</button>
       <button class="study-tab" onclick="switchStudyMode('matching', this)">Matching Game</button>
+      <button class="study-tab" onclick="switchStudyMode('audio-loops', this)">Audio Learning Loops</button>
     </div>
 
     <!-- FLASHCARDS MODE -->
@@ -2312,6 +2927,50 @@
       </div>
     </div>
 
+    <!-- AUDIO LEARNING LOOPS MODE -->
+    <div id="audio-loops-mode" class="study-mode-panel" style="display:none;">
+      <div class="study-controls" style="flex-wrap: wrap; gap: 12px;">
+        <div style="width: 100%; margin-bottom: 8px;">
+          <strong style="color: var(--gold);">Choose your listening group:</strong>
+        </div>
+
+        <button class="study-btn audio-group-btn" data-group="group1" onclick="selectAudioGroup('group1', this)">
+          Group 1: Bases &amp; Operations
+        </button>
+        <button class="study-btn audio-group-btn" data-group="group2" onclick="selectAudioGroup('group2', this)">
+          Group 2: Air Force • Navy • Army • Weapons
+        </button>
+        <button class="study-btn audio-group-btn" data-group="group3" onclick="selectAudioGroup('group3', this)">
+          Group 3: Space • Cyberspace • Ranks • Leadership • National Defence
+        </button>
+      </div>
+
+      <div id="audio-loop-status" style="margin: 20px 0; padding: 16px; background: var(--surface); border-radius: 8px; min-height: 80px;">
+        <div style="font-size: 13px; color: var(--text-dim);">Select a group above, then start the loop.</div>
+        <div id="audio-current-item" style="font-size: 18px; font-weight: 600; color: var(--gold); margin-top: 8px;"></div>
+        <div id="audio-loop-info" style="font-size: 13px; color: var(--text-muted); margin-top: 4px;"></div>
+      </div>
+
+      <div class="study-controls">
+        <button id="audio-start-btn" class="study-btn primary" onclick="startAudioLearningLoop()" style="font-size: 15px; padding: 10px 24px;">
+          ▶ Start Random Listening Loop (Tara)
+        </button>
+        <button class="study-btn" onclick="pauseAudioLoop()" style="display:none;" id="audio-pause-btn">⏸ Pause</button>
+        <button class="study-btn" onclick="resumeAudioLoop()" style="display:none;" id="audio-resume-btn">▶ Resume</button>
+        <button class="study-btn" onclick="skipAudioItem()">⏭ Skip to Next</button>
+        <button class="study-btn secondary" onclick="stopAudioLearningLoop()">⏹ Stop Loop</button>
+      </div>
+
+      <div style="margin-top: 16px; font-size: 13px; color: var(--text-dim);">
+        <strong>How it works:</strong> The loop randomly selects items and reads them in audio-optimized form (Title → Clear Overview → Key Systems with memory clues). 
+        It keeps going until you stop. Perfect for headphones while commuting, chores, or focused review. Uses Tara at the best listening speed.
+      </div>
+
+      <div id="audio-transcript" style="margin-top: 20px; padding: 12px; background: var(--navy-mid); border-radius: 6px; font-size: 13px; color: var(--text); max-height: 120px; overflow: auto;">
+        <strong>Last spoken:</strong> <span id="audio-last-text">—</span>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -2335,5 +2994,63 @@
     });
   });
 </script>
+
+<!-- TEXT READER / AUDIO PLAYER FOR LEARNING ON THE GO -->
+<div id="text-reader" class="text-reader">
+  <button id="reader-main-btn" 
+          class="reader-btn" 
+          title="Listen to this section (great for headphones while doing chores)"
+          onclick="toggleReaderPanel()">
+    🔊
+  </button>
+
+  <div id="reader-panel" class="reader-panel" style="display:none;">
+    <div class="reader-header">
+      <div>
+        <span style="color: var(--gold); font-weight: 600;">🔊 Read Aloud</span>
+      </div>
+      <button onclick="closeReaderPanel()" class="reader-close" title="Close">×</button>
+    </div>
+
+    <div class="reader-current">
+      <strong>Now reading:</strong> 
+      <span id="reader-section-name">—</span>
+      <span class="reader-voice-badge">Tara • 0.85×</span>
+    </div>
+
+    <div class="reader-controls">
+      <button id="reader-play-btn" onclick="playOrResumeCurrentSection()">▶ Play</button>
+      <button id="reader-pause-btn" onclick="pauseSpeech()" style="display:none;">⏸ Pause</button>
+      <button onclick="stopSpeech()">⏹ Stop</button>
+    </div>
+
+    <div class="reader-options">
+      <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; margin-bottom:6px;">
+        <label style="white-space: nowrap;">Speed:</label>
+        <input type="range" id="reader-speed" 
+               min="0.75" max="1.55" step="0.05" value="0.85" 
+               oninput="updateSpeechRate(this)">
+        <span id="reader-speed-val" style="min-width: 32px; text-align: right;">0.85×</span>
+      </div>
+
+      <div style="margin-bottom: 6px;">
+        <label style="display:block; font-size:11px; color:var(--text-muted); margin-bottom:3px;">Progress (drag to jump forward/back):</label>
+        <input type="range" id="reader-progress" min="0" max="100" step="0.5" value="0" 
+               oninput="previewProgress(this.value)" onchange="seekToProgress(this.value)">
+        <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-dim);">
+          <span id="reader-progress-time">0:00</span>
+          <span id="reader-progress-total">0:00</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="reader-hint">
+      Uses Tara (most natural voice on this system) at the selected speed. 
+      On macOS, enable "Enhanced" voices in System Settings → Accessibility → Spoken Content for best quality.
+      Drag the progress bar to jump around.
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

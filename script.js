@@ -49,7 +49,8 @@ try {
 
 // ── SECTION SWITCHING ─────────────────────────────────────────
 function showSection(id, el) {
-  console.log('%c[RAFF DEBUG] showSection called with id =', 'color: cyan', id);
+  // The reader (if open) will now automatically follow to the new section
+  // and start reading the new content. See followReaderToSection below.
 
   // Force hide ALL sections (robust against any CSS specificity or timing issues)
   document.querySelectorAll('section').forEach(s => {
@@ -63,7 +64,7 @@ function showSection(id, el) {
     sectionEl.classList.add('active');
     sectionEl.style.display = 'block';
   } else {
-    console.warn('[RAFF DEBUG] No section found with id:', id);
+    console.warn('No section found with id:', id);
   }
 
   // Prefer the passed element, otherwise auto-find by data-section
@@ -82,14 +83,64 @@ function showSection(id, el) {
   } else {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+
+  // Resize Google maps if the section is shown while in online mode (to fix size 0 when init'ed hidden)
+  if (id === 'bases' || id === 'operations') {
+    setTimeout(() => {
+      if (id === 'bases' && basesGoogleMap) google.maps.event.trigger(basesGoogleMap, 'resize');
+      if (id === 'operations' && opsGoogleMap) google.maps.event.trigger(opsGoogleMap, 'resize');
+    }, 50);
+    // Also ensure the maps (and their markers) are created if the API finished loading after initial attempt
+    setTimeout(ensureGoogleMapsInit, 80);
+  }
 }
 
 // ── BASE MAP ──────────────────────────────────────────────────
 function selectBase(id, event) {
+  if (event) event.stopPropagation();
+
+  const b = BASES[id];
+  if (!b) return;
+
   document.querySelectorAll('.base-dot').forEach(d => d.classList.remove('selected'));
   const dot = document.querySelector(`.base-dot[data-base="${id}"]`);
   if (dot) dot.classList.add('selected');
+
+  // Pan/zoom Google map if visible (so clicking list centers the marker)
+  if (basesGoogleMap && b.lat && b.lng) {
+    basesGoogleMap.panTo({ lat: b.lat, lng: b.lng });
+    if (basesGoogleMap.getZoom() < 5) basesGoogleMap.setZoom(5);
+  }
+
+  // Highlight selected marker on Google bases (larger, darker stroke) and reset others (same as ops)
+  const googleDiv = document.getElementById('bases-google-map');
+  if (basesGoogleMap && googleDiv && googleDiv.style.display !== 'none' && basesMarkers) {
+    Object.keys(basesMarkers).forEach(k => {
+      const m = basesMarkers[k];
+      const isSelected = (k === id);
+      const base = BASES[k];
+      const s = isSelected ? 12 : 9;
+      m.setIcon({
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: s,
+        fillColor: (base && base.color) || '#C9A84C',
+        fillOpacity: 0.95,
+        strokeColor: isSelected ? '#111' : '#FFFFFF',
+        strokeWeight: isSelected ? 2.5 : 1.5,
+        labelOrigin: new google.maps.Point(0, 0)
+      });
+    });
+  }
+
   renderBaseCard(id);
+
+  // Highlight in compact list (reuses the same .ops-list-item styles + selected state as operations)
+  document.querySelectorAll('.ops-list-item').forEach(el => el.classList.remove('selected'));
+  const listItem = document.querySelector(`.ops-list-item[data-base="${id}"]`);
+  if (listItem) {
+    listItem.classList.add('selected');
+    listItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
 }
 
 function renderBaseCard(id) {
@@ -100,42 +151,78 @@ function renderBaseCard(id) {
   const card = document.getElementById('baseCard');
   card.classList.add('visible');
 
+  const service = getBaseService(b.name);
+  const cleanName = b.name
+    .replace(/^RAAF Base /i, '')
+    .replace(/^HMAS /i, '')
+    .replace(/^Army Aviation Centre /i, '')
+    .replace(/^Puckapunyal Military Area$/i, 'Puckapunyal')
+    .replace(/^Lavarack Barracks$/i, 'Lavarack')
+    .replace(/^Robertson Barracks$/i, 'Robertson')
+    .replace(/^Holsworthy Barracks$/i, 'Holsworthy');
+
   const sqHTML = b.squadrons.map(s => `
     <div class="squadron-item">
       <div class="squadron-num">${s.num}</div>
       <div class="squadron-info">
         <div class="squadron-name">${s.name}</div>
         <div class="squadron-aircraft">
-          ${s.aircraft.split(' / ').map(a => `<span class="aircraft-chip" onclick="goToAircraft('${a}')">${a}</span>`).join('')}
+          ${s.aircraft.split(' / ').map(a => `<span class="aircraft-chip" onclick="openBaseAssetModal('${a.replace(/'/g, "\\'")}')">${a}</span>`).join('')}
         </div>
       </div>
     </div>
   `).join('');
 
+  const colorDot = `<span class="base-color-dot" style="background:${b.color || '#C9A84C'}"></span>`;
+  const serviceTag = `<div class="base-card-service">${service}</div>`;
+
+  // Compact coords row (no heavy section label to save vertical space; useful map-related info)
+  const coordsHTML = (b.lat && b.lng) ? `
+    <div class="base-coords">
+      <span class="coords-label">📍 ${b.lat.toFixed(4)}, ${b.lng.toFixed(4)}</span>
+      <button type="button" class="copy-btn" onclick="copyCoords(${b.lat}, ${b.lng}, this)">copy</button>
+      <a href="https://www.google.com/maps/@${b.lat},${b.lng},18z/data=!3m1!1e3" target="_blank" rel="noopener noreferrer" class="google-maps-link">map</a>
+    </div>
+  ` : '';
+
   card.innerHTML = `
     <div class="base-card-header">
-      <div class="base-card-location">${b.location}</div>
-      <div class="base-card-name">${b.name.replace(/^(RAAF Base |HMAS |Army Aviation Centre ) /i,'')}</div>
+      <div class="base-header-top">
+        <div class="base-card-location">${colorDot}${b.location}</div>
+        ${serviceTag}
+      </div>
+      <div class="base-card-name">${cleanName}</div>
       <div class="base-card-role">${b.role}</div>
     </div>
     <div class="base-card-body">
-      <div class="base-section-label">About this base</div>
-      <p class="base-desc">${b.desc}</p>
-      ${b.image ? `
-      <div class="base-section-label">Aerial View</div>
-      <div class="base-aerial-wrap">
-        <img src="${b.image}" alt="Bird's-eye view of ${b.name}" class="base-aerial-preview" onclick="showBaseAerial('${b.image}', '${b.name.replace(/'/g, "\\'")}')" loading="lazy">
-        <div class="base-aerial-hint">Google Maps satellite • Click to enlarge</div>
+      <div class="base-about-media">
+        ${b.image || coordsHTML ? `
+        <div class="base-media">
+          ${b.image ? `
+          <div class="base-section-label">Aerial View</div>
+          <div class="base-aerial-wrap">
+            <img src="${b.image}" alt="Bird's-eye view of ${b.name}" class="base-aerial-preview" onclick="showBaseAerial('${b.image}', '${b.name.replace(/'/g, "\\'")}')" loading="lazy">
+            <div class="base-aerial-hint">Click to enlarge • Offline asset</div>
+          </div>
+          ` : ''}
+          ${coordsHTML ? `
+          <div style="margin-top: 8px;">
+            ${coordsHTML}
+          </div>
+          ` : ''}
+        </div>
+        ` : ''}
+        <div class="base-about">
+          <div class="base-section-label">About this base</div>
+          <p class="base-desc">${b.desc}</p>
+        </div>
       </div>
-      ` : ''}
-      ${b.lat && b.lng ? `
-      <div class="base-section-label">Live Satellite</div>
-      <a href="https://www.google.com/maps/@${b.lat},${b.lng},18z/data=!3m1!1e3" target="_blank" rel="noopener noreferrer" class="google-maps-link">Open full satellite view on Google Maps →</a>
-      <p style="font-size:10px;color:var(--text-dim);margin-top:4px">Live Google Maps (internet required)</p>
-      ` : ''}
-      <div class="base-section-label">Units & Assets</div>
-      ${sqHTML}
-      <p style="font-size:11px;color:var(--text-dim);margin-top:12px">Tap aircraft names above to view full aircraft details</p>
+
+      <div class="base-section-label">Units &amp; Assets <span style="font-weight:400;color:var(--text-dim);">(${b.squadrons.length} units)</span></div>
+      <div class="base-units-grid">
+        ${sqHTML}
+      </div>
+      <p class="base-card-hint">Tap names above to pop up details (stays on this page — close to continue reading)</p>
     </div>
   `;
 }
@@ -158,22 +245,79 @@ function showBaseAerial(imageSrc, baseName) {
 
 function closeBaseImageModal() {
   const modal = document.getElementById('baseImageModal');
-  modal.classList.remove('open');
+  if (modal) modal.classList.remove('open');
   document.body.style.overflow = '';
 }
 
 // Close base image modal on overlay click
-document.getElementById('baseImageModal').addEventListener('click', function(e) {
-  if (e.target === this) closeBaseImageModal();
-});
+const baseImgModal = document.getElementById('baseImageModal');
+if (baseImgModal) {
+  baseImgModal.addEventListener('click', function(e) {
+    if (e.target === baseImgModal) closeBaseImageModal();
+  });
+}
 
-function goToAircraft(name) {
-  const aircraftNav = document.querySelector('.nav-link[data-section="airforce"]');
-  showSection('airforce', aircraftNav);
-  setTimeout(() => {
-    const match = AIRCRAFT.find(a => name.includes(a.desig) || name.includes(a.name));
-    if (match) openAircraftModal(match.id);
-  }, 200);
+function copyCoords(lat, lng, btnEl) {
+  const text = `${lat}, ${lng}`;
+  const origText = btnEl ? btnEl.textContent : '';
+  navigator.clipboard.writeText(text).then(() => {
+    if (btnEl) {
+      btnEl.textContent = 'Copied!';
+      setTimeout(() => { if (btnEl) btnEl.textContent = origText || 'Copy'; }, 1400);
+    }
+  }).catch(() => {
+    // Fallback for older browsers / no https
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch(e){}
+    document.body.removeChild(ta);
+    if (btnEl) {
+      btnEl.textContent = 'Copied!';
+      setTimeout(() => { if (btnEl) btnEl.textContent = origText || 'Copy'; }, 1400);
+    }
+  });
+}
+
+function openBaseAssetModal(name) {
+  if (!name || name.toLowerCase() === 'n/a' || name.toLowerCase().includes('admin') || name.toLowerCase().includes('support') || name.toLowerCase().includes('logistics')) {
+    return; // skip non-asset entries
+  }
+
+  // Try Aircraft first (most common in base cards)
+  const acData = (typeof AIRCRAFT !== 'undefined' ? AIRCRAFT : []);
+  let match = acData.find(a => 
+    name.toLowerCase().includes((a.desig || '').toLowerCase()) || 
+    name.toLowerCase().includes((a.name || '').toLowerCase())
+  );
+  if (match) {
+    openAircraftModal(match.id);
+    return;
+  }
+
+  // Try Army vehicles / ground assets (e.g. M1A1 Abrams, Bushmaster, etc. from army bases)
+  const armyData = (window.ARMY || (typeof ARMY !== 'undefined' ? ARMY : []));
+  match = armyData.find(v => 
+    name.toLowerCase().includes((v.name || '').toLowerCase()) ||
+    (v.desig && name.toLowerCase().includes(v.desig.toLowerCase()))
+  );
+  if (match) {
+    showVehicleDetail(match.id);
+    return;
+  }
+
+  // Try Navy vessels (in case any base lists ships/helo that match navy ids)
+  const navyData = (window.NAVY || (typeof NAVY !== 'undefined' ? NAVY : []));
+  match = navyData.find(v => 
+    name.toLowerCase().includes((v.name || '').toLowerCase()) ||
+    (v.desig && name.toLowerCase().includes(v.desig.toLowerCase()))
+  );
+  if (match) {
+    showMaritimeDetail(match.id);
+    return;
+  }
+
+  // No match found - optionally could console, but silently ignore for clean UX
+  // console.warn('[ADF Forge] No matching asset modal for base chip:', name);
 }
 
 // ── AIRCRAFT GRID (Grouped by Category) ───────────────────────
@@ -360,17 +504,13 @@ function initSidebarNav() {
 }
 
 function initMainNavigation() {
-  console.log('%c[RAFF DEBUG] initMainNavigation() is running', 'color:lime; font-weight:bold');
-
   // Top navigation bar (event delegation)
   const navLinks = document.querySelector('.nav-links');
-  console.log('[RAFF DEBUG] .nav-links container found:', !!navLinks);
 
   if (navLinks) {
     navLinks.addEventListener('click', (e) => {
       const link = e.target.closest('.nav-link[data-section]');
       if (!link) return;
-      console.log('[RAFF DEBUG] Nav clicked →', link.dataset.section);
       const sectionId = link.dataset.section;
       showSection(sectionId, link);
     });
@@ -378,13 +518,11 @@ function initMainNavigation() {
 
   // "What's Inside" feature cards (event delegation)
   const featureCards = document.querySelector('.feature-cards');
-  console.log('[RAFF DEBUG] .feature-cards container found:', !!featureCards);
 
   if (featureCards) {
     featureCards.addEventListener('click', (e) => {
       const card = e.target.closest('.feature-card[data-section]');
       if (!card) return;
-      console.log('[RAFF DEBUG] Feature card clicked →', card.dataset.section);
       const sectionId = card.dataset.section;
       showSection(sectionId);
     });
@@ -471,8 +609,17 @@ function openAircraftModal(id) {
 }
 
 function closeModal() {
-  document.getElementById('aircraftModal').classList.remove('open');
+  const modal = document.getElementById('aircraftModal');
+  if (modal) modal.classList.remove('open');
   document.body.style.overflow = '';
+
+  // User wants silence when closing a card — do not auto-start the main section.
+  // Only start speaking again when a new card is opened.
+  const panel = document.getElementById('reader-panel');
+  if (panel && panel.style.display !== 'none') {
+    stopSpeech();
+    updateReaderSectionLabel(getCurrentSectionForReader());
+  }
 }
 
 function switchTab(event, paneId) {
@@ -485,9 +632,12 @@ function switchTab(event, paneId) {
 }
 
 // Close modal when clicking the dark overlay
-document.getElementById('aircraftModal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
+const aircraftModalEl = document.getElementById('aircraftModal');
+if (aircraftModalEl) {
+  aircraftModalEl.addEventListener('click', function(e) {
+    if (e.target === aircraftModalEl) closeModal();
+  });
+}
 
 // ── STUDY TOOLS (Flashcards + Quiz) ───────────────────────────
 let currentFlashcards = [];
@@ -806,7 +956,7 @@ function generateQuizQuestions(type, count) {
       pool.push({
         question: `Which platform primarily employs the ${w.desig} ${w.name}?`,
         correct: platforms,
-        options: getRandomWrongAnswers(platforms, ['F-35A', 'P-8A', 'EA-18G Growler', 'Hobart-class', 'Super Hornet', 'Growler'], 3),
+        options: [platforms, ...getRandomWrongAnswers(platforms, ['F-35A', 'P-8A', 'EA-18G Growler', 'Hobart-class', 'Super Hornet', 'Growler'], 3)],
         explanation: `${w.desig} ${w.name} – ${keyAdvantage}`
       });
     });
@@ -817,7 +967,7 @@ function generateQuizQuestions(type, count) {
       pool.push({
         question: `Which country operates the ${a.desig} ${a.name}?`,
         correct: a.origin,
-        options: getRandomWrongAnswers(a.origin, ['China', 'Russia', 'North Korea', 'Iran'], 3),
+        options: [a.origin, ...getRandomWrongAnswers(a.origin, ['China', 'Russia', 'North Korea', 'Iran'], 3)],
         explanation: a.whyMatters
       });
     });
@@ -829,7 +979,7 @@ function generateQuizQuestions(type, count) {
       pool.push({
         question: p.front + "?",
         correct: p.back,
-        options: getRandomWrongAnswers(p.back, PFA_STANDARDS.map(x => x.back), 3),
+        options: [p.back, ...getRandomWrongAnswers(p.back, PFA_STANDARDS.map(x => x.back), 3)],
         explanation: p.back + " — This is a common minimum standard tested in ADF recruiting."
       });
     });
@@ -841,7 +991,7 @@ function generateQuizQuestions(type, count) {
       pool.push({
         question: `What is the role or meaning of ${r.term}?`,
         correct: r.definition,
-        options: getRandomWrongAnswers(r.definition, RANKS.map(x => x.definition), 3),
+        options: [r.definition, ...getRandomWrongAnswers(r.definition, RANKS.map(x => x.definition), 3)],
         explanation: r.definition
       });
     });
@@ -853,7 +1003,7 @@ function generateQuizQuestions(type, count) {
       pool.push({
         question: `What does "${l.term}" refer to?`,
         correct: l.definition,
-        options: getRandomWrongAnswers(l.definition, LEADERSHIP_ITEMS.map(x => x.definition), 3),
+        options: [l.definition, ...getRandomWrongAnswers(l.definition, LEADERSHIP_ITEMS.map(x => x.definition), 3)],
         explanation: l.definition
       });
     });
@@ -866,7 +1016,7 @@ function generateQuizQuestions(type, count) {
       pool.push({
         question: `What is the primary role of the ${a.desig} ${a.name}?`,
         correct: a.tagline,
-        options: getRandomWrongAnswers(a.tagline, AIRCRAFT.map(x => x.tagline), 3),
+        options: [a.tagline, ...getRandomWrongAnswers(a.tagline, AIRCRAFT.map(x => x.tagline), 3)],
         explanation: `${a.tagline} — Key stats: ${statsSummary}`
       });
     });
@@ -879,7 +1029,7 @@ function generateQuizQuestions(type, count) {
       pool.push({
         question: `What is the main role of the ${f.desig} ${f.name}?`,
         correct: f.tagline,
-        options: getRandomWrongAnswers(f.tagline, NAVY_DATA.map(x => x.tagline), 3),
+        options: [f.tagline, ...getRandomWrongAnswers(f.tagline, NAVY_DATA.map(x => x.tagline), 3)],
         explanation: f.tagline + " — " + f.overview.substring(0, 160) + "..."
       });
     });
@@ -892,8 +1042,8 @@ function generateQuizQuestions(type, count) {
         pool.push({
           question: c.front,
           correct: c.back,
-          options: getRandomWrongAnswers(c.back, CYBERSPACE_STUDY_ITEMS.map(x => x.back), 3),
-          explanation: c.back
+          options: [c.back, ...getRandomWrongAnswers(c.back, CYBERSPACE_STUDY_ITEMS.map(x => x.back), 3)],
+          explanation: "This is a signature rapid-exploitation TTP of APT40, as noted in ASD threat reports."
         });
       });
     }
@@ -950,9 +1100,10 @@ function selectQuizOption(element, chosen, question) {
   const feedback = document.getElementById('quiz-feedback');
   const isCorrect = chosen === question.correct;
 
+  const exp = (question.explanation && question.explanation !== question.correct) ? ` ${question.explanation}` : '';
   feedback.innerHTML = isCorrect 
-    ? `<strong style="color:#2EC4A0">Correct!</strong> ${question.explanation}`
-    : `<strong style="color:#E05A40">Incorrect.</strong> The correct answer is <strong>${question.correct}</strong>. ${question.explanation}`;
+    ? `<strong style="color:#2EC4A0">Correct!</strong> ${question.explanation || ''}`
+    : `<strong style="color:#E05A40">Incorrect.</strong> The correct answer is <strong>${question.correct}</strong>.${exp || ''}`;
 
   feedback.style.display = 'block';
 
@@ -1665,15 +1816,19 @@ function resetMatchingGameState() {
 // Mode switching (updated)
 function switchStudyMode(mode, clickedTab) {
   document.querySelectorAll('.study-tab').forEach(t => t.classList.remove('active'));
-  clickedTab.classList.add('active');
+  if (clickedTab) clickedTab.classList.add('active');
 
   document.getElementById('flashcards-mode').style.display = mode === 'flashcards' ? 'block' : 'none';
   document.getElementById('quiz-mode').style.display = mode === 'quiz' ? 'block' : 'none';
   document.getElementById('whoami-mode').style.display = mode === 'whoami' ? 'block' : 'none';
   document.getElementById('matching-mode').style.display = mode === 'matching' ? 'block' : 'none';
+  document.getElementById('audio-loops-mode').style.display = mode === 'audio-loops' ? 'block' : 'none';
 
   if (mode === 'flashcards' && currentFlashcards.length === 0) {
     loadNewFlashcardDeck();
+  }
+  if (mode === 'audio-loops') {
+    stopAudioLearningLoop(); // clean state when switching to the tab
   }
 }
 
@@ -1689,6 +1844,339 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'ArrowRight') nextFlashcard();
   if (e.key.toLowerCase() === 'k') markFlashcardKnown();
 });
+
+// ============================================
+// AUDIO LEARNING LOOPS - Dedicated Listening Study Mode
+// Random continuous loop using Tara at optimal listening speed.
+// Content is pre-crafted for audio clarity and memory retention.
+// ============================================
+
+let audioLoopActive = false;
+let audioLoopPaused = false;
+let audioLoopGroup = null;
+let audioLoopItems = [];
+let audioLoopCurrentIndex = -1;
+let audioLoopTimeout = null;
+let audioLoopSession = 0;
+let audioLoopCurrentItem = null;
+let audioLoopPausedAtChunk = -1;
+
+function selectAudioGroup(groupKey, buttonEl) {
+  // Deselect all
+  document.querySelectorAll('.audio-group-btn').forEach(b => b.classList.remove('active'));
+  if (buttonEl) buttonEl.classList.add('active');
+
+  audioLoopGroup = groupKey;
+  audioLoopItems = (window.LISTENING_DATA && window.LISTENING_DATA[groupKey]) || [];
+
+  const status = document.getElementById('audio-loop-status');
+  if (status) {
+    status.innerHTML = `
+      <div style="font-size:13px;color:var(--text-dim);">Group selected:</div>
+      <div style="font-size:17px;font-weight:600;color:var(--gold);">${buttonEl ? buttonEl.textContent : groupKey}</div>
+      <div style="font-size:13px;margin-top:4px;">${audioLoopItems.length} listening-optimized items ready.</div>
+    `;
+  }
+
+  // Enable start button
+  const startBtn = document.getElementById('audio-start-btn');
+  if (startBtn) startBtn.disabled = false;
+}
+
+function startAudioLearningLoop() {
+  console.log('[AudioLoop] start called. group=', audioLoopGroup, 'items count=', audioLoopItems ? audioLoopItems.length : 0);
+
+  if (!audioLoopGroup || !audioLoopItems.length) {
+    alert("Please select a group first.");
+    return;
+  }
+
+  // Close the main floating reader if it's open, to avoid conflicts
+  const mainReader = document.getElementById('reader-panel');
+  if (mainReader) mainReader.style.display = 'none';
+
+  audioLoopActive = true;
+  audioLoopPaused = false;
+  audioLoopCurrentIndex = -1;
+  audioLoopSession++;
+
+  audioLoopCurrentItem = null;
+  audioLoopPausedAtChunk = -1;
+
+  // Make sure voices (including Tara) are loaded
+  if (typeof forceLoadVoices === 'function') {
+    forceLoadVoices();
+  }
+
+  // Shuffle for better experience
+  audioLoopItems = [...audioLoopItems].sort(() => Math.random() - 0.5);
+
+  updateAudioLoopUI();
+  playNextAudioItem();
+
+  const startBtn = document.getElementById('audio-start-btn');
+  const pauseBtn = document.getElementById('audio-pause-btn');
+  if (startBtn) startBtn.style.display = 'none';
+  if (pauseBtn) pauseBtn.style.display = 'inline-block';
+}
+
+function playNextAudioItem() {
+  console.log('[AudioLoop] playNextAudioItem called, currentIndex before=', audioLoopCurrentIndex);
+
+  if (!audioLoopActive || audioLoopPaused) return;
+
+  const thisSession = audioLoopSession;
+
+  if (!audioLoopItems || audioLoopItems.length === 0) {
+    stopAudioLearningLoop();
+    return;
+  }
+
+  if (audioLoopSession !== thisSession) return; // invalidated by stop
+
+  // Pick next (simple random with slight avoidance of immediate repeat)
+  let nextIndex = Math.floor(Math.random() * audioLoopItems.length);
+  if (audioLoopItems.length > 1 && audioLoopCurrentIndex === nextIndex) {
+    nextIndex = (nextIndex + 1) % audioLoopItems.length;
+  }
+  audioLoopCurrentIndex = nextIndex;
+
+  const item = audioLoopItems[audioLoopCurrentIndex];
+
+  audioLoopCurrentItem = item;
+  audioLoopPausedAtChunk = -1;
+
+  // Build beautiful listening text
+  let spokenText = item.title + ". ";
+
+  if (item.overview) {
+    spokenText += item.overview + " ";
+  }
+
+  if (item.keyPoints && item.keyPoints.length > 0) {
+    spokenText += "Key things to remember: ";
+    item.keyPoints.forEach((point, i) => {
+      spokenText += (i + 1) + ". " + point + ". ";
+    });
+  }
+
+  // Update UI
+  const currentEl = document.getElementById('audio-current-item');
+  const infoEl = document.getElementById('audio-loop-info');
+  if (currentEl) currentEl.textContent = item.title;
+  if (infoEl) infoEl.textContent = `Listening item ${audioLoopCurrentIndex + 1} of ${audioLoopItems.length} • Random mode`;
+
+  const transcriptEl = document.getElementById('audio-last-text');
+  if (transcriptEl) transcriptEl.textContent = spokenText.substring(0, 180) + "...";
+
+  // Speak using the existing high-quality TTS engine, forcing Tara where possible
+  speakAudioLoopText(spokenText, () => {
+    // When finished, pause briefly then move to next
+    if (audioLoopActive && !audioLoopPaused && audioLoopSession === thisSession) {
+      audioLoopTimeout = setTimeout(() => {
+        playNextAudioItem();
+      }, 2200); // Nice breathing room between items for the listener
+    }
+  }, 0);
+}
+
+function speakAudioLoopText(text, onComplete, startFrom = 0) {
+  // Reuse the excellent chunking and speaking logic from the main reader
+  // Force a clean stop first
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+
+  fullReadableText = text;
+  currentTextChunks = chunkTextIntoSentences(text);
+  currentChunkIndex = startFrom;
+  isSpeaking = true;
+  isPaused = false;
+  stopRequested = false;
+
+  // Try to force Tara
+  const originalGetBest = getBestVoiceFromSelect;
+  // Temporarily bias hard to Tara for the loop
+  window.getBestVoiceFromSelect = function() {
+    if (readerVoices && readerVoices.length) {
+      const tara = readerVoices.find(v => v.name.includes('Tara'));
+      if (tara) return tara;
+    }
+    return originalGetBest ? originalGetBest() : null;
+  };
+
+  const thisSession = audioLoopSession;
+
+  // We hook the completion
+  function loopSpeakNext() {
+    if (!audioLoopActive || audioLoopPaused || audioLoopSession !== thisSession || stopRequested || currentChunkIndex >= currentTextChunks.length) {
+      stopRequested = false;
+      isSpeaking = false;
+      isPaused = false;
+      // Restore original voice selector
+      window.getBestVoiceFromSelect = originalGetBest;
+      if (typeof onComplete === 'function') onComplete();
+      return;
+    }
+
+    // Call the normal speakNextChunk but with our completion at the end
+    const chunk = currentTextChunks[currentChunkIndex];
+    if (!chunk || chunk.length < 4) {
+      currentChunkIndex++;
+      loopSpeakNext();
+      return;
+    }
+
+    updateProgressUI();
+
+    const utterance = new SpeechSynthesisUtterance(chunk);
+    const voice = getBestVoiceFromSelect();
+    if (voice) utterance.voice = voice;
+    utterance.lang = 'en-AU';
+    utterance.rate = readerRate || 0.85;
+    utterance.pitch = 1.0;
+    utterance.volume = 0.96;
+
+    utterance.onend = () => {
+      if (!audioLoopActive || audioLoopPaused || audioLoopSession !== thisSession) {
+        window.getBestVoiceFromSelect = originalGetBest;
+        if (typeof onComplete === 'function') onComplete();
+        return;
+      }
+      currentChunkIndex++;
+      updateProgressUI();
+      loopSpeakNext();
+    };
+
+    utterance.onerror = () => {
+      if (!audioLoopActive || audioLoopPaused || audioLoopSession !== thisSession) {
+        window.getBestVoiceFromSelect = originalGetBest;
+        if (typeof onComplete === 'function') onComplete();
+        return;
+      }
+      currentChunkIndex++;
+      loopSpeakNext();
+    };
+
+    currentUtterance = utterance;
+
+    setTimeout(() => {
+      if (!audioLoopActive || audioLoopPaused || audioLoopSession !== thisSession) {
+        window.getBestVoiceFromSelect = originalGetBest;
+        if (typeof onComplete === 'function') onComplete();
+        return;
+      }
+      try {
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+      } catch (e) {
+        currentChunkIndex++;
+        loopSpeakNext();
+      }
+    }, 12);
+  }
+
+  loopSpeakNext();
+}
+
+function pauseAudioLoop() {
+  audioLoopPaused = true;
+
+  // Capture where we are in the current item so we can resume exactly there
+  audioLoopPausedAtChunk = currentChunkIndex;
+
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  if (audioLoopTimeout) {
+    clearTimeout(audioLoopTimeout);
+    audioLoopTimeout = null;
+  }
+
+  document.getElementById('audio-pause-btn').style.display = 'none';
+  document.getElementById('audio-resume-btn').style.display = 'inline-block';
+}
+
+function resumeAudioLoop() {
+  if (!audioLoopActive) return;
+  audioLoopPaused = false;
+
+  document.getElementById('audio-pause-btn').style.display = 'inline-block';
+  document.getElementById('audio-resume-btn').style.display = 'none';
+
+  if (audioLoopCurrentItem && audioLoopPausedAtChunk >= 0) {
+    // Resume the *same* item from the exact chunk we paused at
+    const item = audioLoopCurrentItem;
+    const startChunk = audioLoopPausedAtChunk;
+
+    // Rebuild the spoken text for this item (same as in playNextAudioItem)
+    let spokenText = item.title + ". ";
+    if (item.overview) spokenText += item.overview + " ";
+    if (item.keyPoints && item.keyPoints.length > 0) {
+      spokenText += "Key things to remember: ";
+      item.keyPoints.forEach((point, i) => {
+        spokenText += (i + 1) + ". " + point + ". ";
+      });
+    }
+
+    // Clear the pause bookmark
+    const resumeChunk = audioLoopPausedAtChunk;
+    audioLoopPausedAtChunk = -1;
+
+    // Speak starting from the saved chunk
+    speakAudioLoopText(spokenText, () => {
+      // After this item finishes, go back to normal random loop
+      if (audioLoopActive && !audioLoopPaused) {
+        audioLoopTimeout = setTimeout(() => {
+          playNextAudioItem();
+        }, 2200);
+      }
+    }, resumeChunk);
+  } else {
+    // We were paused between items (or no bookmark), just continue the loop
+    playNextAudioItem();
+  }
+}
+
+function skipAudioItem() {
+  if (audioLoopTimeout) clearTimeout(audioLoopTimeout);
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  if (audioLoopActive) {
+    playNextAudioItem();
+  }
+}
+
+function stopAudioLearningLoop() {
+  audioLoopActive = false;
+  audioLoopPaused = false;
+  audioLoopSession++;  // This is the key: any pending onend / loopSpeakNext from the current utterance will see the new session and bail immediately
+
+  audioLoopCurrentItem = null;
+  audioLoopPausedAtChunk = -1;
+
+  if (audioLoopTimeout) {
+    clearTimeout(audioLoopTimeout);
+    audioLoopTimeout = null;
+  }
+  if (window.speechSynthesis) {
+    window.speechSynthesis.cancel();
+  }
+
+  const startBtn = document.getElementById('audio-start-btn');
+  const pauseBtn = document.getElementById('audio-pause-btn');
+  const resumeBtn = document.getElementById('audio-resume-btn');
+  const currentEl = document.getElementById('audio-current-item');
+  const infoEl = document.getElementById('audio-loop-info');
+
+  if (startBtn) startBtn.style.display = 'inline-block';
+  if (pauseBtn) pauseBtn.style.display = 'none';
+  if (resumeBtn) resumeBtn.style.display = 'none';
+  if (currentEl) currentEl.textContent = 'Loop stopped.';
+  if (infoEl) infoEl.textContent = 'Select a group and start again when ready.';
+
+  const transcript = document.getElementById('audio-last-text');
+  if (transcript) transcript.textContent = '—';
+}
+
+function updateAudioLoopUI() {
+  // Can be expanded later for counters etc.
+}
 
 // Initialize study tools when page loads
 function initStudyTools() {
@@ -1759,6 +2247,28 @@ function handleGlobalSearch(event) {
           <span class="result-type">${v.typeName}</span>
           <div class="result-title">${v.desig} — ${v.name}</div>
           <div class="result-subtitle">${v.tagline ? wrapGlossaryTerms(v.tagline.substring(0,80) + '...') : ''}</div>
+        </div>`;
+      count++;
+    });
+  }
+
+  // Search Space
+  const SPACE_DATA = (window.SPACE || (typeof SPACE !== 'undefined' ? SPACE : []));
+  const spaceResults = SPACE_DATA.filter(s =>
+    s.name.toLowerCase().includes(query) ||
+    s.desig.toLowerCase().includes(query) ||
+    s.overview.toLowerCase().includes(query) ||
+    (s.tags && s.tags.join(' ').toLowerCase().includes(query))
+  ).slice(0, 5);
+
+  if (spaceResults.length) {
+    html += `<div class="search-result-group">Space</div>`;
+    spaceResults.forEach(s => {
+      html += `
+        <div class="search-result-item" onclick="selectSearchResult('space', '${s.id}')">
+          <span class="result-type">Space</span>
+          <div class="result-title">${s.desig} — ${s.name}</div>
+          <div class="result-subtitle">${s.tagline ? s.tagline.substring(0,80) + '...' : ''}</div>
         </div>`;
       count++;
     });
@@ -1867,6 +2377,10 @@ function selectSearchResult(type, id) {
     const navEl = document.querySelector('.nav-link[data-section="airforce"]');
     showSection('airforce', navEl);
     setTimeout(() => showAdversaryDetail(id), 450);
+  } else if (type === 'space') {
+    const navEl = document.querySelector('.nav-link[data-section="space"]');
+    showSection('space', navEl);
+    setTimeout(() => showSpaceDetail(id), 350);
   }
 }
 
@@ -2137,6 +2651,103 @@ function buildNavyGrid() {
   html += `<h3 style="font-family:'Rajdhani',sans-serif;color:var(--threat);margin:40px 0 16px;">Adversary Recognition</h3>`;
   html += `<div class="fleet-grid">${renderCards(advIds)}</div>`;
   grid.innerHTML = html;
+}
+
+function buildSpaceGrid() {
+  const grid = document.getElementById('spaceGrid');
+  if (!grid) return;
+  const SPACE_DATA = (window.SPACE || (typeof SPACE !== 'undefined' ? SPACE : []));
+
+  // Group: ADF, Adversary, Allied, Key Concepts
+  const adfIds = ['adf-satcom', 'sda', 'aus-cubesat', 'launch'];
+  const advIds = ['china-asat', 'russia-asat'];
+  const alliedIds = ['us-starshield', 'us-gps'];
+  const conceptIds = ['space-law', 'kessler'];
+
+  function renderSpaceCards(ids) {
+    return ids.map(id => {
+      const s = SPACE_DATA.find(x => x.id === id);
+      if (!s) return '';
+      const isAdv = /Adversary|china|russia/i.test((s.tags || []).join(' ') + (s.id || ''));
+      const isAllied = /Allied|US|UK/i.test((s.tags || []).join(' ') + (s.id || ''));
+      let badgeClass = '';
+      let badgeText = s.desig || '';
+      if (isAdv) badgeClass = ' adversary';
+      else if (isAllied) badgeClass = ' allied';
+      const specs = (s.stats || []).map(st => `${st.v} ${st.k}`).join(' • ');
+      const tags = (s.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
+      const role = s.tagline || '';
+      return `
+        <div class="fleet-card space-card" id="space-${s.id}" data-detail-id="${s.id}">
+          <div class="fleet-img-wrap">
+            ${s.img ? `<img src="${s.img}" alt="${s.name}" loading="lazy">` : `<div style="height:140px; background:var(--navy-mid); display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:13px;">No image yet</div>`}
+            <span class="fleet-type-badge${badgeClass}">${badgeText}</span>
+          </div>
+          <div class="fleet-card-body">
+            <div class="fleet-designation">${s.desig}</div>
+            <div class="fleet-name">${s.name}</div>
+            <div class="fleet-role">${role}</div>
+            <div class="fleet-specs">${specs}</div>
+            <div class="fleet-tags">${tags}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  let html = '';
+  html += `<div class="fleet-grid space-grid"><h4 style="grid-column: 1/-1; color:var(--gold); margin: 0 0 8px; font-size:14px;">ADF Space Capabilities</h4>${renderSpaceCards(adfIds)}</div>`;
+  html += `<div class="fleet-grid space-grid" style="margin-top:24px;"><h4 style="grid-column: 1/-1; color:var(--threat); margin: 0 0 8px; font-size:14px;">Adversary Space / Counterspace</h4>${renderSpaceCards(advIds)}</div>`;
+  html += `<div class="fleet-grid space-grid" style="margin-top:24px;"><h4 style="grid-column: 1/-1; color:var(--accent-blue); margin: 0 0 8px; font-size:14px;">Allied Space Capabilities</h4>${renderSpaceCards(alliedIds)}</div>`;
+  html += `<div class="fleet-grid space-grid" style="margin-top:24px;"><h4 style="grid-column: 1/-1; color:var(--gold); margin: 0 0 8px; font-size:14px;">Key Concepts &amp; Threats</h4>${renderSpaceCards(conceptIds)}</div>`;
+  grid.innerHTML = html;
+
+  // Add click handlers for detail popups (reuses the main modal like navy/maritime)
+  grid.querySelectorAll('.fleet-card[id^="space-"]').forEach(card => {
+    card.addEventListener('click', () => {
+      const id = card.dataset.detailId || card.id.replace('space-', '');
+      showSpaceDetail(id);
+    });
+  });
+}
+
+function showSpaceDetail(id) {
+  const SPACE_DATA = (window.SPACE || (typeof SPACE !== 'undefined' ? SPACE : []));
+  const item = SPACE_DATA.find(x => x.id === id);
+  if (!item) return;
+
+  const statsHTML = (item.stats || []).map(s => `<div class="modal-stat"><div class="modal-stat-val">${s.v}</div><div class="modal-stat-key">${s.k}</div></div>`).join('');
+
+  const tagsHTML = (item.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
+
+  document.getElementById('modalInner').innerHTML = `
+    <div class="modal-hero" style="background: linear-gradient(135deg, #0a1628, #112244);">
+      <div class="modal-hero-text" style="padding: 24px;">
+        <div class="modal-desig">${item.desig || ''} · Space Domain</div>
+        <div class="modal-name">${item.name}</div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-stats-row">${statsHTML}</div>
+      <div class="modal-tabs">
+        <div class="modal-tab active" onclick="switchTab(event,'overview-${id}')">Overview</div>
+        <div class="modal-tab" onclick="switchTab(event,'details-${id}')">Details &amp; Context</div>
+      </div>
+      <div class="modal-tab-pane active" id="overview-${id}">
+        <p class="modal-desc">${item.overview || item.tagline || ''}</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">${tagsHTML}</div>
+      </div>
+      <div class="modal-tab-pane" id="details-${id}">
+        <p class="modal-desc">${item.overview || ''}</p>
+        <div class="highlight-box" style="margin-top:16px;">
+          <strong>Space Operations Officer Note:</strong> ${item.tagline || 'Critical for understanding contested space operations and resilience.'}
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('aircraftModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 
 // ── BASE MAP CALIB TOGGLE (user-requested on/off for the coord helpers) ─────────
@@ -2600,39 +3211,547 @@ function showAdversaryDetail(id) {
   document.body.style.overflow = 'hidden';
 }
 
+// ── OPERATIONS HELPERS ────────────────────────────────────────
+function getOpMarkerColor(op) {
+  if (op.status === 'concluded') return '#666666';
+  const t = (op.types || []).join(' ').toLowerCase();
+  const r = (op.region || '').toLowerCase();
+  if (t.includes('army') || r.includes('australia')) return '#228B22'; // green for land/domestic
+  if (t.includes('navy') || t.includes('patrol') || r.includes('pacific') || r.includes('asia')) return '#4A9EDB'; // blue maritime/asia
+  if (t.includes('space')) return '#2EC4A0'; // teal space
+  if (t.includes('ct') || t.includes('support') || r.includes('middle east') || r.includes('red sea')) return '#E05A40'; // red for ct/support/ME
+  if (r.includes('europe') || r.includes('global')) return '#9B59B6'; // purple global/europe
+  return '#C9A84C'; // default gold
+}
+
+function getContinent(region) {
+  const r = (region || '').toLowerCase();
+  if (/middle east|red sea|sinai|israel|syria|iraq|uae|persian gulf/.test(r)) return 'Middle East';
+  if (/asia|korea|malaysia|indo-pacific/.test(r)) return 'Asia / Indo-Pacific';
+  if (/africa|south sudan/.test(r)) return 'Africa';
+  if (/europe|ukraine/.test(r)) return 'Europe';
+  if (/australia/.test(r)) return 'Australia';
+  if (/pacific/.test(r)) return 'Pacific / Oceania';
+  if (/global|space/.test(r)) return 'Global / Other';
+  return 'Other';
+}
+
+function getBaseServiceBadge(name) {
+  if (!name) return '?';
+  if (name.startsWith('RAAF Base')) return 'R';
+  if (name.startsWith('HMAS')) return 'N';
+  return 'A'; // Army or other
+}
+
+function getBaseService(name) {
+  if (!name) return 'ADF';
+  if (name.startsWith('RAAF Base')) return 'RAAF';
+  if (name.startsWith('HMAS')) return 'RAN';
+  return 'Army';
+}
+
+const continentOrder = ['Middle East', 'Asia / Indo-Pacific', 'Africa', 'Europe', 'Australia', 'Pacific / Oceania', 'Global / Other'];
+
+const baseStateOrder = ['Queensland', 'New South Wales', 'Victoria', 'South Australia', 'Western Australia', 'Northern Territory', 'Australian Capital Territory'];
+
 // ── OPERATIONS ────────────────────────────────────────────────
-function buildOpsGrid() {
-  const grid = document.getElementById('opsGrid');
-  grid.innerHTML = OPERATIONS.map(op => `
-    <div class="op-card" id="opcard-${op.id}" onclick="selectOp('${op.id}',null)">
-      <div class="op-header">
-        <div>
-          <div class="op-region">${op.region}</div>
-          <div class="op-name">${op.name}</div>
+function buildOpsList() {
+  const container = document.getElementById('opsList');
+  if (!container) return;
+
+  const groups = {};
+  OPERATIONS.forEach(op => {
+    const cont = getContinent(op.region);
+    if (!groups[cont]) groups[cont] = [];
+    groups[cont].push(op);
+  });
+
+  let html = '';
+  continentOrder.forEach(cont => {
+    const items = groups[cont];
+    if (!items || items.length === 0) return;
+    html += `<div class="ops-continent-header">${cont}</div>`;
+    const itemsGridClass = (cont === 'Middle East') ? 'ops-items-grid me-dense' : 'ops-items-grid';
+    html += `<div class="${itemsGridClass}">`;
+    items.forEach(op => {
+      const isConcluded = op.status === 'concluded';
+      const dotColor = getOpMarkerColor(op);
+      // Compact item: dot + short name + tiny status. Full details on select/panel. Region in header.
+      const shortName = op.name.replace(/^Operation\s+/i, '');
+      html += `
+        <div class="ops-list-item" data-op="${op.id}" onclick="selectOp('${op.id}', event)">
+          <span class="op-color-dot" style="background:${dotColor}"></span>
+          <span class="op-name">${shortName}</span>
+          <span class="op-status-sm ${isConcluded ? 'concluded' : 'active'}">${isConcluded ? 'C' : 'A'}</span>
         </div>
-        <div class="op-status active">Active</div>
-      </div>
-      <p class="op-desc">${op.desc}</p>
-      <div class="op-assets">
-        ${op.assets.map((a,i) => `<span class="asset-tag ${op.types[i]||''}">${a}</span>`).join('')}
-      </div>
-    </div>
-  `).join('');
+      `;
+    });
+    html += `</div>`;
+  });
+  container.innerHTML = html;
+}
+
+function buildBasesList() {
+  const container = document.getElementById('basesList');
+  if (!container) return;
+
+  const groups = {};
+  Object.keys(BASES).forEach(key => {
+    const b = BASES[key];
+    const state = b.location || 'Other';
+    if (!groups[state]) groups[state] = [];
+    groups[state].push({ id: key, base: b });
+  });
+
+  let html = '';
+  baseStateOrder.forEach(state => {
+    const items = groups[state];
+    if (!items || items.length === 0) return;
+    html += `<div class="ops-continent-header">${state}</div>`;
+    html += `<div class="ops-items-grid">`;
+    items.forEach(({ id, base }) => {
+      const shortName = base.name.replace(/^RAAF Base /i, '').replace(/^HMAS /i, '');
+      const dotColor = base.color || '#C9A84C';
+      const badge = getBaseServiceBadge(base.name);
+      // Reuse ops list item styling exactly for visual match. data-base + selectBase for interaction.
+      html += `
+        <div class="ops-list-item" data-base="${id}" onclick="selectBase('${id}', event)">
+          <span class="op-color-dot" style="background:${dotColor}"></span>
+          <span class="op-name">${shortName}</span>
+          <span class="op-status-sm service">${badge}</span>
+        </div>
+      `;
+    });
+    html += `</div>`;
+  });
+  container.innerHTML = html;
 }
 
 function selectOp(id, event) {
-  document.querySelectorAll('.op-card').forEach(c => c.classList.remove('selected'));
+  if (event) event.stopPropagation();
+
+  // Clear selections on compact list and SVG dots
+  document.querySelectorAll('.ops-list-item').forEach(el => el.classList.remove('selected'));
   document.querySelectorAll('.op-dot').forEach(d => d.classList.remove('selected'));
 
-  const card = document.getElementById('opcard-'+id);
-  if (card) {
-    card.classList.add('selected');
-    card.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  // Highlight in compact list
+  const listItem = document.querySelector(`.ops-list-item[data-op="${id}"]`);
+  if (listItem) {
+    listItem.classList.add('selected');
+    listItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
+  // Highlight dot on offline SVG if present
   const dot = document.querySelector(`.op-dot[data-op="${id}"]`);
   if (dot) dot.classList.add('selected');
+
+  const op = OPERATIONS.find(o => o.id === id);
+  if (!op) return;
+
+  // For Google map: pan to it and open info (if map exists)
+  if (opsGoogleMap && op.lat && op.lng) {
+    opsGoogleMap.panTo({ lat: op.lat, lng: op.lng });
+    // optional: zoom a bit closer for detail
+    if (opsGoogleMap.getZoom() < 4) opsGoogleMap.setZoom(4);
+  }
+
+  // Highlight selected marker on Google (larger, darker stroke) and reset others
+  const googleDiv = document.getElementById('ops-google-map');
+  if (opsGoogleMap && googleDiv && googleDiv.style.display !== 'none') {
+    Object.keys(opsMarkers).forEach(k => {
+      const m = opsMarkers[k];
+      const isSelected = (k === id);
+      const baseOp = OPERATIONS.find(o => o.id === k) || op;
+      const s = isSelected ? 12 : 9;
+      m.setIcon({
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: s,
+        fillColor: getOpMarkerColor(baseOp),
+        fillOpacity: 0.95,
+        strokeColor: isSelected ? '#111' : '#FFFFFF',
+        strokeWeight: isSelected ? 2.5 : 1.5,
+        labelOrigin: new google.maps.Point(0, 0)  // superimposed / centered on the dot itself
+      });
+    });
+  }
+
+  // Populate the right side panel with full details (clean like bases)
+  const placeholder = document.getElementById('opsPlaceholder');
+  const card = document.getElementById('opsCard');
+  if (placeholder) placeholder.style.display = 'none';
+  if (card) {
+    const isConcluded = op.status === 'concluded';
+    card.innerHTML = `
+      <div class="op-details-header">
+        <div class="op-region">${op.region}</div>
+        <div class="op-name">${op.name}</div>
+        <div class="op-status ${isConcluded ? 'concluded' : 'active'}">${isConcluded ? 'Concluded' : 'Active'}</div>
+      </div>
+      <div class="op-details-body">
+        <p class="op-desc">${op.desc}</p>
+        <div class="op-section-label">Deployed Assets</div>
+        <div class="op-assets">
+          ${op.assets.map((a, i) => `<span class="asset-tag ${op.types && op.types[i] ? op.types[i] : ''}">${a}</span>`).join('')}
+        </div>
+        ${op.lat && op.lng ? `
+          <div style="margin-top:16px;">
+            <a href="https://www.google.com/maps/@${op.lat},${op.lng},10z/data=!3m1!1e3" target="_blank" rel="noopener noreferrer" class="google-maps-link">
+              🛰️ View on Google Maps satellite →
+            </a>
+          </div>
+        ` : ''}
+      </div>
+    `;
+    card.classList.add('visible');
+    card.style.display = 'block';
+  }
 }
+
+function showLiveGoogleMapForBases() {
+  const container = document.getElementById('live-bases-google');
+  const iframe = document.getElementById('live-bases-iframe');
+  const mapContainer = document.querySelector('#bases .map-container');
+  if (!mapContainer || !container || !iframe) return;
+
+  const localSvg = mapContainer.querySelector('svg');
+  const legend = mapContainer.querySelector('.map-legend');
+  const calib = mapContainer.querySelector('.map-calib-controls');
+
+  // Center on Australia
+  iframe.src = `https://www.google.com/maps/embed?ll=-25.2744,133.7751&z=4&t=k&hl=en&gl=AU&mapclient=embed`;
+
+  if (localSvg) localSvg.style.display = 'none';
+  if (legend) legend.style.display = 'none';
+  if (calib) calib.style.display = 'none';
+
+  container.style.display = 'block';
+}
+
+function hideLiveGoogleMapForBases() {
+  const container = document.getElementById('live-bases-google');
+  const iframe = document.getElementById('live-bases-iframe');
+  const mapContainer = document.querySelector('#bases .map-container');
+  if (!mapContainer || !container || !iframe) return;
+
+  const localSvg = mapContainer.querySelector('svg');
+  const legend = mapContainer.querySelector('.map-legend');
+  const calib = mapContainer.querySelector('.map-calib-controls');
+
+  iframe.src = '';
+  container.style.display = 'none';
+
+  if (localSvg) localSvg.style.display = '';
+  if (legend) legend.style.display = '';
+  if (calib) calib.style.display = '';
+}
+
+// === GOOGLE MAPS ONLINE MODE (default) with custom markers ===
+// Requires valid API key in index.html. Falls back gracefully if not available.
+let opsGoogleMap = null;
+let basesGoogleMap = null;
+let opsMarkers = {}; // for selected highlighting on Google view
+let basesMarkers = {}; // for selected highlighting on Google view (bases)
+
+function initGoogleMaps() {
+  if (typeof google === 'undefined' || !google.maps) {
+    console.warn('[ADF Forge] Google Maps API not loaded (missing or invalid key). Using offline maps only.');
+    // Show offline by default if no Google
+    switchToOfflineOpsMap();
+    switchToOfflineBasesMap();
+    return;
+  }
+  if (opsGoogleMap || basesGoogleMap) {
+    // Already initialized (e.g. late retry or double call)
+    return;
+  }
+
+  // Operations World Map (satellite, low zoom for whole world)
+  const opsEl = document.getElementById('ops-google-map');
+  if (opsEl) {
+    opsGoogleMap = new google.maps.Map(opsEl, {
+      center: { lat: 10, lng: 20 }, // Good center for world view
+      zoom: 2,
+      mapTypeId: 'satellite',
+      gestureHandling: 'greedy', // direct scroll wheel zoom, no need for cmd/ctrl modifier
+      disableDefaultUI: false,
+      zoomControl: true,
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: true
+    });
+
+    // Add markers for all operations
+    if (typeof OPERATIONS !== 'undefined' && Array.isArray(OPERATIONS)) {
+      OPERATIONS.forEach(op => {
+        if (!op.lat || !op.lng) return;
+        const fillColor = getOpMarkerColor(op);
+        const displayName = op.name.replace(/^Operation\s+/i, '');
+        const shortLabel = displayName.length > 10 ? displayName.substring(0, 9) + '…' : displayName;
+        const s = 9;
+        const marker = new google.maps.Marker({
+          position: { lat: op.lat, lng: op.lng },
+          map: opsGoogleMap,
+          title: `${op.name} — ${op.region}`,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: s,
+            fillColor: fillColor,
+            fillOpacity: 0.95,
+            strokeColor: '#FFFFFF',
+            strokeWeight: 1.5,
+            labelOrigin: new google.maps.Point(0, 0)  // superimposed / centered on the dot itself
+          },
+          label: {
+            text: shortLabel,
+            color: '#FFFFFF',
+            fontSize: '18px',  // 100% larger for clarity
+            fontWeight: '600',
+            className: 'op-map-label'
+          }
+        });
+        opsMarkers[op.id] = marker;
+        marker.addListener('click', () => {
+          selectOp(op.id);
+        });
+      });
+    }
+  }
+
+  // Bases Australia Map (satellite, focused on Australia)
+  const basesEl = document.getElementById('bases-google-map');
+  if (basesEl) {
+    basesGoogleMap = new google.maps.Map(basesEl, {
+      center: { lat: -25.2744, lng: 133.7751 },
+      zoom: 3.5, // zoomed out a bit so the whole of Australia + surrounding ocean remains visible in the 50% width map column
+      mapTypeId: 'satellite',
+      gestureHandling: 'greedy', // direct scroll wheel zoom, no need for cmd/ctrl modifier
+      disableDefaultUI: false,
+      zoomControl: true,
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: true
+    });
+
+    // Add markers for all bases that have coords (same style as ops: colored circle with name superimposed on the dot)
+    if (typeof BASES !== 'undefined') {
+      Object.keys(BASES).forEach(key => {
+        const b = BASES[key];
+        if (!b.lat || !b.lng) return;
+        const s = 9;
+        const shortName = b.name.replace('RAAF Base ', '').replace('HMAS ', '');
+        const displayName = shortName.length > 10 ? shortName.substring(0, 9) + '…' : shortName;
+        const marker = new google.maps.Marker({
+          position: { lat: b.lat, lng: b.lng },
+          map: basesGoogleMap,
+          title: b.name,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: s,
+            fillColor: b.color || '#C9A84C',
+            fillOpacity: 0.95,
+            strokeColor: '#FFFFFF',
+            strokeWeight: 1.5,
+            labelOrigin: new google.maps.Point(0, 0)  // superimposed / centered on the dot itself
+          },
+          label: {
+            text: displayName,
+            color: '#FFFFFF',
+            fontSize: '18px',  // same large size as ops
+            fontWeight: '600',
+            className: 'op-map-label'
+          }
+        });
+        basesMarkers[key] = marker;
+        marker.addListener('click', () => {
+          // Select the base in the local UI (same as ops style, no extra popup)
+          if (typeof selectBase === 'function') selectBase(key);
+        });
+      });
+    }
+  }
+
+  // Default to online maps (Google)
+  // The HTML has google visible, offline hidden
+  console.log('[ADF Forge] Google Maps online mode initialized with all points.');
+
+  // Force default to online views now that API is ready
+  switchToOnlineOpsMap();
+  switchToOnlineBasesMap();
+
+  // After Google has had time to render (or fail with key/referrer error), detect the common
+  // "Oops! Something went wrong" UI that Google injects into the map div on auth problems.
+  // If detected, auto-switch that map to the reliable offline SVG version so the site remains usable.
+  setTimeout(() => {
+    const hasErrorUI = (el) => {
+      if (!el) return false;
+      if (el.querySelector && el.querySelector('.gm-err-container')) return true;
+      const txt = (el.textContent || '').toLowerCase();
+      return txt.includes('oops! something went wrong') || txt.includes('google maps') && txt.includes('wrong');
+    };
+
+    const opsEl = document.getElementById('ops-google-map');
+    if (hasErrorUI(opsEl)) {
+      console.warn('[ADF Forge] Detected Google Maps error UI (likely invalid/restricted API key or missing referrer). Auto-falling back to offline map for ops.');
+      switchToOfflineOpsMap();
+    }
+
+    const basesEl = document.getElementById('bases-google-map');
+    if (hasErrorUI(basesEl)) {
+      console.warn('[ADF Forge] Detected Google Maps error UI (likely invalid/restricted API key or missing referrer). Auto-falling back to offline map for bases.');
+      switchToOfflineBasesMap();
+    }
+  }, 2200);
+}
+
+// Toggle functions for ops
+function switchToOnlineOpsMap() {
+  const googleDiv = document.getElementById('ops-google-map');
+  const offlineDiv = document.getElementById('ops-offline-map');
+  if (typeof google === 'undefined' || !google.maps) {
+    console.warn('[ADF Forge] Google object not available; falling back to offline map.');
+    switchToOfflineOpsMap();
+    return;
+  }
+  if (googleDiv) googleDiv.style.display = 'block';
+  if (offlineDiv) offlineDiv.style.display = 'none';
+  if (opsGoogleMap) {
+    setTimeout(() => google.maps.event.trigger(opsGoogleMap, 'resize'), 100);
+  } else {
+    // API may have become ready after initial attempts; try now
+    setTimeout(ensureGoogleMapsInit, 50);
+  }
+}
+
+function switchToOfflineOpsMap() {
+  const googleDiv = document.getElementById('ops-google-map');
+  const offlineDiv = document.getElementById('ops-offline-map');
+  if (googleDiv) googleDiv.style.display = 'none';
+  if (offlineDiv) offlineDiv.style.display = 'block';
+}
+
+// Toggle for bases (Australia map)
+function switchToOnlineBasesMap() {
+  const googleDiv = document.getElementById('bases-google-map');
+  const mapContainer = document.querySelector('#bases .map-container');
+  if (!mapContainer) return;
+  if (typeof google === 'undefined' || !google.maps) {
+    console.warn('[ADF Forge] Google object not available; falling back to offline map.');
+    switchToOfflineBasesMap();
+    return;
+  }
+  const localSvg = mapContainer.querySelector('svg');
+  const legend = mapContainer.querySelector('.map-legend');
+  const calib = mapContainer.querySelector('.map-calib-controls');
+  if (googleDiv) googleDiv.style.display = 'block';
+  if (localSvg) localSvg.style.display = 'none';
+  if (legend) legend.style.display = 'none';
+  if (calib) calib.style.display = 'none';
+  if (basesGoogleMap) {
+    setTimeout(() => google.maps.event.trigger(basesGoogleMap, 'resize'), 100);
+  } else {
+    setTimeout(ensureGoogleMapsInit, 50);
+  }
+}
+
+function switchToOfflineBasesMap() {
+  const googleDiv = document.getElementById('bases-google-map');
+  const mapContainer = document.querySelector('#bases .map-container');
+  if (!mapContainer) return;
+  const localSvg = mapContainer.querySelector('svg');
+  const legend = mapContainer.querySelector('.map-legend');
+  const calib = mapContainer.querySelector('.map-calib-controls');
+  if (googleDiv) googleDiv.style.display = 'none';
+  if (localSvg) localSvg.style.display = '';
+  if (legend) legend.style.display = '';
+  if (calib) calib.style.display = '';
+}
+
+// Make sure on load we are in online mode for the maps (Google default)
+document.addEventListener('DOMContentLoaded', () => {
+  // Default to online if Google is available
+  setTimeout(() => {
+    const opsGoogle = document.getElementById('ops-google-map');
+    const opsOffline = document.getElementById('ops-offline-map');
+    if (opsGoogle && typeof google !== 'undefined' && google.maps) {
+      if (opsOffline) opsOffline.style.display = 'none';
+      opsGoogle.style.display = 'block';
+    } else if (opsOffline) {
+      opsOffline.style.display = 'block';
+    }
+
+    // Same for bases
+    const basesGoogle = document.getElementById('bases-google-map');
+    const basesMapContainer = document.querySelector('#bases .map-container');
+    if (basesGoogle && typeof google !== 'undefined' && google.maps && basesMapContainer) {
+      basesGoogle.style.display = 'block';
+      const svg = basesMapContainer.querySelector('svg');
+      const legend = basesMapContainer.querySelector('.map-legend');
+      const calib = basesMapContainer.querySelector('.map-calib-controls');
+      if (svg) svg.style.display = 'none';
+      if (legend) legend.style.display = 'none';
+      if (calib) calib.style.display = 'none';
+    }
+
+    // Drive the real map creation + markers (callback-free, race-safe)
+    if (typeof initGoogleMaps === 'function') {
+      try { initGoogleMaps(); } catch (e) { console.warn('[ADF Forge] Late Google init failed:', e); }
+    }
+  }, 1200); // Wait for Google script
+});
+
+// Safe driver: call this to init Google maps if/when the async API becomes available.
+// Called from our init, from section show, and from the DOMContentLoaded above.
+function ensureGoogleMapsInit() {
+  if (typeof google !== 'undefined' && google.maps && typeof initGoogleMaps === 'function') {
+    try {
+      initGoogleMaps();
+    } catch (e) {
+      console.warn('[ADF Forge] ensureGoogleMapsInit error:', e);
+    }
+  }
+}
+
+function showLiveGoogleMapForOps(centerLat, centerLng) {
+  const container = document.getElementById('live-ops-google');
+  const iframe = document.getElementById('live-ops-iframe');
+  const mapWrap = document.querySelector('#operations .world-map-wrap');
+  if (!mapWrap) return;
+
+  const localSvg = mapWrap.querySelector('svg');
+  const notes = mapWrap.querySelectorAll('div[style*="padding"]');
+
+  // Default to broad Indo-Pacific view if no specific
+  const lat = centerLat || -10;
+  const lng = centerLng || 130;
+  const z = centerLat ? 8 : 3;
+
+  // Use simple embed URL that supports satellite (t=k in some variants, but embed view works)
+  iframe.src = `https://www.google.com/maps/embed?ll=${lat},${lng}&z=${z}&t=k&hl=en&gl=AU&mapclient=embed`;
+
+  if (localSvg) localSvg.style.display = 'none';
+  notes.forEach(n => n.style.display = 'none');
+
+  container.style.display = 'block';
+}
+
+function hideLiveGoogleMapForOps() {
+  const container = document.getElementById('live-ops-google');
+  const iframe = document.getElementById('live-ops-iframe');
+  const mapWrap = document.querySelector('#operations .world-map-wrap');
+  if (!mapWrap) return;
+
+  const localSvg = mapWrap.querySelector('svg');
+  const notes = mapWrap.querySelectorAll('div[style*="padding"]');
+
+  iframe.src = '';
+  container.style.display = 'none';
+
+  if (localSvg) localSvg.style.display = '';
+  notes.forEach(n => n.style.display = '');
+}
+
+// Optional: when selecting an op, if it has coords, you can auto-offer, but for now manual button + card link is good.
+// To enhance, we can call showLive... from selectOp if wanted, but keep separate for user control.
 
 // ── THEME SWITCHER ────────────────────────────────────────────
 const THEMES = ['default', 'midnight', 'light'];
@@ -2695,7 +3814,7 @@ function initCardClickHandlers() {
     aircraftGrid.addEventListener('click', (e) => {
       const card = e.target.closest('.aircraft-card');
       if (!card || !card.id) return;
-      console.log('[RAFF DEBUG] Aircraft card clicked:', card.id);
+      // Aircraft card clicked
       const fullId = card.id;
       if (fullId.startsWith('ac-')) {
         openAircraftModal(fullId.replace('ac-', ''));
@@ -2711,7 +3830,7 @@ function initCardClickHandlers() {
     weaponsSection.addEventListener('click', (e) => {
       const card = e.target.closest('.weapons-card');
       if (!card) return;
-      console.log('[RAFF DEBUG] Weapon/System card clicked:', card.id || card.dataset.detailId);
+      // Weapon/System card clicked
       let wid = card.dataset.detailId;
       if (!wid) {
         const full = card.id || '';
@@ -2727,7 +3846,7 @@ function initCardClickHandlers() {
     navySection.addEventListener('click', (e) => {
       const card = e.target.closest('.fleet-card[id]');
       if (!card) return;
-      console.log('[RAFF DEBUG] Fleet card clicked:', card.id);
+      // Fleet card clicked
       let detailId = card.dataset.detailId;
       if (!detailId) {
         const full = card.id || '';
@@ -2745,7 +3864,7 @@ function initCardClickHandlers() {
     vehiclesGrid.addEventListener('click', (e) => {
       const card = e.target.closest('.fleet-card');
       if (!card || !card.id) return;
-      console.log('[RAFF DEBUG] Army vehicle card clicked:', card.id);
+      // Army vehicle card clicked
       const full = card.id;
       if (full.startsWith('adv-vehicle-')) {
         showAdversaryVehicleDetail(full.replace('adv-vehicle-', ''));
@@ -2757,20 +3876,851 @@ function initCardClickHandlers() {
 }
 
 // ── INIT ──────────────────────────────────────────────────────
-buildAircraftGrid();
-buildOpsGrid();
-buildGlossary();
-buildWeaponsGrid();
-buildVehiclesGrid();
-buildNavyGrid();
-updateHeroStats();
-initCalibToggle();
-initStudyTools();
-initThemeSwitcher();
+// Wrap grid builders so a bad data shape / missing field in one area never prevents
+// the main nav links and home feature cards from becoming clickable.
+try { buildAircraftGrid(); } catch (e) { console.error('[ADF Forge] buildAircraftGrid failed:', e); }
+try { buildOpsList(); } catch (e) { console.error('[ADF Forge] buildOpsList failed:', e); }
+try { buildBasesList(); } catch (e) { console.error('[ADF Forge] buildBasesList failed:', e); }
+try { buildGlossary(); } catch (e) { console.error('[ADF Forge] buildGlossary failed:', e); }
+try { buildWeaponsGrid(); } catch (e) { console.error('[ADF Forge] buildWeaponsGrid failed:', e); }
+try { buildVehiclesGrid(); } catch (e) { console.error('[ADF Forge] buildVehiclesGrid failed:', e); }
+try { buildNavyGrid(); } catch (e) { console.error('[ADF Forge] buildNavyGrid failed:', e); }
+try { buildSpaceGrid(); } catch (e) { console.error('[ADF Forge] buildSpaceGrid failed:', e); }
+try { updateHeroStats(); } catch (e) { console.error('[ADF Forge] updateHeroStats failed:', e); }
+try { initCalibToggle(); } catch (e) { console.error('[ADF Forge] initCalibToggle failed:', e); }
+try { initStudyTools(); } catch (e) { console.error('[ADF Forge] initStudyTools failed:', e); }
+try { initThemeSwitcher(); } catch (e) { console.error('[ADF Forge] initThemeSwitcher failed:', e); }
+
 initMainNavigation();
 initCardClickHandlers();
 
-// Keyboard support (Escape closes modal)
+// ============================================
+// TEXT READER / LISTEN FEATURE (cleaned)
+// Web Speech API — chunked for progress/seeking, good voice defaults on macOS
+// Persists voice + rate. Basic keyboard support when panel is open.
+// ============================================
+
+let readerVoices = [];
+let readerRate = 0.85;  // Tara at 0.85x sounds the most natural (user preference)
+let currentUtterance = null;
+let isSpeaking = false;
+let isPaused = false;
+let stopRequested = false;
+let readerReadingSession = 0;
+
+// Progress state (sentence chunks for seeking)
+let currentTextChunks = [];
+let currentChunkIndex = 0;
+let fullReadableText = '';
+
+// Per-section start anchors for consistent "main content" beginning
+const sectionStartConfig = {
+  'cyberspace': 'Current Cyber Threat Landscape',
+  'national-defence': 'Clarifying the Documents',
+  'space': 'Key Concepts Every Space Operations Officer',
+  'bases': 'ADF Bases',
+  'operations': 'ADF Operations',
+  'navy': 'Royal Australian Navy',
+  'aircraft': 'Royal Australian Air Force',
+  'army': 'Australian Army',
+  'weapons': 'Weapons & Systems',
+  'leadership': 'ADF Leadership'
+};
+
+function loadReaderPreferences() {
+  try {
+    const savedVoice = localStorage.getItem('readerLastVoice');
+    const savedRate = parseFloat(localStorage.getItem('readerRate'));
+    if (!isNaN(savedRate) && savedRate >= 0.5 && savedRate <= 2) {
+      readerRate = savedRate;
+    } else {
+      readerRate = 0.85;  // default to Tara's sweet spot
+    }
+    return { savedVoice, savedRate: readerRate };
+  } catch (e) {
+    readerRate = 0.85;
+    return { savedVoice: null, savedRate: 0.85 };
+  }
+}
+
+function saveReaderRate(rate) {
+  readerRate = rate;
+  try { localStorage.setItem('readerRate', String(rate)); } catch (e) {}
+}
+
+// Cleaned voice loader — user gesture (opening panel) + onvoiceschanged is usually enough
+function forceLoadVoices(callback) {
+  let attempts = 0;
+  const maxAttempts = 6;
+  function tryLoad() {
+    attempts++;
+    try {
+      readerVoices = window.speechSynthesis.getVoices() || [];
+      populateVoiceSelect();
+    } catch (e) {}
+    if ((readerVoices && readerVoices.length > 0) || attempts >= maxAttempts) {
+      if (typeof callback === 'function') callback();
+      return;
+    }
+    setTimeout(tryLoad, 200);
+  }
+  tryLoad();
+}
+
+function initTextReader() {
+  const panel = document.getElementById('reader-panel');
+  if (!panel) return;
+  panel.style.display = 'none';
+
+  const playBtn = document.getElementById('reader-play-btn');
+  const pauseBtn = document.getElementById('reader-pause-btn');
+  const speedInput = document.getElementById('reader-speed');
+  const speedVal = document.getElementById('reader-speed-val');
+
+  if (playBtn) playBtn.onclick = playOrResumeCurrentSection;
+  if (pauseBtn) pauseBtn.onclick = pauseSpeech;
+  // stopSpeech and seekToProgress are wired via inline onclick in HTML
+
+  // Test button removed — Tara is now the fixed high-quality voice
+
+  // Load saved preferences and reflect in UI
+  const prefs = loadReaderPreferences();
+  readerRate = prefs.savedRate;
+  if (speedInput) speedInput.value = String(readerRate);
+  if (speedVal) speedVal.textContent = readerRate.toFixed(2) + '×';
+
+  // Sync badge on init
+  const badge = document.querySelector('.reader-voice-badge');
+  if (badge) badge.textContent = `Tara • ${readerRate.toFixed(2)}×`;
+
+  window.speechSynthesis.onvoiceschanged = populateVoiceSelect;
+
+  // One reliable kick (user gesture from opening the panel helps some browsers surface voices)
+  setTimeout(populateVoiceSelect, 80);
+}
+
+function populateVoiceSelect() {
+  // Voice selector UI has been removed — this function now only ensures
+  // the internal readerVoices list is populated so getBestVoiceFromSelect() works.
+  const voices = window.speechSynthesis.getVoices() || [];
+  if (voices.length > 0) {
+    readerVoices = voices;
+  }
+
+  // Keep speed display in sync (no voice select anymore)
+  const speedInput = document.getElementById('reader-speed');
+  const speedVal = document.getElementById('reader-speed-val');
+  if (speedInput) speedInput.value = String(readerRate);
+  if (speedVal) speedVal.textContent = readerRate.toFixed(2) + '×';
+}
+
+function getBestVoiceFromSelect() {
+  // Voice selector is hidden — we always prefer Tara (user's preferred most human-like voice)
+  if (readerVoices && readerVoices.length > 0) {
+    let v = readerVoices.find(v => v.name.includes('Tara'));
+    if (v) return v;
+
+    // Fallbacks only if Tara isn't available on this system
+    v = readerVoices.find(v => {
+      const n = v.name.toLowerCase();
+      return n.includes('samantha') || n.includes('siri') || (n.includes('girl') && n.includes('female'));
+    });
+    if (!v) v = readerVoices.find(v => v.name.toLowerCase().includes('matilda'));
+    if (!v) v = readerVoices.find(v => /karen|sara|shell|sand/i.test(v.name));
+    return v || readerVoices[0] || null;
+  }
+  return null;
+}
+
+function updateReaderSectionLabel(sectionId) {
+  const nameEl = document.getElementById('reader-section-name');
+  if (!nameEl) return;
+
+  const niceNames = {
+    'home': 'Home / Overview',
+    'national-defence': 'National Defence',
+    'bases': 'ADF Bases',
+    'operations': 'ADF Operations',
+    'navy': 'Royal Australian Navy',
+    'aircraft': 'Royal Australian Air Force',
+    'army': 'Australian Army',
+    'space': 'Space Defence',
+    'cyberspace': 'Cyberspace / Cyber Warfare',
+    'weapons': 'Weapons & Systems',
+    'leadership': 'ADF Leadership'
+  };
+
+  const display = niceNames[sectionId] || (sectionId ? sectionId.replace(/-/g, ' ') : 'Current Section');
+  nameEl.textContent = display;
+}
+
+function getCurrentSectionForReader() {
+  if (window.currentSection) return window.currentSection;
+  const visible = document.querySelector('section[style*="display: block"], section:not([style*="display: none"])');
+  if (visible && visible.id) return visible.id;
+  return 'national-defence';
+}
+
+function getReadableTextForSection(sectionId) {
+  const sectionEl = document.getElementById(sectionId);
+  if (!sectionEl) return 'Content for this section is not available for reading.';
+
+  if (sectionId === 'study-tools' || sectionId === 'glossary') {
+    return 'Reading mode is disabled for the interactive study tools and glossary.';
+  }
+
+  let chunks = [];
+  let startElement = null;
+  const startText = sectionStartConfig[sectionId];
+
+  if (startText) {
+    const candidates = sectionEl.querySelectorAll('h1, h2, h3, h4, p, strong');
+    for (const el of candidates) {
+      if (el.textContent.includes(startText)) {
+        startElement = el;
+        break;
+      }
+    }
+  }
+  if (!startElement) {
+    const main = sectionEl.querySelector('.section-wrap') || sectionEl;
+    startElement = main.querySelector('h3');
+  }
+
+  const root = startElement ? (startElement.parentElement || sectionEl) : (sectionEl.querySelector('.section-wrap') || sectionEl);
+  const selectors = 'h1, h2, h3, h4, p, li, dt, dd, .highlight-box, .info-grid-item, .tool-category, .threat-card, .base-about, .space-card, .fleet-card, .op-details-body, .base-card';
+
+  let collect = false;
+  const allPotential = root.querySelectorAll(selectors);
+
+  for (const el of allPotential) {
+    if (startElement && el === startElement) collect = true;
+    if (!collect && !startElement) collect = true;
+    if (!collect) continue;
+    if (el.closest('.study-controls, .study-mode-tabs, button, input, select, .reader-panel')) continue;
+
+    const txt = (el.innerText || el.textContent || '').trim();
+    if (txt.length > 8) chunks.push(txt);
+  }
+
+  const activeDetail = sectionEl.querySelector('#baseCard, .ops-panel .op-details.visible, .space-detail');
+  if (activeDetail) {
+    const d = activeDetail.innerText.trim();
+    if (d.length > 20) chunks.push(d);
+  }
+
+  let full = chunks.join('. ').replace(/\s+/g, ' ').replace(/\.\s*\./g, '.').trim();
+  if (full.length < 30) {
+    full = sectionEl.innerText.replace(/\s+/g, ' ').trim().substring(0, 2200);
+  }
+  return full || 'No readable text found in this section.';
+}
+
+// Slightly improved sentence chunker (handles common abbreviations and titles better)
+function chunkTextIntoSentences(text) {
+  if (!text) return [];
+  // Split keeping punctuation, but protect common abbreviations
+  const protected = text
+    .replace(/\b(e\.g\.|i\.e\.|U\.S\.|U\.K\.|Dr\.|Mr\.|Mrs\.|Ms\.|No\.|vs\.|etc\.)\s*/gi, (m) => m.replace(/\./g, '•'));
+  const parts = protected.split(/([.!?]+(?:\s+|$))/);
+  const chunks = [];
+  for (let i = 0; i < parts.length; i += 2) {
+    let s = (parts[i] || '').trim().replace(/•/g, '.');
+    const punct = parts[i + 1] || '';
+    if (s) {
+      s = s + punct.trim();
+      if (s.length > 5) chunks.push(s);
+    }
+  }
+  if (chunks.length === 0 && text.trim().length > 0) chunks.push(text.trim());
+  return chunks;
+}
+
+function speakNextChunk() {
+  // Capture the current session as soon as we enter. Any later onend from an older
+  // card will see a different global readerReadingSession and bail cleanly.
+  const thisSession = readerReadingSession;
+
+  if (stopRequested || currentChunkIndex >= currentTextChunks.length) {
+    stopRequested = false;
+    isSpeaking = false;
+    isPaused = false;
+    updateReaderPlayPauseUI();
+    updateProgressUI();
+    return;
+  }
+
+  if (readerReadingSession !== thisSession) {
+    // A newer card (or section) was opened while this chain was pending.
+    // Abort without touching progress or speaking stale content.
+    return;
+  }
+
+  const chunk = currentTextChunks[currentChunkIndex];
+  if (!chunk || chunk.length < 4) {
+    currentChunkIndex++;
+    speakNextChunk();
+    return;
+  }
+
+  updateProgressUI();  // advance the bar as we start this chunk
+
+  const utterance = new SpeechSynthesisUtterance(chunk);
+  const voice = getBestVoiceFromSelect();
+  if (voice) utterance.voice = voice;
+  utterance.lang = 'en-AU';   // Prefer AU English when available
+  utterance.rate = readerRate;
+  utterance.pitch = 1.0;
+  utterance.volume = 0.96;
+
+  utterance.onend = () => {
+    if (stopRequested || readerReadingSession !== thisSession) {
+      stopRequested = false; isSpeaking = false; isPaused = false;
+      updateReaderPlayPauseUI(); return;
+    }
+    currentChunkIndex++;
+    updateProgressUI();
+    speakNextChunk();
+  };
+
+  utterance.onerror = () => {
+    if (stopRequested || readerReadingSession !== thisSession) {
+      stopRequested = false; isSpeaking = false; isPaused = false; updateReaderPlayPauseUI(); return;
+    }
+    currentChunkIndex++;
+    updateProgressUI();
+    speakNextChunk();
+  };
+
+  currentUtterance = utterance;
+
+  // The cancel + tiny delay + speak pattern is the most reliable cross-browser workaround
+  // for the Web Speech API state machine (especially after pause/resume or voice changes).
+  setTimeout(() => {
+    try {
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+      if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+    } catch (err) {
+      currentChunkIndex++;
+      speakNextChunk();
+    }
+  }, 18);
+}
+
+function startReadingCurrentSection() {
+  readerReadingSession++;
+  stopRequested = false;
+  window.speechSynthesis.cancel();
+
+  const sectionId = getCurrentSectionForReader();
+  const sectionEl = document.getElementById(sectionId);
+  if (!sectionEl) return;
+
+  const text = getReadableTextForSection(sectionId);
+  if (!text || text.length < 20) return;
+
+  fullReadableText = text;
+  currentTextChunks = chunkTextIntoSentences(text);
+  currentChunkIndex = 0;
+  isSpeaking = true;
+  isPaused = false;
+
+  updateReaderSectionLabel(sectionId);
+  updateReaderPlayPauseUI();
+  updateProgressUI();   // show 0% initially
+  speakNextChunk();
+}
+
+function startReadingCurrentDetail() {
+  const panel = document.getElementById('reader-panel');
+  if (!panel || panel.style.display === 'none') return;
+
+  readerReadingSession++;
+
+  let detailEl = null;
+  let title = 'Detail';
+
+  // 1. Shared modal (aircraft, navy, army, weapons, space, adversary cards)
+  const modal = document.getElementById('aircraftModal');
+  const modalInner = document.getElementById('modalInner');
+  if (modal && modal.classList.contains('open') && modalInner) {
+    detailEl = modalInner;
+    const nameEl = modalInner.querySelector('.modal-name, .modal-hero-text .modal-name');
+    if (nameEl) title = nameEl.textContent.trim();
+  }
+
+  // 2. Base side card
+  if (!detailEl) {
+    const baseCard = document.getElementById('baseCard');
+    if (baseCard && baseCard.classList.contains('visible')) {
+      detailEl = baseCard;
+      // Try to get a nice title from the rendered card
+      const nameEl = baseCard.querySelector('.base-name, h3, .base-card-header');
+      if (nameEl) title = nameEl.textContent.trim();
+    }
+  }
+
+  // 3. Operations side card
+  if (!detailEl) {
+    const opsCard = document.getElementById('opsCard');
+    if (opsCard && (opsCard.classList.contains('visible') || opsCard.style.display === 'block')) {
+      detailEl = opsCard;
+      const nameEl = opsCard.querySelector('.op-name, h3');
+      if (nameEl) title = nameEl.textContent.trim();
+    }
+  }
+
+  if (!detailEl) return;
+
+  let spoken = '';
+
+  // Special structured extraction for vehicle/aircraft/weapon/space/adversary modal cards
+  const isModalCard = detailEl.querySelector('.modal-hero, .modal-body, .modal-desc, .system-item');
+  if (isModalCard) {
+    // Title: desig + name
+    const desigEl = detailEl.querySelector('.modal-desig');
+    const nameEl = detailEl.querySelector('.modal-name');
+    let cardTitle = '';
+    if (desigEl) cardTitle = desigEl.textContent.trim() + ' ';
+    if (nameEl) cardTitle += nameEl.textContent.trim();
+    cardTitle = cardTitle.trim() || title;
+
+    // Overview: just the description paragraph, no labels or bottom content
+    let overview = '';
+    const descEl = detailEl.querySelector('.modal-desc');
+    if (descEl) {
+      overview = descEl.textContent.trim();
+    }
+
+    // Key systems section
+    let systemsText = '';
+    const systemItems = detailEl.querySelectorAll('.system-item');
+    if (systemItems.length > 0) {
+      systemsText = 'Key systems: ';
+      systemItems.forEach((item, idx) => {
+        const sysName = item.querySelector('.system-name')?.textContent.trim() || '';
+        const sysCode = item.querySelector('.system-code')?.textContent.trim() || '';
+        const sysDesc = item.querySelector('.system-desc')?.textContent.trim() || '';
+        let layman = item.querySelector('.layman-box')?.textContent.trim() || '';
+        layman = layman.replace(/^Plain English\s*/i, '').trim();
+
+        let part = '';
+        if (sysName) part += sysName;
+        if (sysCode) part += ' ' + sysCode;
+        if (sysDesc) part += ': ' + sysDesc;
+        if (layman) part += '. In plain English: ' + layman;
+
+        if (idx > 0) systemsText += '. ';
+        systemsText += part;
+      });
+    }
+
+    spoken = cardTitle + '. ';
+    if (overview) spoken += overview + '. ';
+    if (systemsText) spoken += systemsText + '. ';
+  } else {
+    // Fallback for base cards, ops cards and any other details: use the full cleaned text
+    spoken = (detailEl.innerText || detailEl.textContent || '').trim();
+  }
+
+  if (spoken.length < 15) return;
+
+  // To kill any in-flight onend callbacks from the previous card's utterance
+  // (which could otherwise advance the index on the *new* chunks), we set
+  // stopRequested true + cancel, increment session (so old onends see mismatch),
+  // *then* reset state for the fresh card.
+  stopRequested = true;
+  if (window.speechSynthesis) {
+    window.speechSynthesis.cancel();
+  }
+  currentUtterance = null;
+  isSpeaking = false;
+  isPaused = false;
+
+  // Now load the brand new card's content and start fresh.
+  // The session was already incremented at the top of this function so that
+  // any onend callbacks from the utterance we just cancelled will see a
+  // different readerReadingSession and bail without advancing progress.
+  stopRequested = false;
+  fullReadableText = spoken;
+  currentTextChunks = chunkTextIntoSentences(spoken);
+  currentChunkIndex = 0;
+
+  updateReaderSectionLabel(title);
+  updateReaderPlayPauseUI();
+  updateProgressUI(true);   // force the bar to 0% for the new content
+
+  isSpeaking = true;
+  isPaused = false;
+
+  speakNextChunk();
+}
+
+// Helper: when a detail card is closed, stop any ongoing speech but stay silent.
+// The reader panel can remain open; speaking only resumes when a new card is opened
+// or the user explicitly presses Play.
+function stopReaderOnCardClose() {
+  const panel = document.getElementById('reader-panel');
+  if (!panel || panel.style.display === 'none') return;
+
+  stopSpeech();
+  updateReaderSectionLabel(getCurrentSectionForReader());
+}
+
+// Watch the main detail containers so we stop speaking when the user closes
+// a base card, ops card, or any modal card (without opening a replacement).
+function setupReaderDetailCloseWatcher() {
+  const observer = new MutationObserver(() => {
+    const panel = document.getElementById('reader-panel');
+    if (!panel || panel.style.display === 'none') return;
+
+    const hasActiveDetail =
+      (document.getElementById('aircraftModal')?.classList.contains('open')) ||
+      (document.getElementById('baseCard')?.classList.contains('visible')) ||
+      (document.getElementById('opsCard') &&
+        (document.getElementById('opsCard').classList.contains('visible') ||
+         document.getElementById('opsCard').style.display === 'block'));
+
+    if (!hasActiveDetail) {
+      stopReaderOnCardClose();
+    }
+  });
+
+  const modal = document.getElementById('aircraftModal');
+  if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+
+  const baseCard = document.getElementById('baseCard');
+  if (baseCard) observer.observe(baseCard, { attributes: true, attributeFilter: ['class'] });
+
+  const opsCard = document.getElementById('opsCard');
+  if (opsCard) observer.observe(opsCard, { attributes: true, attributeFilter: ['class', 'style'] });
+}
+
+function playOrResumeCurrentSection() {
+  stopRequested = false;
+
+  if (isPaused && window.speechSynthesis.paused) {
+    window.speechSynthesis.resume();
+    isPaused = false;
+    isSpeaking = true;
+    updateReaderPlayPauseUI();
+    return;
+  }
+
+  // If we already have chunks from a previous play (even after Stop), resume from current position
+  if (currentTextChunks.length > 0 && currentChunkIndex < currentTextChunks.length) {
+    isSpeaking = true;
+    isPaused = false;
+    updateReaderPlayPauseUI();
+    speakNextChunk();
+    return;
+  }
+
+  // No active session or we finished — start fresh from the current section
+  startReadingCurrentSection();
+}
+
+function pauseSpeech() {
+  if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+    window.speechSynthesis.pause();
+    isPaused = true;
+    isSpeaking = false;
+    updateReaderPlayPauseUI();
+  }
+}
+
+function stopSpeech() {
+  stopRequested = true;
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  currentUtterance = null;
+  isSpeaking = false;
+  isPaused = false;
+  updateReaderPlayPauseUI();
+  updateProgressUI();
+}
+
+function updateProgressUI(reset = false) {
+  const progress = document.getElementById('reader-progress');
+  const timeEl = document.getElementById('reader-progress-time');
+  const totalEl = document.getElementById('reader-progress-total');
+  if (!progress) return;
+
+  const total = currentTextChunks.length || 1;
+  const pct = total > 0 ? Math.min(100, (currentChunkIndex / total) * 100) : 0;
+  progress.value = reset ? 0 : pct;
+
+  const wordsSoFar = currentTextChunks.slice(0, currentChunkIndex).join(' ').split(/\s+/).length;
+  const totalWords = (fullReadableText || '').split(/\s+/).length || 1;
+  const minSoFar = Math.floor(wordsSoFar / 155);
+  const minTotal = Math.floor(totalWords / 155);
+
+  if (timeEl) timeEl.textContent = `${minSoFar}:${String(Math.floor((wordsSoFar % 155) / 2.6)).padStart(2, '0')}`;
+  if (totalEl) totalEl.textContent = `${minTotal}:${String(Math.floor((totalWords % 155) / 2.6)).padStart(2, '0')}`;
+}
+
+function previewProgress(pctStr) {
+  // Lightweight preview while dragging — only updates the time labels and visual position.
+  // Does NOT restart speech. Actual seek happens on mouse release (onchange).
+  if (!currentTextChunks.length) return;
+
+  const progress = document.getElementById('reader-progress');
+  const timeEl = document.getElementById('reader-progress-time');
+  const totalEl = document.getElementById('reader-progress-total');
+  if (!progress) return;
+
+  const target = Math.floor((parseFloat(pctStr) / 100) * currentTextChunks.length);
+  const tempIndex = Math.max(0, Math.min(target, currentTextChunks.length - 1));
+
+  const pct = Math.min(100, (tempIndex / currentTextChunks.length) * 100);
+  progress.value = pct;
+
+  const wordsSoFar = currentTextChunks.slice(0, tempIndex).join(' ').split(/\s+/).length;
+  const totalWords = (fullReadableText || '').split(/\s+/).length || 1;
+  const minSoFar = Math.floor(wordsSoFar / 155);
+  const minTotal = Math.floor(totalWords / 155);
+
+  if (timeEl) timeEl.textContent = `${minSoFar}:${String(Math.floor((wordsSoFar % 155) / 2.6)).padStart(2, '0')}`;
+  if (totalEl) totalEl.textContent = `${minTotal}:${String(Math.floor((totalWords % 155) / 2.6)).padStart(2, '0')}`;
+}
+
+function seekToProgress(pctStr) {
+  if (!currentTextChunks.length) return;
+
+  const target = Math.floor((parseFloat(pctStr) / 100) * currentTextChunks.length);
+  currentChunkIndex = Math.max(0, Math.min(target, currentTextChunks.length - 1));
+  updateProgressUI();   // commit the real position
+
+  const wasSpeaking = isSpeaking;
+  stopSpeech();         // stop any current utterance
+
+  if (wasSpeaking) {
+    // Only auto-resume speaking if we were actively playing before the seek
+    setTimeout(() => {
+      isSpeaking = true;
+      isPaused = false;
+      updateReaderPlayPauseUI();
+      speakNextChunk();
+    }, 80);
+  }
+  // If we were stopped/paused, just move the position (user can press Play/Resume)
+}
+
+function updateReaderPlayPauseUI() {
+  const playBtn = document.getElementById('reader-play-btn');
+  const pauseBtn = document.getElementById('reader-pause-btn');
+  if (!playBtn || !pauseBtn) return;
+
+  if (isSpeaking && !isPaused) {
+    playBtn.style.display = 'none';
+    pauseBtn.style.display = 'inline-block';
+  } else {
+    playBtn.style.display = 'inline-block';
+    pauseBtn.style.display = 'none';
+
+    // Show "Resume" if we have a saved position from previous playback
+    const hasPosition = currentTextChunks.length > 0 && currentChunkIndex > 0 && currentChunkIndex < currentTextChunks.length;
+    playBtn.textContent = (isPaused || hasPosition) ? '▶ Resume' : '▶ Play';
+  }
+}
+
+function updateSpeechRate(inputEl) {
+  if (!inputEl) return;
+  const newRate = parseFloat(inputEl.value);
+  if (isNaN(newRate)) return;
+
+  saveReaderRate(newRate);
+
+  const valEl = document.getElementById('reader-speed-val');
+  if (valEl) valEl.textContent = newRate.toFixed(2) + '×';
+
+  // Update badge rate if visible
+  const badge = document.querySelector('.reader-voice-badge');
+  if (badge) badge.textContent = `Tara • ${newRate.toFixed(2)}×`;
+
+  // If we're currently speaking, restart the current chunk so the new rate applies immediately
+  if (isSpeaking && !isPaused && currentTextChunks.length) {
+    const savedIndex = currentChunkIndex;
+    stopSpeech();
+    setTimeout(() => {
+      if (currentTextChunks.length) {
+        currentChunkIndex = Math.min(savedIndex, currentTextChunks.length - 1);
+        isSpeaking = true; isPaused = false;
+        updateReaderPlayPauseUI();
+        speakNextChunk();
+      }
+    }, 80);
+  }
+}
+
+function toggleReaderPanel() {
+  const panel = document.getElementById('reader-panel');
+  if (!panel) return;
+
+  const isHidden = panel.style.display === 'none' || panel.style.display === '';
+  panel.style.display = isHidden ? 'block' : 'none';
+
+  if (isHidden) {
+    forceLoadVoices();
+    const currentId = getCurrentSectionForReader();
+    updateReaderSectionLabel(currentId);
+
+    // Make sure speed UI reflects current (possibly restored) rate
+    const speedInput = document.getElementById('reader-speed');
+    const speedVal = document.getElementById('reader-speed-val');
+    if (speedInput) speedInput.value = String(readerRate);
+    if (speedVal) speedVal.textContent = readerRate.toFixed(2) + '×';
+
+    // Set badge with current rate
+    const badge = document.querySelector('.reader-voice-badge');
+    if (badge) badge.textContent = `Tara • ${readerRate.toFixed(2)}×`;
+
+    // If we have a stopped/paused session, show the current progress position
+    if (currentTextChunks.length > 0) {
+      updateProgressUI();
+    }
+  } else {
+    // Closing the panel stops any speech
+    if (isSpeaking) stopSpeech();
+  }
+}
+
+function closeReaderPanel() {
+  const panel = document.getElementById('reader-panel');
+  if (panel) panel.style.display = 'none';
+  if (isSpeaking) stopSpeech();
+}
+
+// --- Reader keyboard support (only active while panel is visible) ---
+document.addEventListener('keydown', function(e) {
+  const panel = document.getElementById('reader-panel');
+  if (!panel || panel.style.display === 'none') return;
+
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    closeReaderPanel();
+  }
+  if (e.key === ' ' || e.key === 'Spacebar') {
+    // Only hijack space if focus is not on an input/range inside the panel
+    const active = document.activeElement;
+    if (active && (active.tagName === 'INPUT' || active.tagName === 'SELECT' || active.tagName === 'BUTTON')) return;
+    e.preventDefault();
+    if (isSpeaking && !isPaused) {
+      pauseSpeech();
+    } else {
+      playOrResumeCurrentSection();
+    }
+  }
+}, false);
+
+// --- Reader follows section navigation when the panel is open ---
+function followReaderToSection(sectionId) {
+  if (!sectionId) return;
+  window.currentSection = sectionId;
+
+  const panel = document.getElementById('reader-panel');
+  if (!panel || panel.style.display === 'none') return;
+
+  updateReaderSectionLabel(sectionId);
+  stopSpeech();
+
+  // Small delay so the new section content is visible and getReadableTextForSection can pick it up
+  setTimeout(() => {
+    startReadingCurrentSection();
+  }, 140);
+}
+
+// Patch showSection so major nav (feature cards, top nav, etc.) updates the reader if open
+const originalShowSection = window.showSection;
+if (typeof originalShowSection === 'function') {
+  window.showSection = function(id, el) {
+    const result = originalShowSection.apply(this, arguments);
+    // Only follow with reader if the reader panel is currently visible
+    const panel = document.getElementById('reader-panel');
+    if (panel && panel.style.display !== 'none') {
+      followReaderToSection(id);
+    }
+    return result;
+  };
+}
+
+// Catch direct nav-link / data-section clicks and ensure navigation happens.
+// We call showSection (which is patched to also handle reader follow *only if* the reader panel is open).
+document.addEventListener('click', function(e) {
+  const link = e.target.closest('.nav-link, [data-section]');
+  if (link) {
+    const sectionId = link.getAttribute('data-section') || (link.getAttribute('href') || '').replace('#', '');
+    if (sectionId) {
+      // Call showSection directly so the page actually navigates.
+      showSection(sectionId, link);
+    }
+  }
+}, true);
+
+// When user selects a base or operation while the reader is open,
+// switch to reading the specific card content instead of the main section text.
+const origSelectBase = window.selectBase;
+if (typeof origSelectBase === 'function') {
+  window.selectBase = function(id) {
+    origSelectBase.apply(this, arguments);
+    const panel = document.getElementById('reader-panel');
+    if (panel && panel.style.display !== 'none') {
+      // When a base is opened, read the base card instead of the whole section
+      setTimeout(() => startReadingCurrentDetail(), 120);
+    }
+  };
+}
+
+const origSelectOp = window.selectOp;
+if (typeof origSelectOp === 'function') {
+  window.selectOp = function(id) {
+    origSelectOp.apply(this, arguments);
+    const panel = document.getElementById('reader-panel');
+    if (panel && panel.style.display !== 'none') {
+      // When an operation is opened, read the op card instead of the whole section
+      setTimeout(() => startReadingCurrentDetail(), 120);
+    }
+  };
+}
+
+// Wrap the main card/detail openers so that if the reader is open, it switches
+// to reading just the opened card (Navy, Army, Air Force, Weapons, Space, etc.)
+function wrapDetailOpener(fnName) {
+  const orig = window[fnName];
+  if (typeof orig === 'function') {
+    window[fnName] = function(id) {
+      orig.apply(this, arguments);
+      const panel = document.getElementById('reader-panel');
+      if (panel && panel.style.display !== 'none') {
+        setTimeout(() => startReadingCurrentDetail(), 100);
+      }
+    };
+  }
+}
+
+wrapDetailOpener('openAircraftModal');
+wrapDetailOpener('showMaritimeDetail');
+wrapDetailOpener('showVehicleDetail');
+wrapDetailOpener('showAdversaryVehicleDetail');
+wrapDetailOpener('showWeaponDetail');
+wrapDetailOpener('showAdversaryDetail');
+wrapDetailOpener('showSpaceDetail');
+
+// Initialize Text Reader (loads saved voice + rate preferences)
+try {
+  initTextReader();
+} catch (e) { /* non-fatal */ }
+
+// Watch for card closes so the reader goes silent (no auto-resume of section text)
+try {
+  setupReaderDetailCloseWatcher();
+} catch (e) { /* non-fatal */ }
+
+// Google Maps (a couple of retries after the async loader is plenty)
+setTimeout(ensureGoogleMapsInit, 300);
+setTimeout(ensureGoogleMapsInit, 1100);
+
+// Keyboard support (Escape closes modal) — reader adds its own Space/Esc handler when open
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeModal();
 });
@@ -2963,6 +4913,7 @@ function initGlossaryTooltips() {
     type: 'airforce',
     id: 'ea18g'
   });
+// (Remaining duplicate audio loop code cleaned up to resolve SyntaxError)
   previewMap.set('ea-18g growler', {
     title: 'EA-18G Growler',
     short: 'The world\'s only operational airborne electronic attack aircraft.',

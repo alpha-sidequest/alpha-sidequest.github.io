@@ -39,9 +39,15 @@
   font-display: swap;
 }
 
-/* If the woff2 files are not present in fonts/, fall back gracefully to system sans for readability.
-   To get the exact Rajdhani look, copy the 4 rajdhani *.woff2 files into alpha-sidequest/fonts/ */
+/* Rajdhani first with system sans fallback. If the woff2 files are missing from fonts/ you will see 404s in console
+   (non-fatal) and it will use the system stack. To get the exact look: download the 4 Rajdhani woff2 weights
+   (regular/500/600/700) and place them in fonts/ with the exact filenames above. */
 body, .nav-link, h1, h2, h3, .feature-card-title, .section-header h2 {
+  font-family: 'Rajdhani', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+.rajdhani-loaded h3,
+.rajdhani-loaded .feature-card-title,
+.rajdhani-loaded .section-header h2 {
   font-family: 'Rajdhani', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
@@ -1041,6 +1047,17 @@ section.active { display: block; }
   max-width: 1600px;
 }
 
+/* Bases layout: equal 50/50 split — map on the left half, card/panel on the right half.
+   Sticky panel on right. Map (Google + SVG) still shows full Australia + ocean. */
+#bases .map-layout {
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+#bases .base-panel {
+  position: sticky;
+  top: 72px;
+}
+
 .map-container {
   background: var(--navy-mid);
   border: 1px solid var(--border);
@@ -1118,16 +1135,16 @@ section.active { display: block; }
   background: var(--navy-mid);
   border: 1px dashed rgba(201,168,76,0.3);
   border-radius: 8px;
-  padding: 48px 24px;
+  padding: 28px 18px;
   text-align: center;
 }
 
 .base-panel-placeholder .icon {
-  font-size: 32px; margin-bottom: 12px; opacity: 0.4;
+  font-size: 26px; margin-bottom: 6px; opacity: 0.4;
 }
 
 .base-panel-placeholder p {
-  font-size: 14px; color: var(--text-dim);
+  font-size: 12px; color: var(--text-dim);
 }
 
 .base-card {
@@ -1140,47 +1157,62 @@ section.active { display: block; }
 .base-card.visible { display: block; }
 
 .base-card-header {
-  padding: 20px 20px 16px;
+  padding: 14px 16px 12px;
   background: var(--navy-light);
   border-bottom: 1px solid var(--border-subtle);
 }
 
+.base-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
 .base-card-location {
-  font-size: 11px; text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--gold); margin-bottom: 6px;
+  font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .base-card-name {
   font-family: 'Rajdhani', sans-serif;
-  font-size: 24px; font-weight: 700;
-  color: var(--text); letter-spacing: 0.04em;
+  font-size: 20px; font-weight: 700;
+  color: var(--text); letter-spacing: 0.03em;
+  line-height: 1.15;
+  margin: 1px 0 2px;
 }
 
 .base-card-role {
-  font-size: 13px; color: var(--text-muted); margin-top: 6px;
+  font-size: 12px; color: var(--text-muted); line-height: 1.2;
 }
 
-.base-card-body { padding: 20px; }
+.base-card-body { padding: 14px 16px 16px; }
 
 .base-section-label {
-  font-size: 10px; font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.2em;
+  font-size: 9px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.18em;
   color: var(--gold-dark);
-  margin-bottom: 10px; margin-top: 18px;
+  margin-bottom: 5px; margin-top: 12px;
 }
 
 .base-section-label:first-child { margin-top: 0; }
 
-/* Aerial preview in base side panel (narrow 280px column) */
+/* Slightly tighter separation for units label after the about+media block in wide card */
+.base-card-body > .base-section-label { margin-top: 8px; }
+
+/* Aerial image (now in full-width card below map) */
 .base-aerial-wrap {
-  margin: 12px 0 16px;
+  margin: 0;
 }
 .base-aerial-preview {
   width: 100%;
-  max-height: 140px;
+  max-height: 320px; /* enlarged now that the right card is 50% width (was smaller when card was narrower) */
   object-fit: cover;
-  border-radius: 6px;
+  border-radius: 4px;
   border: 1px solid var(--border);
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
@@ -1191,13 +1223,80 @@ section.active { display: block; }
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 .base-aerial-hint {
-  font-size: 9px;
+  font-size: 8px;
   color: var(--text-dim);
-  margin-top: 4px;
+  margin-top: 2px;
   text-align: center;
   letter-spacing: 0.02em;
 }
 
+/* Aerial (left) + About (right) layout inside the card. Coords placed under aerial image for cleaner look. */
+.base-about-media {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+@media (max-width: 720px) {
+  .base-about-media { flex-direction: column; gap: 10px; }
+}
+.base-about { flex: 1 1 auto; min-width: 0; }
+.base-media { flex: 0 0 320px; max-width: 50%; }
+@media (max-width: 720px) {
+  .base-media { flex: none; max-width: none; width: 100%; }
+}
+
+/* Header accents for full-width card */
+.base-color-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.5);
+  display: inline-block; flex-shrink: 0;
+}
+.base-card-service {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0 5px;
+  border-radius: 2px;
+  background: rgba(201,168,76,0.12);
+  color: var(--gold);
+  border: 1px solid rgba(201,168,76,0.2);
+  white-space: nowrap;
+}
+
+/* Compact coords row (integrated after desc for better space use) */
+.base-coords {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  margin-top: 6px;
+  color: var(--text-muted);
+}
+.base-coords .coords-label {
+  font-family: ui-monospace, monospace;
+  background: var(--navy-mid);
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-size: 10px;
+  color: var(--text);
+}
+.copy-btn {
+  font-size: 9px;
+  padding: 1px 5px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--gold);
+  border-radius: 2px;
+  cursor: pointer;
+  line-height: 1;
+  transition: all 0.15s;
+}
+.copy-btn:hover { background: var(--gold); color: var(--navy); }
+
+/* Base styles for google-maps-link kept for other uses; compact variant inside cards */
 .google-maps-link {
   display: inline-block;
   font-size: 12px;
@@ -1213,6 +1312,22 @@ section.active { display: block; }
   background: var(--gold);
   color: var(--navy);
   border-color: var(--gold);
+}
+
+.base-coords .google-maps-link {
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 2px;
+  margin-top: 0;
+  margin-left: 2px;
+  border-color: var(--border);
+}
+
+.base-card-hint {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 6px;
+  margin-bottom: 0;
 }
 
 /* Dedicated base aerial image modal (large view) */
@@ -1256,40 +1371,44 @@ section.active { display: block; }
   letter-spacing: 0.03em;
 }
 
-.squadron-item {
-  display: flex; align-items: flex-start; gap: 12px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border-subtle);
+.base-units-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1px 10px;
 }
-
-.squadron-item:last-child { border-bottom: none; }
+.base-card .squadron-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 5px 0;
+}
+.base-card .squadron-item:last-child { border-bottom: none; }
 
 .squadron-num {
   background: rgba(201,168,76,0.12);
   border: 1px solid var(--border);
-  padding: 3px 8px; border-radius: 3px;
+  padding: 2px 6px; border-radius: 2px;
   font-family: 'Rajdhani', sans-serif;
-  font-size: 13px; font-weight: 700;
+  font-size: 11px; font-weight: 700;
   color: var(--gold); white-space: nowrap; flex-shrink: 0;
 }
 
 .squadron-info { flex: 1; }
 
 .squadron-name {
-  font-size: 13px; font-weight: 500; color: var(--text);
+  font-size: 12px; font-weight: 500; color: var(--text);
 }
 
 .squadron-aircraft {
-  font-size: 12px; color: var(--accent-blue); margin-top: 2px;
+  font-size: 11px; color: var(--accent-blue); margin-top: 1px;
 }
 
 .aircraft-chip {
   display: inline-block;
   background: rgba(74,158,219,0.12);
   border: 1px solid rgba(74,158,219,0.3);
-  padding: 4px 10px; border-radius: 3px;
-  margin: 4px 4px 0 0;
-  font-size: 12px; color: var(--accent-blue);
+  padding: 2px 6px; border-radius: 2px;
+  margin: 2px 3px 0 0;
+  font-size: 10px; color: var(--accent-blue);
   cursor: pointer; transition: all 0.2s;
 }
 
@@ -1299,7 +1418,8 @@ section.active { display: block; }
 }
 
 .base-desc {
-  font-size: 13px; color: var(--text-muted); line-height: 1.65;
+  font-size: 12px; color: var(--text-muted); line-height: 1.5;
+  margin: 0 0 4px;
 }
 
 /* ── AIRCRAFT SECTION ── */
@@ -1581,6 +1701,10 @@ section.active { display: block; }
 .op-dot:hover circle.op-ring { r: 12; opacity: 0.4; }
 .op-dot.selected circle.op-ring { r: 14; opacity: 0.5; }
 
+.op-dot.concluded {
+  opacity: 0.6;
+}
+
 .ops-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -1635,6 +1759,12 @@ section.active { display: block; }
   background: var(--accent-teal);
 }
 
+.op-status.concluded {
+  background: rgba(128,128,128,0.12);
+  color: #aaa;
+  border: 1px solid rgba(128,128,128,0.3);
+}
+
 .op-region {
   font-size: 12px; text-transform: uppercase;
   letter-spacing: 0.15em; color: #C9A84C;
@@ -1667,6 +1797,219 @@ section.active { display: block; }
   border-color: rgba(107,142,35,0.3);
   background: rgba(46,90,80,0.15);
   color: #6DC06D;
+}
+
+.asset-tag.support {
+  border-color: rgba(201,168,76,0.3);
+  background: rgba(201,168,76,0.08);
+  color: var(--gold);
+}
+
+.asset-tag.ct {
+  border-color: rgba(192,57,43,0.3);
+  background: rgba(192,57,43,0.08);
+  color: #E74C3C;
+}
+
+.asset-tag.space {
+  border-color: rgba(46,196,160,0.3);
+  background: rgba(46,196,160,0.08);
+  color: var(--accent-teal);
+}
+
+.asset-tag.un {
+  border-color: rgba(74,158,219,0.3);
+  background: rgba(74,158,219,0.08);
+  color: var(--accent-blue);
+}
+
+.asset-tag.concluded {
+  border-color: rgba(128,128,128,0.3);
+  background: rgba(128,128,128,0.08);
+  color: #aaa;
+}
+
+/* Operations side panel (matches .base-panel style for consistency) */
+.ops-panel { position: sticky; top: 72px; }
+
+.ops-panel-placeholder {
+  background: var(--navy-mid);
+  border: 1px dashed rgba(201,168,76,0.3);
+  border-radius: 8px;
+  padding: 48px 24px;
+  text-align: center;
+}
+.ops-panel-placeholder .icon {
+  font-size: 32px; margin-bottom: 12px; opacity: 0.4;
+}
+.ops-panel-placeholder p {
+  font-size: 14px; color: var(--text-dim);
+}
+
+.op-details {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden;
+}
+.op-details.visible { display: block; }
+
+
+
+
+/* Complete rework for operations list below the map: clean, non-overlapped, distributed.
+   Continent headers as separators. Items in tight auto-fill grids under each (denser for ME).
+   Very compact items: colored dot + name (ellipsis) + tiny status badge. No long regions in items (in panel on select).
+   No nested cards, no text bleeding out of boxes. */
+#opsList {
+  display: block;
+  margin-top: 8px;
+}
+
+#basesList {
+  display: block;
+  margin-top: 4px;
+}
+
+/* Tighter start for bases state headers right after the detail card */
+#basesList .ops-continent-header {
+  margin-top: 4px;
+}
+
+.ops-continent-header {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold);
+  margin: 8px 0 3px;
+  padding-bottom: 1px;
+  border-bottom: 1px solid rgba(201,168,76,0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ops-items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+  gap: 3px 5px;
+}
+
+.ops-items-grid.me-dense {
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+}
+
+.ops-list-item {
+  padding: 3px 5px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  transition: all 0.1s;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.ops-list-item:hover {
+  border-color: var(--gold);
+  background: var(--navy-light);
+}
+
+.ops-list-item.selected {
+  border-color: var(--gold);
+  background: var(--navy-light);
+  box-shadow: 0 0 0 1px rgba(201,168,76,0.3);
+}
+
+.ops-list-item .op-color-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1px solid #fff;
+  flex-shrink: 0;
+}
+
+.ops-list-item .op-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ops-list-item .op-status-sm {
+  font-size: 8px;
+  padding: 0 2px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.ops-list-item .op-status-sm.active {
+  background: rgba(46,196,160,0.15);
+  color: var(--accent-teal);
+}
+
+.ops-list-item .op-status-sm.concluded {
+  background: rgba(128,128,128,0.15);
+  color: #aaa;
+}
+
+.ops-list-item .op-status-sm.service {
+  background: rgba(201,168,76,0.15);
+  color: var(--gold);
+}
+
+/* Style for map operation labels to improve readability and reduce perceived overlap on satellite */
+.op-map-label {
+  text-shadow: 0 0 3px rgba(0,0,0,0.8), 1px 1px 1px rgba(0,0,0,0.6);
+  font-family: 'Rajdhani', sans-serif !important;
+  letter-spacing: 0.02em;
+}
+
+/* Content inside the ops side panel */
+.op-details-header {
+  padding: 16px 18px 12px;
+  background: var(--navy-light);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.op-details-header .op-region {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em;
+  color: var(--gold); margin-bottom: 4px;
+}
+.op-details-header .op-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 20px; font-weight: 700;
+  color: var(--text); letter-spacing: 0.04em; line-height: 1.15;
+}
+.op-details-header .op-status {
+  margin-top: 8px;
+  display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 3px;
+  font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
+}
+.op-details-body { padding: 16px 18px 20px; }
+.op-details-body .op-desc {
+  font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 14px;
+}
+.op-details-body .op-section-label {
+  font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em;
+  color: var(--gold-dark); margin-bottom: 8px; margin-top: 12px;
+}
+.op-details-body .op-section-label:first-child { margin-top: 0; }
+
+/* When inside map-layout, reduce the bottom margin the old wrap had */
+.map-layout .world-map-wrap {
+  margin-bottom: 0;
 }
 
 /* Scrollbar */
@@ -1728,6 +2071,180 @@ section.active { display: block; }
     max-width: 100%;
     font-size: 16px;
   }
+}
+
+/* ============================================
+   TEXT READER / LISTEN FEATURE (for chores + headphones)
+   ============================================ */
+.text-reader {
+  position: fixed;
+  right: 18px;
+  top: 42%;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.reader-btn {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--navy-mid);
+  border: 2px solid var(--gold);
+  color: var(--gold);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reader-btn:hover {
+  background: var(--gold);
+  color: var(--navy);
+  transform: scale(1.08);
+}
+
+.reader-panel {
+  margin-top: 8px;
+  width: 260px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  font-size: 13px;
+  color: var(--text);
+  display: none; /* Only shown when user clicks the megaphone icon */
+}
+
+.reader-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.reader-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.reader-close:hover { color: var(--gold); }
+
+.reader-current {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.reader-controls {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.reader-controls button {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--navy-mid);
+  color: var(--text);
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.reader-controls button:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.voice-btn {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--gold);
+  background: rgba(201, 168, 76, 0.1);
+  color: var(--gold);
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.voice-btn:hover {
+  background: var(--gold);
+  color: var(--navy);
+}
+
+.reader-options {
+  margin-top: 4px;
+}
+
+.reader-options label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+#reader-speed {
+  width: 100%;
+  accent-color: var(--gold);
+}
+
+.reader-hint {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 10px;
+  line-height: 1.3;
+  opacity: 0.85;
+}
+
+#reader-progress {
+  width: 100%;
+  accent-color: var(--gold);
+  margin: 4px 0;
+}
+
+.reader-voice-badge {
+  font-size: 10px;
+  background: rgba(201, 168, 76, 0.15);
+  color: var(--gold);
+  padding: 1px 6px;
+  border-radius: 3px;
+  margin-left: 8px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.audio-group-btn.active {
+  background: var(--gold);
+  color: var(--navy);
+  border-color: var(--gold);
+}
+
+/* When reading */
+.text-reader.reading .reader-btn {
+  animation: reader-pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes reader-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201,168,76,0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(201,168,76,0); }
 }
 
 /* ============================================
@@ -1882,6 +2399,12 @@ section.active { display: block; }
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
   gap: 24px;
+}
+
+.space-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
 }
 
 .maritime-card {
@@ -2102,6 +2625,16 @@ section.active { display: block; }
 .fleet-type-badge.adversary {
   background: var(--threat);
   color: #fff;
+}
+
+.fleet-type-badge.allied {
+  background: rgba(74, 158, 219, 0.2);
+  color: var(--accent-blue);
+}
+
+.space-card .fleet-type-badge {
+  font-size: 9px;
+  padding: 1px 6px;
 }
 
 .fleet-tags {

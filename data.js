@@ -256,6 +256,79 @@ const BASES = {
       { num: "Army Aviation", name: "Helicopter Training", aircraft: "ARH Tiger, UH-60M" },
     ]
   },
+  // Additional major Navy ports and key RAAF bare bases (added for completeness based on official ADF sources)
+  kuttabul: {
+    name: "HMAS Kuttabul",
+    location: "New South Wales",
+    role: "Fleet Base East Support",
+    color: "#4A9EDB",
+    desc: "Primary shore establishment for Fleet Base East at Garden Island, Sydney. Provides administrative, training, logistics and maintenance support to RAN fleet units on the east coast.",
+    lat: -33.8625,
+    lng: 151.2267,
+    squadrons: [
+      { num: "Fleet Support Unit", name: "South East", aircraft: "Logistics / Maintenance" },
+    ]
+  },
+  coonawarra: {
+    name: "HMAS Coonawarra",
+    location: "Northern Territory",
+    role: "Naval Base Darwin",
+    color: "#4A9EDB",
+    desc: "RAN base in Darwin (Larrakeyah Defence Precinct). Supports patrol boats, major fleet units and maritime operations in northern Australia and the Timor Sea.",
+    lat: -12.4586,
+    lng: 130.8217,
+    squadrons: [
+      { num: "Patrol Boat", name: "Darwin", aircraft: "Cape Class Patrol Boats" },
+    ]
+  },
+  cerberus: {
+    name: "HMAS Cerberus",
+    location: "Victoria",
+    role: "Navy Training Base",
+    color: "#4A9EDB",
+    desc: "Australia's largest naval training base at Crib Point on Western Port. Home to recruit training, seamanship school and numerous specialist training facilities for the RAN.",
+    lat: -38.366,
+    lng: 145.183,
+    squadrons: [
+      { num: "Recruit School", name: "Initial Training", aircraft: "Training" },
+    ]
+  },
+  cairns: {
+    name: "HMAS Cairns",
+    location: "Queensland",
+    role: "Patrol and Survey Base",
+    color: "#4A9EDB",
+    desc: "Naval base in Cairns supporting patrol boats and hydrographic survey vessels for operations in Far North Queensland, Torres Strait and the Great Barrier Reef.",
+    lat: -16.925,
+    lng: 145.778,
+    squadrons: [
+      { num: "Patrol Boat", name: "Cairns", aircraft: "Cape Class" },
+    ]
+  },
+  scherger: {
+    name: "RAAF Base Scherger",
+    location: "Queensland",
+    role: "Bare Base - Cape York Operations",
+    color: "#E05A40",
+    desc: "RAAF bare base located near Weipa in far north Queensland. Forward operating base capable of supporting air operations, exercises and regional presence in Australia's northern approaches.",
+    lat: -12.616,
+    lng: 142.083,
+    squadrons: [
+      { num: "Bare Base", name: "Support Squadron", aircraft: "Rotational / Deployed" },
+    ]
+  },
+  curtin: {
+    name: "RAAF Base Curtin",
+    location: "Western Australia",
+    role: "Bare Base - Kimberley Operations",
+    color: "#E05A40",
+    desc: "RAAF bare base near Derby in the Kimberley region of Western Australia. Important forward base for air power in the north-west and support to maritime surveillance and operations.",
+    lat: -17.583,
+    lng: 123.833,
+    squadrons: [
+      { num: "Bare Base", name: "Support Squadron", aircraft: "Rotational / Deployed" },
+    ]
+  },
 };
 
 
@@ -700,26 +773,175 @@ const OPERATIONS = [
     name: "Operation Accordion",
     region: "Middle East — UAE",
     status: "active",
+    lat: 25.109,
+    lng: 55.373,
     desc: "Australia's overarching support mission in the Middle East. Headquarters Middle East (HQME) at Al Minhad Air Base, UAE, provides logistics, communications and support for up to 12 concurrent ADF operations across the region. The only forward-deployed ADF headquarters worldwide.",
-    assets: ["70–80 ADF personnel", "HQ support", "Al Minhad AB, UAE"],
-    types: ["army", "army"]
+    assets: ["Variable ADF personnel", "HQ support", "Al Minhad AB, UAE"],
+    types: ["support"]
+  },
+  {
+    id: "argos",
+    name: "Operation Argos",
+    region: "North East Asia — North Korea sanctions",
+    status: "active",
+    lat: 37.5,
+    lng: 129.5,
+    desc: "ADF contribution to the multinational effort to enforce UN Security Council sanctions against North Korea. Involves maritime patrol aircraft and naval vessels monitoring and deterring illegal ship-to-ship transfers of sanctioned goods.",
+    assets: ["P-8A Poseidon aircraft", "RAN surface vessels", "ADF personnel (variable)"],
+    types: ["patrol"]
+  },
+  {
+    id: "aslan",
+    name: "Operation Aslan",
+    region: "South Sudan",
+    status: "active",
+    lat: 7.5,
+    lng: 30.0,
+    desc: "ADF contribution to the United Nations Mission in South Sudan (UNMISS). Personnel fill key positions including military liaison officers, operations, aviation and logistics support to protect civilians, monitor human rights and enable humanitarian assistance.",
+    assets: ["~20 ADF personnel", "Military observers", "Liaison and support roles"],
+    types: ["un"]
+  },
+  {
+    id: "augury",
+    name: "Operation Augury",
+    region: "Global — Counter-terrorism",
+    status: "active",
+    lat: 15.0,
+    lng: 45.0,
+    desc: "ADF framework operation supporting efforts to counter terrorism and violent extremist organisations worldwide. Specific tasks and locations are generally not publicly disclosed for operational security reasons. Provides specialised capabilities as required.",
+    assets: ["Specialised ADF capabilities", "Variable personnel (~40+)"],
+    types: ["ct"]
+  },
+  {
+    id: "beech",
+    name: "Operation Beech",
+    region: "Middle East",
+    status: "active",
+    lat: 31.5,
+    lng: 34.5,
+    desc: "Defence support to the Australian Government response to the Hamas-Israel conflict. Includes non-combat deployment of personnel and RAAF aircraft for contingency planning and support to Australian citizens and approved foreign nationals in the region.",
+    assets: ["RAAF aircraft", "Army and RAAF personnel", "Contingency support"],
+    types: ["support"]
+  },
+  {
+    id: "dyurra",
+    name: "Operation Dyurra",
+    region: "Space / Global",
+    status: "active",
+    lat: -25.0,
+    lng: 135.0,
+    desc: "Dedicated ADF space operation that integrates space capabilities, services and effects into wider ADF operations. Includes space domain awareness, surveillance, and support to deterrence and interoperability in the contested space domain.",
+    assets: ["Space surveillance assets", "ADF Space Command personnel", "Ground stations (e.g. Exmouth)"],
+    types: ["space"]
+  },
+  {
+    id: "fortitude",
+    name: "Operation Fortitude",
+    region: "Syria / Israel region",
+    status: "active",
+    lat: 33.5,
+    lng: 36.0,
+    desc: "ADF contribution of personnel to the United Nations Disengagement Observer Force (UNDOF) to maintain the ceasefire between Israel and Syria. Includes staff officers and observers supervising separation areas.",
+    assets: ["Up to 2 ADF personnel", "UN observers and staff"],
+    types: ["un"]
   },
   {
     id: "gateway",
     name: "Operation Gateway",
-    region: "North Indian Ocean & South China Sea",
+    region: "South East Asia — Malaysia",
     status: "active",
-    desc: "Long-running maritime surveillance patrols in the North Indian Ocean and South China Sea under the Malaysia-Australia Joint Defence Program (MAJDP). Operating from Royal Malaysian Air Force Base Butterworth, Malaysia.",
+    lat: 5.47,
+    lng: 100.38,
+    desc: "Long-running ADF contribution to regional security and stability in South East Asia. Maritime surveillance patrols in the North Indian Ocean and South China Sea from RMAF Base Butterworth under the Malaysia-Australia Joint Defence Program.",
     assets: ["P-8A Poseidon", "RAAF rotational detachment", "RMAF Base Butterworth"],
     types: ["patrol"]
+  },
+  {
+    id: "hydranth",
+    name: "Operation Hydranth",
+    region: "Red Sea / Middle East",
+    status: "active",
+    lat: 19.5,
+    lng: 38.5,
+    desc: "ADF personnel embedded in the US-led headquarters supporting operations against Houthi capabilities threatening freedom of navigation in the Red Sea. Contribution is embedded staff officers, not direct strike operations.",
+    assets: ["ADF embedded staff", "HQME support"],
+    types: ["support"]
+  },
+  {
+    id: "ipe",
+    name: "Indo-Pacific Endeavour",
+    region: "Indo-Pacific Region",
+    status: "active",
+    lat: -8.8,
+    lng: 125.0,
+    desc: "Australia's annual strategic military engagement activity across the Indo-Pacific. Recent iterations have deployed up to ~1,600 ADF personnel — the largest commitment in nearly 20 years — to build partnerships, conduct exercises and demonstrate capability.",
+    assets: ["HMAS Choules", "P-8A Poseidon", "Army elements", "Special Operations", "Up to 1,600 personnel"],
+    types: ["navy", "patrol", "army"]
+  },
+  {
+    id: "kudu",
+    name: "Operation Kudu",
+    region: "Europe — Ukraine training",
+    status: "active",
+    lat: 51.5,
+    lng: -0.5,
+    desc: "ADF commitment to the training of Armed Forces of Ukraine personnel, primarily in the United Kingdom under the UK-led Operation Interflex. Also included E-7A Wedgetail support in Germany for early warning.",
+    assets: ["ADF trainers (~50-100+)", "Army instructors", "E-7A Wedgetail (periodic)"],
+    types: ["army"]
+  },
+  {
+    id: "linesmen",
+    name: "Operation Linesmen",
+    region: "Korea — DMZ / Inter-Korean peace",
+    status: "active",
+    lat: 37.95,
+    lng: 126.7,
+    desc: "ADF contribution to the Inter-Korean peace process at the request of the United Nations Command. Small team operates in the demilitarised zone monitoring projects and supporting military agreements in the Korean Peninsula peace process.",
+    assets: ["~4 ADF personnel", "Senior officers and NCOs"],
+    types: ["un"]
+  },
+  {
+    id: "manitou",
+    name: "Operation Manitou",
+    region: "Middle East — Persian Gulf",
+    status: "active",
+    lat: 25.5,
+    lng: 55.0,
+    desc: "Australia's contribution to Combined Task Force 150 and Combined Maritime Forces in the Gulf and broader Middle East. Focused on maritime security, counter-narcotics and counter-terrorism at sea. One of Australia's longest-running overseas commitments.",
+    assets: ["RAN frigate/destroyer (rotational)", "Navy Seahawk helicopters", "ADF embarked personnel"],
+    types: ["navy", "army"]
+  },
+  {
+    id: "mazurka",
+    name: "Operation Mazurka",
+    region: "Sinai Peninsula",
+    status: "active",
+    lat: 29.5,
+    lng: 33.0,
+    desc: "ADF contribution to the Multinational Force and Observers (MFO) peacekeeping mission in the Sinai. Personnel support the MFO in supervising the peace treaty between Egypt and Israel, including force protection, administration and observer roles.",
+    assets: ["Up to ~30 ADF personnel", "MFO support roles"],
+    types: ["un"]
+  },
+  {
+    id: "paladin",
+    name: "Operation Paladin",
+    region: "Israel / Middle East",
+    status: "active",
+    lat: 31.8,
+    lng: 35.2,
+    desc: "ADF support to the UN Truce Supervision Organisation (UNTSO). Personnel serve as staff officers in UNTSO Headquarters in Jerusalem and as military observers supervising cease-fire arrangements, truces and peace treaties across the region.",
+    assets: ["~12 ADF personnel", "Military observers", "HQ staff"],
+    types: ["un"]
   },
   {
     id: "resolute",
     name: "Operation Resolute",
     region: "Australia — Maritime Borders",
     status: "active",
-    desc: "The ADF's primary domestic border protection operation. Covers 10% of the world's surface including Australia's exclusive economic zone extending 200 nautical miles from the mainland. ADF assets support Australian Border Force in maritime security operations.",
-    assets: ["P-8A Poseidon", "AP-3C (legacy)", "Navy patrol vessels", "Army detachments"],
+    lat: -25.2744,
+    lng: 133.7751,
+    desc: "The ADF's primary domestic border protection operation. Covers approximately 10% of the world's surface including Australia's exclusive economic zone. ADF assets support Australian Border Force in civil maritime security operations against illegal activities.",
+    assets: ["P-8A Poseidon", "Navy patrol vessels", "Army detachments", "Up to 600 personnel"],
     types: ["patrol", "navy", "army"]
   },
   {
@@ -727,45 +949,33 @@ const OPERATIONS = [
     name: "Operation Solania",
     region: "Pacific — Fisheries Surveillance",
     status: "active",
+    lat: -8.0,
+    lng: 158.0,
     desc: "ADF support to Pacific Island Forum Fisheries Agency operations to detect and deter illegal, unreported and unregulated fishing across Pacific Island exclusive economic zones. Conducted under the Pacific Maritime Security Program.",
     assets: ["C-27J Spartan (No. 35 Sqn)", "RAAF aircrews", "Pacific detachments"],
     types: ["patrol"]
   },
   {
-    id: "ipe",
-    name: "Indo-Pacific Endeavour",
-    region: "Indo-Pacific Region",
-    status: "active",
-    desc: "Australia's annual strategic military engagement activity across the Indo-Pacific. IPE 2025 deployed approximately 1,600 ADF personnel — the largest commitment in nearly 20 years — to build regional partnerships, conduct exercises and demonstrate capability.",
-    assets: ["HMAS Choules", "P-8A Poseidon", "Army Engineer elements", "Special Operations", "~1,600 personnel"],
-    types: ["navy", "patrol", "army"]
+    id: "okra",
+    name: "Operation Okra",
+    region: "Middle East — Iraq & Syria",
+    status: "concluded",
+    lat: 33.3,
+    lng: 43.0,
+    desc: "Australia’s contribution to the international coalition against Daesh (ISIL) in Iraq and Syria (2014–2024/25). Involved Air Task Group (Super Hornets, Wedgetail, tankers), Task Group Taji (training Iraqi forces), Special Operations Task Group, and embedded personnel. More than 4,800 ADF personnel deployed. Ceased after major combat phase ended.",
+    assets: ["Air Task Group (F/A-18F, E-7A, KC-30A)", "Task Group Taji", "Special Operations", "Embedded staff"],
+    types: ["concluded"]
   },
   {
-    id: "hydranth",
-    name: "Operation Hydranth",
-    region: "Red Sea / Middle East",
-    status: "active",
-    desc: "ADF personnel embedded in the US-led headquarters supporting Operation Poseidon Archer — strikes targeting Houthi capabilities threatening freedom of navigation in the Red Sea. ADF contribution is embedded staff officers, not direct strike operations.",
-    assets: ["ADF embedded staff", "HQME support", "Combined Maritime Forces"],
-    types: ["army"]
-  },
-  {
-    id: "kudu",
-    name: "Operation Kudu",
-    region: "Europe — Ukraine",
-    status: "active",
-    desc: "Australia's contribution to training the Armed Forces of Ukraine. ADF personnel operate from bases in the UK and Europe, providing training to Ukrainian military personnel in a range of land and other capabilities.",
-    assets: ["~50–100 ADF trainers", "Army instructors", "UK-based training"],
-    types: ["army"]
-  },
-  {
-    id: "manitou",
-    name: "Operation Manitou",
-    region: "Middle East — Persian Gulf",
-    status: "active",
-    desc: "Australia's contribution to Combined Task Force 150 and Combined Maritime Forces in the Gulf and broader Middle East. Focused on maritime security, counter-narcotics and counter-terrorism at sea. One of Australia's longest-running overseas commitments.",
-    assets: ["RAN frigate/destroyer (rotational)", "Navy Seahawk helicopters", "ADF embarked personnel"],
-    types: ["navy", "army"]
+    id: "steadfast",
+    name: "Operation Steadfast",
+    region: "Iraq",
+    status: "concluded",
+    lat: 33.3,
+    lng: 43.0,
+    desc: "ADF contribution to the NATO Mission in Iraq (NMI) to train, advise and assist Iraqi Security Forces (2018–Dec 2025). Successor to earlier Iraq missions. Concluded after more than two decades of Australian involvement in Iraq. ADF officers embedded in key headquarters positions.",
+    assets: ["Embedded officers in NATO HQ", "Capacity building teams"],
+    types: ["concluded"]
   }
 ];
 
@@ -1411,6 +1621,151 @@ const ADVERSARY_ARMY = [
 ];
 
 window.ADVERSARY_ARMY = ADVERSARY_ARMY;
+
+
+// ---------- SPACE DOMAIN ASSETS & KNOWLEDGE ----------
+// Data for the Space section cards. Includes ADF, adversary, and allied space capabilities, satellites, and key concepts for Space Operations Officers.
+const SPACE = [
+  {
+    id: "adf-satcom",
+    desig: "JP9102",
+    name: "ADF Protected Satcom",
+    tagline: "Sovereign resilient satellite communications",
+    stats: [
+      { v: "GEO/LEO", k: "Orbit" },
+      { v: "High", k: "Anti-Jam" },
+      { v: "Global", k: "Coverage" },
+      { v: "2028+", k: "IOC" }
+    ],
+    tags: ["ADF", "Comms", "Sovereign", "Resilient"],
+    img: "images/adf-satcom.jpg",
+    overview: "The ADF is acquiring protected satellite communications to ensure secure, anti-jam, global comms independent of commercial or foreign providers during conflict. Essential for C2 in contested electromagnetic environments where adversaries will prioritize denying space-based links."
+  },
+  {
+    id: "sda",
+    desig: "SDA-Radar",
+    name: "Space Domain Awareness",
+    tagline: "Tracking and characterizing objects in orbit",
+    stats: [
+      { v: "LEO-GEO", k: "Regimes" },
+      { v: "High", k: "Sensitivity" },
+      { v: "Sovereign", k: "Capability" }
+    ],
+    tags: ["ADF", "Surveillance", "SDA", "Debris", "Threat"],
+    img: "images/sda.jpg",
+    overview: "Australia is investing in sovereign space domain awareness (SDA) radars, optical telescopes, and data fusion to detect, track, and attribute objects and threats in Earth orbit. Critical for protecting ADF and allied satellites from debris, co-orbital threats, and direct-ascent ASATs."
+  },
+  {
+    id: "china-asat",
+    desig: "SC-19 / DN-3",
+    name: "Chinese Direct-Ascent ASAT",
+    tagline: "Kinetic counterspace weapon",
+    stats: [
+      { v: "LEO", k: "Target" },
+      { v: "Demonstrated", k: "Status" },
+      { v: "High", k: "Threat" }
+    ],
+    tags: ["China", "ASAT", "Counterspace", "Adversary"],
+    img: "images/china-asat.jpg",
+    overview: "China has tested and deployed direct-ascent anti-satellite missiles capable of destroying satellites in low Earth orbit. Combined with co-orbital 'killer' satellites, ground-based lasers, jammers, and cyber attacks, this forms a mature counterspace doctrine aimed at blinding adversaries in the opening phases of conflict."
+  },
+  {
+    id: "russia-asat",
+    desig: "Nudol / PL-19",
+    name: "Russian Co-Orbital ASAT",
+    tagline: "On-orbit inspection and attack systems",
+    stats: [
+      { v: "LEO/MEO", k: "Target" },
+      { v: "Active", k: "Status" },
+      { v: "High", k: "Threat" }
+    ],
+    tags: ["Russia", "ASAT", "Co-orbital", "Adversary"],
+    img: "images/russia-asat.jpg",
+    overview: "Russia operates co-orbital anti-satellite systems that can rendezvous with and disable or destroy target satellites. Recent tests have generated long-lived debris, underscoring the dual-use nature of 'inspector' satellites and the risk of irreversible escalation in space."
+  },
+  {
+    id: "us-starshield",
+    desig: "Starshield",
+    name: "US Starshield Constellation",
+    tagline: "Resilient military LEO comms & ISR",
+    stats: [
+      { v: "LEO", k: "Orbit" },
+      { v: "Thousands", k: "Scale" },
+      { v: "Low-latency", k: "Performance" }
+    ],
+    tags: ["US", "Allied", "Constellation", "Comms/ISR"],
+    img: "images/us-starshield.jpg",
+    overview: "The military evolution of Starlink provides proliferated, resilient, low-latency communications and ISR. Australia is integrating access for regional operations. In a high-intensity fight, such mega-constellations are difficult to fully suppress and enable distributed C2 for the joint force."
+  },
+  {
+    id: "us-gps",
+    desig: "GPS III / M-Code",
+    name: "US Global Positioning System",
+    tagline: "Precision navigation and timing backbone",
+    stats: [
+      { v: "MEO", k: "Orbit" },
+      { v: "31+", k: "Satellites" },
+      { v: "Global", k: "Coverage" }
+    ],
+    tags: ["US", "Allied", "PNT", "Navigation"],
+    img: "images/us-gps.jpg",
+    overview: "GPS remains the primary source of positioning, navigation and timing for precision weapons, aircraft, and forces. Space Operations Officers must understand jamming/spoofing threats, M-Code receivers, and the need for alternative PNT (inertial, celestial, terrain-referenced) in denied environments."
+  },
+  {
+    id: "aus-cubesat",
+    desig: "Buccaneer / M2",
+    name: "Australian Defence Cubesats",
+    tagline: "Sovereign small satellite capabilities",
+    stats: [
+      { v: "LEO", k: "Orbit" },
+      { v: "3U-12U", k: "Size" },
+      { v: "Tech Demo", k: "Role" }
+    ],
+    tags: ["ADF", "Cubesat", "ISR", "Sovereign"],
+    img: "images/aus-cubesat.jpg",
+    overview: "Australia is rapidly developing small satellite and cubesat programs for ISR, communications relay, and technology risk reduction. These attritable, rapidly replaceable assets are a key part of building a resilient, distributed space architecture that can survive attacks on large satellites."
+  },
+  {
+    id: "space-law",
+    desig: "OST 1967",
+    name: "Outer Space Treaty & IHL",
+    tagline: "Legal and ethical framework for space ops",
+    stats: [
+      { v: "1967", k: "Treaty" },
+      { v: "Core", k: "Principles" },
+      { v: "Evolving", k: "Norms" }
+    ],
+    tags: ["Law", "Doctrine", "Ethics", "All"],
+    img: "images/space-law.jpg",
+    overview: "The Outer Space Treaty bans WMD in space and territorial claims, but does not prohibit conventional ASATs, jamming, or cyber attacks on space systems. A Space Operations Officer must understand the legal boundaries, the blurred line between civilian and military space assets, and how actions in space can trigger escalation under international humanitarian law."
+  },
+  {
+    id: "kessler",
+    desig: "Kessler Syndrome",
+    name: "Orbital Debris Cascade Risk",
+    tagline: "The existential threat to space access",
+    stats: [
+      { v: "Critical", k: "Risk Level" },
+      { v: "LEO", k: "Primary Zone" }
+    ],
+    tags: ["Threat", "Debris", "Sustainability", "All"],
+    img: "images/kessler.jpg",
+    overview: "Kessler Syndrome describes a cascading collision scenario where debris generates more debris, potentially rendering certain orbits unusable for generations. Every Space Operations Officer must appreciate how ASAT tests and irresponsible operations increase this risk and why space sustainability is a core national security interest."
+  },
+  {
+    id: "launch",
+    desig: "Responsive Launch",
+    name: "Responsive & Sovereign Launch",
+    tagline: "Getting assets to orbit when needed",
+    stats: [
+      { v: "Days", k: "Responsive" },
+      { v: "Critical", k: "Survivability" }
+    ],
+    tags: ["Launch", "Sovereign", "Resilience"],
+    img: "images/responsive-launch.jpg",
+    overview: "In conflict, traditional launch pads will be targeted. Responsive launch (small rockets, air-launched, sea-launched) and dispersed ground infrastructure are essential for reconstituting space capabilities. Australia is developing sovereign launch options and partnerships to reduce reliance on foreign providers."
+  }
+];
 
 
 // ---------- MASTER GLOSSARY ----------
@@ -2759,6 +3114,7 @@ const LEADERSHIP_ITEMS = [
 window.LEADERSHIP_ITEMS = LEADERSHIP_ITEMS;
 window.AIRCRAFT = AIRCRAFT;
 window.NAVY = NAVY;
+window.SPACE = SPACE;
 
 
 // ============================================
@@ -2865,3 +3221,139 @@ const CYBERSPACE_STUDY_ITEMS = [
 ];
 
 window.CYBERSPACE_STUDY_ITEMS = CYBERSPACE_STUDY_ITEMS;
+
+// ============================================
+// AUDIO LEARNING LOOPS - Listening-Optimized Content
+// Designed specifically for audio consumption and urgent study.
+// Each item is crafted for clarity, flow, and memory retention when heard.
+// Structure: Title → Smooth Overview (with memory hooks) → Key Systems/Facts
+// ============================================
+
+const LISTENING_DATA = {
+  // Group 1: Bases & Operations
+  "group1": [
+    {
+      id: "amberley",
+      title: "RAAF Base Amberley",
+      overview: "Australia's largest and most important air combat base, located in Queensland. It is the central hub for strike, electronic attack, heavy transport and air-to-air refuelling. Think of Amberley as the 'main workshop' where the most powerful combat aircraft and strategic transport assets live and train together.",
+      keyPoints: [
+        "Home to the F/A-18F Super Hornet and EA-18G Growler squadrons — the core of Australia's air combat and electronic warfare power.",
+        "Also hosts the KC-30A tanker and C-17 Globemaster, making it the only base that can launch and support a full strike package with its own refuelling and heavy lift.",
+        "Critical for northern operations and rapid deployment across the Indo-Pacific."
+      ]
+    },
+    {
+      id: "williamtown",
+      title: "RAAF Base Williamtown",
+      overview: "The home of the F-35A Lightning II and the Wedgetail airborne early warning aircraft. This is Australia's primary air defence base and the headquarters of Air Combat Group. Williamtown is where the future of Australian air power is being built and trained.",
+      keyPoints: [
+        "Primary base for the entire F-35A fleet — conversion unit and operational squadrons are all based here.",
+        "Wedgetail provides 360 degree battle management and is one of the most advanced airborne command and control aircraft in the world.",
+        "Key northern detachment capability to Tindal for forward presence."
+      ]
+    },
+    {
+      id: "operation-accordion",
+      title: "Operation Accordion",
+      overview: "Australia's main support mission in the Middle East, based at Al Minhad Air Base in the UAE. It is the only permanent forward-deployed ADF headquarters in the world and provides the backbone for up to twelve concurrent operations across the region.",
+      keyPoints: [
+        "Acts as the central logistics and command hub for all ADF activities in the Middle East and surrounding areas.",
+        "Enables rapid response and sustained presence without needing to fly everything from Australia every time.",
+        "Critical enabler for any future larger commitment in the region."
+      ]
+    }
+    // More items can be added following the same listening-optimized format
+  ],
+
+  // Group 2: Air Force, Navy, Army, Weapons & Systems
+  "group2": [
+    {
+      id: "f35a",
+      title: "F-35A Lightning II",
+      overview: "Australia's fifth-generation stealth multirole fighter. The F-35A is not just an aircraft — it is a flying sensor and command node that shares information across the entire joint force in real time. It is the cornerstone of Australia's future air combat capability.",
+      keyPoints: [
+        "APG-81 AESA radar gives exceptional situational awareness and the ability to detect and engage targets at long range while remaining hard to detect.",
+        "Internal weapons bays preserve stealth while carrying advanced missiles like the AIM-120 and JSM.",
+        "Data fusion and Link 16 make every F-35 a node that dramatically improves the effectiveness of other platforms and ground forces."
+      ]
+    },
+    {
+      id: "growler",
+      title: "EA-18G Growler",
+      overview: "The world's only dedicated airborne electronic attack aircraft in service with a Western air force. The Growler does not just jam enemy radars — it can destroy them with HARM missiles and creates safe corridors for other aircraft to operate.",
+      keyPoints: [
+        "ALQ-99 jamming pods and ALQ-218 receiver give it the ability to detect, locate and suppress enemy air defences.",
+        "Often works as a 'guardian' for strike packages, blinding enemy radars so the bombers and fighters can get through.",
+        "Extremely high demand from the US Navy and allies because of its unique capability."
+      ]
+    },
+    {
+      id: "hobart",
+      title: "Hobart-class Destroyer",
+      overview: "Australia's Aegis-equipped Air Warfare Destroyers. These are the most capable surface combatants the RAN has ever operated and form the core of any major task group for air defence and long-range strike.",
+      keyPoints: [
+        "SPY-1D radar and Aegis combat system give world-class area air defence against aircraft and missiles.",
+        "Can fire SM-2, SM-6 and ESSM missiles and are being upgraded with NSM for surface strike.",
+        "Work closely with the F-35 and Growler to create a layered defence and strike capability."
+      ]
+    },
+    {
+      id: "m1a1",
+      title: "M1A1 Abrams Main Battle Tank",
+      overview: "The Australian Army's heavy armour. The Abrams is designed to close with and destroy enemy armour while surviving hits that would destroy lighter vehicles. It is the centrepiece of the Army's combined arms manoeuvre capability.",
+      keyPoints: [
+        "120mm smoothbore gun with advanced ammunition gives it massive firepower against modern tanks and fortifications.",
+        "Heavy armour and excellent fire control system make it very survivable on the modern battlefield.",
+        "Works as part of a team with infantry in IFVs, attack helicopters and artillery."
+      ]
+    }
+    // Add more high-priority platforms here following the same pattern
+  ],
+
+  // Group 3: Space, Cyberspace, Ranks, Leadership, National Defence
+  "group3": [
+    {
+      id: "space-ops-officer",
+      title: "Space Operations Officer Role",
+      overview: "Space Operations Officers are responsible for protecting Australia's access to space and using space capabilities to support operations on Earth. In a contested environment, they must understand threats to satellites and how to maintain critical services even when things are being attacked.",
+      keyPoints: [
+        "Key threats include anti-satellite missiles, jamming, cyber attacks on ground stations, and the growing problem of space debris.",
+        "Resilience is more important than perfect protection — being able to operate with degraded or lost capabilities is essential.",
+        "Australia works closely with the US and other allies through initiatives like the Combined Space Operations Center."
+      ]
+    },
+    {
+      id: "cyber-warfare-officer",
+      title: "Cyber Warfare Officer",
+      overview: "Cyber Warfare Officers defend Australian networks and conduct operations in cyberspace to support military objectives. In modern conflict, the first shots may be fired in cyberspace long before any physical movement occurs.",
+      keyPoints: [
+        "Defensive cyber is about protecting the networks that everything else depends on — from logistics to command systems.",
+        "Offensive cyber can disrupt enemy command, control, air defences and logistics without firing a traditional weapon.",
+        "Attribution is difficult, which makes cyber a domain where speed of detection and response matters enormously."
+      ]
+    },
+    {
+      id: "mission-command",
+      title: "Mission Command Philosophy",
+      overview: "Mission Command is the ADF's command philosophy. It gives subordinates the freedom to decide how to achieve the commander's intent, rather than waiting for detailed orders. This is essential in fast-moving, uncertain environments.",
+      keyPoints: [
+        "Built on three pillars: trust, shared understanding, and clear commander's intent.",
+        "The commander states what needs to be achieved and why, then allows subordinates maximum freedom in how they do it.",
+        "This philosophy is one of the biggest differentiators between professional Western forces and more rigid adversaries."
+      ]
+    },
+    {
+      id: "national-defence-strategy",
+      title: "2026 National Defence Strategy - Core Idea",
+      overview: "Australia has shifted to a strategy of 'denial' in our immediate region. The goal is to make any potential aggressor calculate that the cost of attacking Australia or our interests would be too high, rather than trying to defeat them in a distant war.",
+      keyPoints: [
+        "Focus is on the 'five tasks' and being able to hold an adversary at risk from our own territory and waters.",
+        "This requires long-range strike, resilient bases, a larger Navy and Army that can operate in our northern approaches.",
+        "The strategy accepts that we may have to fight with what we have at the start of a conflict, so readiness and stockpiles matter enormously."
+      ]
+    }
+  ]
+};
+
+// Expose for the study tools
+window.LISTENING_DATA = LISTENING_DATA;
