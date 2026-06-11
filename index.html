@@ -5,8 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ADF Forge</title>
 
-  <!-- Google Fonts -->
-  <!-- Rajdhani is now self-hosted (see fonts/ folder + styles.css) -->
+  <!-- Rajdhani is self-hosted locally (fonts/ folder).
+       No Google Fonts are loaded for the UI. See styles.css @font-face rules. -->
+
+  <!-- Preload local Rajdhani fonts (ensures they are fetched from the project files, never Google) -->
+  <link rel="preload" href="fonts/rajdhani-v17-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/rajdhani-v17-latin-500.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/rajdhani-v17-latin-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/rajdhani-v17-latin-700.woff2" as="font" type="font/woff2" crossorigin>
 
   <!-- Our styles -->
   <link rel="stylesheet" href="styles.css">
@@ -17,7 +23,8 @@
          - Temporarily set key restrictions to "None" for localhost testing (safe for dev; re-restrict later).
          - Or add: http://localhost:*/* and http://127.0.0.1:*/*
        Our code defaults map containers to the reliable offline SVG (labels, dots, cards, calib) + auto-fallback if Google shows error UI.
-       We removed callback= + added loading=async. We drive init ourselves. -->
+       We removed callback= + added loading=async. We drive init ourselves.
+       Note: If you see "google.maps.Map is not a constructor", the API key likely has restrictions or billing issues. -->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC-kdqaFYM6iWR1PjJnK4jJPPVRfepZEPc&loading=async&v=weekly" async defer></script>
 </head>
 <body>
@@ -47,25 +54,7 @@
 <!-- NAV -->
 <nav>
   <a class="nav-brand" href="#" onclick="showSection('home'); return false;">
-    <svg class="nav-logo" width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
-      <!-- Subtle dark backing with gold border -->
-      <rect x="1" y="1" width="30" height="30" rx="5" fill="var(--navy)" stroke="currentColor" stroke-width="1.1"/>
-      
-      <!-- Anvil base -->
-      <rect x="5.5" y="21.2" width="21" height="4" rx="0.8" fill="currentColor"/>
-      
-      <!-- Anvil top / working face -->
-      <rect x="4.5" y="16" width="22.5" height="5.8" rx="1" fill="currentColor"/>
-      
-      <!-- Anvil horn (left) -->
-      <path d="M4.5 16 L1.2 19.3 L4.5 22.5 Z" fill="currentColor"/>
-      
-      <!-- Hammer handle -->
-      <line x1="19.2" y1="13.8" x2="27" y2="7.8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-      
-      <!-- Hammer head (striking face) -->
-      <rect x="24.2" y="5.8" width="7.5" height="3.7" rx="0.8" fill="currentColor" transform="rotate(-36 27.8 7.8)"/>
-    </svg>
+    <img src="images/site_logo.jpg" alt="ADF Forge" class="nav-logo">
     <div class="nav-title"><span>ADF</span> Forge</div>
   </a>
   <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
@@ -88,16 +77,6 @@
     <input type="text" id="globalSearch" placeholder="Search everything...">
     <div id="searchResults" class="search-results"></div>
   </div>
-
-  <!-- Theme Switcher -->
-  <div class="theme-switcher">
-    <button id="themeToggle" class="theme-btn" title="Click to cycle themes (or press T)" aria-label="Change theme">
-      <span class="theme-icon">🎨</span>
-    </button>
-    <span id="currentThemeName" class="theme-name">Default</span>
-  </div>
-
-  <div class="nav-badge">Unclassified</div>
 </nav>
 
 <!-- HOME / OVERVIEW -->
@@ -106,7 +85,10 @@
         <div id="hero-bg-container" class="hero-bg-container"></div>
         <div class="hero-inner">
 
-      <h1>ADF<br><span>Forge</span></h1>
+      <div class="hero-title">
+        <img src="images/site_logo.jpg" alt="ADF Forge" class="hero-logo">
+        <h1>ADF <span>Forge</span></h1>
+      </div>
       <p class="hero-desc">
         Air, Land, Sea, Space &amp; Cyber — forged for those who need to know it cold.
       </p>
@@ -115,6 +97,10 @@
         <div>
           <div class="hero-stat-num" id="stat-bases">18</div>
           <div class="hero-stat-label">Bases</div>
+        </div>
+        <div>
+          <div class="hero-stat-num" id="stat-operations">19</div>
+          <div class="hero-stat-label">Operations</div>
         </div>
         <div>
           <div class="hero-stat-num">25+</div>
@@ -137,14 +123,6 @@
   </div>
 
   <div class="section-wrap overview-features" style="padding-top: 24px;">
-    <div style="margin-bottom: 16px;">
-      <h2 style="font-family: 'Rajdhani', sans-serif; font-size: 20px; color: var(--gold); margin-bottom: 8px;">
-        What’s Inside
-      </h2>
-      <p style="color: var(--text-muted); font-size: 15px; max-width: 720px; line-height: 1.6;">
-        A tri-service reference covering the full Australian battlespace — Air Force, Navy, Army, and Adversary forces.
-      </p>
-    </div>
 
     <div class="feature-cards">
 
@@ -752,14 +730,7 @@
       <p>Click any aircraft card for a full breakdown of weapons systems, sensors and technology — with plain-English explanations of all acronyms and codes. Adversary / Threat Aircraft are included at the bottom for recognition training.</p>
     </div>
 
-    <div class="section-with-toc">
-      <nav class="section-toc" id="aircraftToc" aria-label="On this page">
-        <!-- Populated dynamically by script.js after buildAircraftGrid() -->
-      </nav>
-      <div class="section-main">
-        <div class="aircraft-grid" id="aircraftGrid"></div>
-      </div>
-    </div>
+    <div class="aircraft-grid" id="aircraftGrid"></div>
   </div>
 </section>
 
@@ -1019,8 +990,10 @@ An officer must plan for “space denied” operations from day one: what happen
     <!-- Comparative Officer Ranks (side-by-side equivalents) -->
     <div class="ranks-block">
       <h3>Commissioned Officer Rank Equivalents</h3>
-      <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-      <table class="ranks-table ranks-comparative">
+      <div class="mobile-table-hint">← Swipe left/right on table to see all services &amp; notes</div>
+      <div class="table-scroll" aria-label="Scrollable rank comparison table">
+        <!-- Scrollbar appears at top on mobile via CSS flip technique -->
+        <table class="ranks-table ranks-comparative">
         <thead>
           <tr>
             <th>Level</th>
@@ -1109,8 +1082,10 @@ An officer must plan for “space denied” operations from day one: what happen
     <!-- Comparative Other Ranks + Miscellaneous Special Appointments -->
     <div class="ranks-block">
       <h3>Other Ranks (Enlisted) Equivalents &amp; Miscellaneous Special Appointments</h3>
-      <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-      <table class="ranks-table ranks-comparative">
+      <div class="mobile-table-hint">← Swipe left/right on table to see all services &amp; notes</div>
+      <div class="table-scroll" aria-label="Scrollable rank comparison table">
+        <!-- Scrollbar appears at top on mobile via CSS flip technique -->
+        <table class="ranks-table ranks-comparative">
         <thead>
           <tr>
             <th>Level</th>
@@ -1599,7 +1574,10 @@ An officer must plan for “space denied” operations from day one: what happen
       <p>The ADF Pre-entry Fitness Assessment is the minimum physical standard required to join the Australian Defence Force. Standards vary by service and role. These are the current public minimum requirements (as of 2025).</p>
     </div>
 
-    <div style="max-width: 1100px; margin: 0 auto;">
+    <!-- Mobile hint for horizontal tables (appears above the scroll area) -->
+    <div class="mobile-table-hint">← Swipe left/right on tables to see all columns</div>
+
+    <div class="pfa-tables">
 
       <!-- Important Notes -->
       <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 32px;">
@@ -2741,7 +2719,7 @@ An officer must plan for “space denied” operations from day one: what happen
     <div id="audio-loops-primary" style="margin-bottom: 48px;">
       <div class="section-header" style="margin-bottom: 12px;">
         <h3 style="color: var(--gold); font-size: 24px;">Audio Learning Loops</h3>
-        <p style="color: var(--text-muted);">High-volume, passive listening using Karen (premium) by default at 0.85×. Built for retention and developing intuition through repetition. Use Smart Review (SRS) for focused practice on weaker areas.</p>
+        <p style="color: var(--text-muted);">High-volume, passive listening using the best voice available on your device (Karen Premium is the default when installed). Works on iPhone, Android, Windows PC, and macOS. Use the Voice selector below to pick any speaker your device offers. <strong>Important:</strong> Browser developer tool "mobile" emulation often provides no actual audio output for speech (known limitation) — test on a real device. If you're on an Apple device and Karen sounds robotic or isn't listed, see the tip under the voice selector on how to download the enhanced version.</p>
       </div>
 
       <div class="study-controls" style="flex-wrap: wrap; gap: 12px;">
@@ -2770,7 +2748,15 @@ An officer must plan for “space denied” operations from day one: what happen
         </select>
         <button type="button" onclick="refreshAudioVoices()" title="Refresh available voices from your browser/OS (may need to start the loop once)"
                 style="font-size: 12px; padding: 3px 7px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--text-muted); cursor: pointer;">↻</button>
+        <button type="button" onclick="testAudioVoice()" title="Speak a short test sentence using the selected (or best) voice — helps confirm sound is working and primes the engine"
+                style="font-size: 12px; padding: 3px 7px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--text-muted); cursor: pointer;">Test</button>
+        <button type="button" onclick="exportListeningTextsForTTS()" title="Export the exact current texts for all listening items (with suggested filenames). Use this with a TTS tool (e.g. macOS say -v Karen or ElevenLabs) to generate consistent MP3s for the site-hosted audio feature."
+                style="font-size: 12px; padding: 3px 7px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--text-muted); cursor: pointer;">Export texts</button>
         <span id="audio-voice-hint" style="font-size: 11px; color: var(--text-dim);">click ↻ or start loop to load voices</span>
+      </div>
+
+      <div id="karen-install-hint" style="display:none; font-size:12px; color:var(--text-muted); margin:4px 0 12px; padding:8px 10px; background:var(--surface); border:1px solid var(--border); border-radius:6px;">
+        <strong>Tip for better Karen voice on iPhone / Mac:</strong> Go to <strong>Settings → Accessibility → Spoken Content → Voices</strong> (or System Settings on Mac), find <strong>English (Australia)</strong>, and download the <strong>Enhanced</strong> or <strong>Premium</strong> version of Karen. This gives the highest quality. The site will automatically use it when available.
       </div>
 
       <div id="audio-loop-status" style="margin: 20px 0; padding: 16px; background: var(--surface); border-radius: 8px; min-height: 80px;">

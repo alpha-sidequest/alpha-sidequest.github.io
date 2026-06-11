@@ -47,8 +47,11 @@ try {
   });
 } catch(e){}
 
+// Internal guard used by popstate / initial-load so we don't push duplicate history entries
+let _fromHistoryGuard = false;
+
 // ── SECTION SWITCHING ─────────────────────────────────────────
-function showSection(id, el) {
+function showSection(id, el, options) {
   // The reader (if open) will now automatically follow to the new section
   // and start reading the new content. See followReaderToSection below.
 
@@ -84,6 +87,28 @@ function showSection(id, el) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  // Card sections (aircraft / navy / army grids) are built while their <section> is display:none.
+  // Force the cards visible *immediately* after display:block (user click provides gesture),
+  // then use rAF to give the browser a paint cycle before starting videos. This is the most
+  // reliable way to get muted autoplay working for the F-35A / Growler mp4s (and any others).
+  if (sectionEl && (id === 'airforce' || id === 'navy' || id === 'army')) {
+    const cards = sectionEl.querySelectorAll('.aircraft-card, .fleet-card');
+    // Immediate reveal (no stagger on section activation; we want them visible for video playback right away)
+    cards.forEach(card => {
+      card.style.transition = 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+      card.style.opacity = '1';
+      card.style.transform = 'translateY(0) scale(1)';
+    });
+    // Double rAF: after style change + paint, the video elements are "visible" to the browser.
+    // Start videos per-card (more reliable) + on the section root.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        cards.forEach(card => ensureCardVideosPlay(card));
+        ensureCardVideosPlay(sectionEl);
+      });
+    });
+  }
+
   // Resize Google maps if the section is shown while in online mode (to fix size 0 when init'ed hidden)
   if (id === 'bases' || id === 'operations') {
     setTimeout(() => {
@@ -106,6 +131,28 @@ function showSection(id, el) {
       }, 140);
     }
   }
+
+  // === SPA browser history support ===
+  // Push a history entry for this section so the browser Back button steps
+  // through previous sections *on this site* instead of jumping to the
+  // previously visited external website.
+  const fromHistory = _fromHistoryGuard || (options && options.fromHistory);
+  if (!fromHistory && id) {
+    try {
+      const currentHash = (location.hash || '').replace('#', '');
+      if (currentHash !== id) {
+        if (id === 'home') {
+          // Clean URL for the home/overview
+          history.pushState({ section: 'home' }, '', location.pathname + location.search);
+        } else {
+          history.pushState({ section: id }, '', '#' + id);
+        }
+      }
+    } catch (e) {
+      // History API may be unavailable in some environments (old browsers, certain iframes)
+    }
+  }
+  _fromHistoryGuard = false; // reset after every navigation
 }
 
 // === ROBUST NAV FIX (added to fix "site became unclickable" after edits) ===
@@ -135,6 +182,60 @@ if (document.readyState !== 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     try { if (typeof initMainNavigation === 'function') initMainNavigation(); } catch(e) { console.warn('Early nav init failed (non-fatal):', e); }
   });
+}
+
+// ── SPA HISTORY / BROWSER BACK BUTTON SUPPORT ─────────────────
+// When users click nav links or feature cards they stay inside the site.
+// This makes the browser's Back/Forward buttons step through the
+// previous *sections on this site* (home → bases → operations etc.)
+// instead of immediately leaving to whatever external page the visitor
+// came from. Uses the History API + hash for deep-linkable, static-host friendly URLs.
+function setupSectionHistory() {
+  // Handle browser Back / Forward
+  window.addEventListener('popstate', (e) => {
+    let target = 'home';
+    if (e.state && e.state.section) {
+      target = e.state.section;
+    } else if (location.hash) {
+      target = location.hash.replace('#', '');
+    }
+    if (target && document.getElementById(target)) {
+      _fromHistoryGuard = true;
+      showSection(target, null);
+    } else {
+      _fromHistoryGuard = true;
+      showSection('home', null);
+    }
+  });
+
+  // On initial page load, honour a direct deep link (e.g. /#operations or /#glossary)
+  // We use replaceState so arriving on a deep link doesn't create an extra history entry.
+  const initialHash = (location.hash || '').replace('#', '');
+  if (initialHash && document.getElementById(initialHash)) {
+    try {
+      history.replaceState({ section: initialHash }, '', '#' + initialHash);
+    } catch (e) {}
+    // Small delay so other initialisers (maps, grids, reader) have had a chance to run
+    setTimeout(() => {
+      _fromHistoryGuard = true;
+      showSection(initialHash, null);
+    }, 30);
+  } else {
+    // Establish 'home' as the base of our history stack.
+    // This way the *first* time the visitor clicks a nav item and then presses Back,
+    // they return to the home section instead of exiting the site.
+    try {
+      history.replaceState({ section: 'home' }, '', location.pathname + location.search);
+    } catch (e) {}
+  }
+}
+
+// Install the history handling early (popstate can be attached at any time;
+// the initial-hash correction runs quickly after scripts load).
+if (document.readyState !== 'loading') {
+  setupSectionHistory();
+} else {
+  document.addEventListener('DOMContentLoaded', setupSectionHistory);
 }
 
 // ── BASE MAP ──────────────────────────────────────────────────
@@ -362,6 +463,19 @@ function openBaseAssetModal(name) {
   // console.warn('[ADF Forge] No matching asset modal for base chip:', name);
 }
 
+// ── MEDIA HELPER (supports mp4 video previews with jpg poster fallback) ─────
+function getCardMediaHTML(img, alt = '') {
+  if (img && img.endsWith('.mp4')) {
+    let poster = img.replace(/\.mp4$/, '.jpg');
+    // Handle naming differences e.g. hmas_hobart.mp4 → hobart.jpg
+    if (poster.includes('hmas_hobart')) {
+      poster = poster.replace('hmas_hobart', 'hobart');
+    }
+    return `<video src="${img}" loop muted playsinline preload="auto" webkit-playsinline="true" style="width:100%; height:100%; object-fit:cover; display:block;" poster="${poster}"></video>`;
+  }
+  return `<img src="${img}" alt="${alt}" loading="lazy">`;
+}
+
 // ── AIRCRAFT GRID (Grouped by Category) ───────────────────────
 function buildAircraftGrid() {
   const grid = document.getElementById('aircraftGrid');
@@ -403,9 +517,9 @@ function buildAircraftGrid() {
 
     grouped[category].forEach(ac => {
       const cardHTML = `
-        <div class="aircraft-card" id="ac-${ac.id}" data-detail-id="${ac.id}">
+        <div class="aircraft-card will-reveal" id="ac-${ac.id}" data-detail-id="${ac.id}">
           <div class="aircraft-img-wrap">
-            <img src="${ac.img}" alt="${ac.name}" loading="lazy">
+            ${getCardMediaHTML(ac.img, ac.name)}
             <span class="aircraft-type-badge badge-${ac.type}">${ac.typeName}</span>
           </div>
           <div class="aircraft-card-body">
@@ -434,9 +548,9 @@ function buildAircraftGrid() {
 
     ADVERSARY_AIRCRAFT.forEach(a => {
       const cardHTML = `
-        <div class="aircraft-card" id="adv-${a.id}" data-detail-id="${a.id}">
+        <div class="aircraft-card will-reveal" id="adv-${a.id}" data-detail-id="${a.id}">
           <div class="aircraft-img-wrap">
-            <img src="${a.img}" alt="${a.name}" loading="lazy">
+            ${getCardMediaHTML(a.img, a.name)}
             <span class="aircraft-type-badge badge-adversary">${a.typeName}</span>
           </div>
           <div class="aircraft-card-body">
@@ -452,76 +566,11 @@ function buildAircraftGrid() {
     grid.appendChild(advContainer);
   }
 
-  // Build the left sidebar TOC after cards exist
-  buildAircraftTOC();
+  // Left sidebar TOC removed for consistency with Navy/Army pages
 }
-
-// ── AIRCRAFT IN-PAGE TOC (left sidebar) ───────────────────────
-function buildAircraftTOC() {
-  const toc = document.getElementById('aircraftToc');
-  if (!toc) return;
-
-  // Use same grouping as the grid
-  const categoryOrder = [
-    "Combat",
-    "Airborne Early Warning & Electronic Warfare",
-    "Maritime Patrol & ISR",
-    "Transport & Air Mobility",
-    "Air Refuelling",
-    "Rotary Wing",
-    "Training",
-    "VIP & Special Mission",
-    "Uncrewed Systems"
-  ];
-
-  const grouped = {};
-  AIRCRAFT.forEach(ac => {
-    const cat = ac.category || "Other";
-    if (!grouped[cat]) grouped[cat] = [];
-    grouped[cat].push(ac);
-  });
-
-  // Flat list with category headers for visual organisation (matching Cyberspace clean style + segregation)
-  let html = `<ul>`;
-
-  categoryOrder.forEach(cat => {
-    if (!grouped[cat]) return;
-    
-    // Category header (non-clickable, for segregation)
-    html += `<li class="toc-header">${cat}</li>`;
-    
-    grouped[cat].forEach(ac => {
-      html += `<li><a href="#ac-${ac.id}" data-target="ac-${ac.id}">${ac.name}</a></li>`;
-    });
-  });
-
-  // Adversary aircraft at the bottom (subtle red tint to match threat styling)
-  if (typeof ADVERSARY_AIRCRAFT !== 'undefined' && ADVERSARY_AIRCRAFT.length > 0) {
-    html += `<li class="toc-header" style="color:#c96a5f; border-color: rgba(192,57,43,0.3);">Adversary / Threat</li>`;
-    ADVERSARY_AIRCRAFT.forEach(a => {
-      html += `<li><a href="#adv-${a.id}" data-target="adv-${a.id}" style="color:#e07a6b;">${a.name}</a></li>`;
-    });
-  }
-
-  html += `</ul>`;
-  toc.innerHTML = html;
-}
-
-
 
 // ── SAFE SIDEBAR NAV (avoids inline onclick which breaks under MetaMask SES lockdown) ──
 function initSidebarNav() {
-  // Aircraft sidebar
-  const aircraftToc = document.getElementById('aircraftToc');
-  if (aircraftToc) {
-    aircraftToc.addEventListener('click', (e) => {
-      const link = e.target.closest('a[data-target]');
-      if (!link) return;
-      e.preventDefault();
-      scrollToCardWithFlash(link.dataset.target);
-    });
-  }
-
   // Fleet sidebar
   const fleetToc = document.getElementById('fleetToc');
   if (fleetToc) {
@@ -657,9 +706,11 @@ function openAircraftModal(id) {
     </li>
   `).join('');
 
+  const heroMedia = getCardMediaHTML(ac.img, ac.name);
+
   document.getElementById('modalInner').innerHTML = `
     <div class="modal-hero">
-      <img src="${ac.img}" alt="${ac.name}" loading="lazy">
+      ${heroMedia}
       <div class="modal-hero-overlay"></div>
       <div class="modal-hero-text">
         <div class="modal-desig">${wrapGlossaryTerms(ac.desig)} · ${wrapGlossaryTerms(ac.typeName)}</div>
@@ -2005,6 +2056,9 @@ const RECENTLY_PLAYED_LIMIT = 8; // avoid repeating these in the pool
 let audioLoopVoiceName = null; // stores voice.name from speechSynthesis, or null = auto best
 let audioLoopVoicesLoaded = false;
 
+let currentLoopAudio = null; // for embedded site-hosted audio files (consistent premium voice across devices)
+const USE_EMBEDDED_AUDIO_FOR_LOOPS = false; // Set to true ONLY if you have manually added MP3 files to audio/loops/<id>.mp3 for consistent voice. Default false = pure browser TTS (Web Speech) to avoid 404 spam and maintenance.
+
 // Helper: skip weak/generic "why it matters" and similar filler that adds no value
 function isMeaningfulText(text, minLen = 22) {
   if (!text || typeof text !== 'string') return false;
@@ -2074,6 +2128,19 @@ function startAudioLearningLoop() {
   const mainReader = document.getElementById('reader-panel');
   if (mainReader) mainReader.style.display = 'none';
 
+  // Fully stop any reader speech chain (prevents lingering progress updates or overlapping utterances)
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  readerReadingSession++;   // invalidate any pending reader onend chains
+  isSpeaking = false;
+  isPaused = false;
+  stopRequested = false;
+
+  // Stop any currently playing embedded audio when (re)starting the loop
+  if (currentLoopAudio) {
+    currentLoopAudio.pause();
+    currentLoopAudio = null;
+  }
+
   audioLoopActive = true;
   audioLoopPaused = false;
   audioLoopCurrentIndex = -1;
@@ -2095,6 +2162,11 @@ function startAudioLearningLoop() {
   // Apply any saved voice preference
   loadAudioLoopVoice();
 
+  // Note: We no longer auto-prime here to avoid any chance of dummy utterance overlapping
+  // the real first chunk (was causing brief double-voice on Firefox at start).
+  // The explicit "Test" button and refresh do good priming when needed.
+  // The speak itself will wake the engine.
+
   // Shuffle for better experience
   audioLoopItems = [...audioLoopItems].sort(() => Math.random() - 0.5);
 
@@ -2107,6 +2179,16 @@ function startAudioLearningLoop() {
       const activeVoice = getAudioLoopVoice();
       const vName = activeVoice ? activeVoice.name : 'system default';
       info.textContent = `${audioLoopItems.length} items • Voice: ${vName}`;
+    }
+
+    // Helpful note for the common "I can't hear anything" case (macOS + Chrome especially)
+    const voicesNow = getFreshVoices();
+    const statusBox = document.getElementById('audio-loop-status');
+    if (voicesNow.length === 0 && statusBox && audioLoopActive) {
+      const tip = document.createElement('div');
+      tip.style.cssText = 'margin-top:10px;font-size:12px;color:var(--text-dim);line-height:1.35;';
+      tip.innerHTML = 'No custom voices found. On macOS: open <strong>System Settings → Accessibility → Spoken Content</strong>, pick "Karen" or "Samantha" and download the enhanced voice. Works most reliably in <strong>Safari</strong>.';
+      statusBox.appendChild(tip);
     }
   }, 60);
   playNextAudioItem();
@@ -2231,27 +2313,43 @@ function playNextAudioItem() {
     transcriptEl.innerHTML = html;
   }
 
-  // Speak using the chosen voice (or best auto if none selected)
-  // Force one more voice enumeration right before we speak (this often makes the full list appear)
-  try { if (window.speechSynthesis) window.speechSynthesis.getVoices(); } catch (e) {}
-  populateAudioVoiceSelect();
+  // Always fully stop any previous synthesis before starting a new loop item.
+  // This prevents the "two voices for the first second" glitch (especially on Firefox)
+  // caused by lingering utterances or race with priming dummies.
+  if (window.speechSynthesis) {
+    window.speechSynthesis.cancel();
+  }
 
-  speakAudioLoopText(spokenText, () => {
-    // When finished, pause briefly then move to next
-    // The session check here is redundant with the one inside loopSpeakNext,
-    // but kept for safety.
-    if (audioLoopActive && !audioLoopPaused && audioLoopSession === thisSession) {
-      audioLoopTimeout = setTimeout(() => {
-        playNextAudioItem();
-      }, 2200); // Nice breathing room between items for the listener
-    }
-  }, 0);
+  if (USE_EMBEDDED_AUDIO_FOR_LOOPS) {
+    // Optional: embedded MP3s for perfectly consistent voice (bypasses device voices entirely).
+    // Only enable the flag above if you have placed the files; otherwise it will spam 404s.
+    const audioSrc = `audio/loops/${item.id}.mp3`;
+    playLoopItemAudio(audioSrc, spokenText, () => {
+      if (audioLoopActive && !audioLoopPaused && audioLoopSession === thisSession) {
+        audioLoopTimeout = setTimeout(() => {
+          playNextAudioItem();
+        }, 2200);
+      }
+    });
+  } else {
+    // Pure browser TTS path (recommended default). Uses the chosen voice from the selector (Karen preferred).
+    // No file dependencies, works on any device that supports Web Speech.
+    speakAudioLoopText(spokenText, () => {
+      if (audioLoopActive && !audioLoopPaused && audioLoopSession === thisSession) {
+        audioLoopTimeout = setTimeout(() => {
+          playNextAudioItem();
+        }, 2200);
+      }
+    }, 0);
+  }
 }
 
 function speakAudioLoopText(text, onComplete, startFrom = 0) {
   // Reuse the excellent chunking and speaking logic from the main reader
-  // Force a clean stop first
+  // Force a clean stop first. Use a slightly longer delay on Firefox to avoid overlap.
   if (window.speechSynthesis) window.speechSynthesis.cancel();
+
+  const speakDelay = /firefox/i.test(navigator.userAgent) ? 80 : 25;
 
   fullReadableText = text;
   currentTextChunks = chunkTextIntoSentences(text);
@@ -2276,7 +2374,7 @@ function speakAudioLoopText(text, onComplete, startFrom = 0) {
     const chunk = currentTextChunks[currentChunkIndex];
     if (!chunk || chunk.length < 4) {
       currentChunkIndex++;
-      loopSpeakNext();
+      setTimeout(() => loopSpeakNext(), 5);  // avoid deep sync recursion on many tiny chunks
       return;
     }
 
@@ -2307,7 +2405,11 @@ function speakAudioLoopText(text, onComplete, startFrom = 0) {
       }
       currentChunkIndex++;
       updateProgressUI();
-      loopSpeakNext();
+      // Give the previous utterance's audio a moment to fully finish before starting the next chunk.
+      // This prevents title and body (or consecutive sentences) from overlapping on Firefox.
+      // Slightly longer on Firefox.
+      const interChunkDelay = /firefox/i.test(navigator.userAgent) ? 180 : 80;
+      setTimeout(() => loopSpeakNext(), interChunkDelay);
     };
 
     utterance.onerror = () => {
@@ -2327,6 +2429,8 @@ function speakAudioLoopText(text, onComplete, startFrom = 0) {
         return;
       }
       try {
+        const v = utterance.voice ? utterance.voice.name : 'system-default';
+        console.log('[AudioLoop] speaking chunk with voice:', v, 'rate:', utterance.rate);
         window.speechSynthesis.cancel();
         window.speechSynthesis.speak(utterance);
 
@@ -2339,10 +2443,150 @@ function speakAudioLoopText(text, onComplete, startFrom = 0) {
         currentChunkIndex++;
         loopSpeakNext();
       }
-    }, 12);
+    }, speakDelay);
   }
 
-  loopSpeakNext();
+  // Start the first chunk after a small delay to ensure any prior utterance is fully cancelled
+  // (helps avoid title + body overlap on Firefox at the very start of an item).
+  setTimeout(() => loopSpeakNext(), 30);
+}
+
+/**
+ * Try to play a site-hosted MP3 for this loop item.
+ * This allows embedding a consistent premium voice (e.g. generated from macOS `say -v Karen`)
+ * so every visitor hears the exact same high-quality voice, regardless of their device/OS voices.
+ *
+ * Place files at: audio/loops/<item.id>.mp3
+ * Generate example (on macOS):
+ *   say -v Karen -o temp.aiff "Your full spoken text here"
+ *   # then convert aiff to mp3 with ffmpeg or online tool, or use afconvert + lame
+ * If the file is missing or fails to load, we automatically fall back to browser speechSynthesis.
+ */
+function playLoopItemAudio(src, fallbackText, onComplete) {
+  if (currentLoopAudio) {
+    currentLoopAudio.pause();
+    currentLoopAudio = null;
+  }
+
+  const audio = new Audio();
+  audio.src = src;
+  audio.preload = 'auto';
+  currentLoopAudio = audio;
+
+  const fallback = () => {
+    currentLoopAudio = null;
+    // Fallback to the original synthesis path (uses device voices)
+    if (fallbackText) {
+      speakAudioLoopText(fallbackText, onComplete, 0);
+    } else if (typeof onComplete === 'function') {
+      onComplete();
+    }
+  };
+
+  audio.onerror = () => {
+    // Only log the first time per session to avoid spam when feature is disabled or files are absent.
+    if (!window._audioLoopEmbeddedWarned) {
+      console.log('[AudioLoop] Embedded audio files not present — using browser TTS (Web Speech) instead. Set USE_EMBEDDED_AUDIO_FOR_LOOPS=true and add files to audio/loops/ if you want perfectly consistent voice across devices.');
+      window._audioLoopEmbeddedWarned = true;
+    }
+    fallback();
+  };
+
+  audio.onended = () => {
+    currentLoopAudio = null;
+    if (typeof onComplete === 'function') onComplete();
+  };
+
+  audio.play().then(() => {
+    // Successfully using embedded audio — consistent voice for all visitors
+    const info = document.getElementById('audio-loop-info');
+    if (info && audioLoopActive) {
+      info.textContent = `Embedded premium audio (same voice on any device)`;
+    }
+  }).catch((err) => {
+    // Reduce noise for expected errors (404, no support, abort from rapid navigation)
+    if (err.name !== 'NotSupportedError' && err.name !== 'AbortError') {
+      console.log('[AudioLoop] Could not play embedded audio:', err);
+    }
+    fallback();
+  });
+}
+
+/**
+ * Export helper: Collects the current spoken text for every listening item
+ * (exactly as the loop would synthesize it) along with suggested filenames.
+ * 
+ * This makes pre-generated site-hosted audio practical even when content changes.
+ * 
+ * Usage:
+ * 1. Click the button (or call this in console).
+ * 2. Copy the output into a text file or TTS tool.
+ * 3. Generate MP3s using your preferred consistent voice (macOS: `say -v Karen`, ElevenLabs, etc.).
+ * 4. Save as audio/loops/<filename>.mp3
+ * 5. The site will automatically use the MP3s when present (see playLoopItemAudio).
+ * 
+ * Only needs re-running when you edit LISTENING_DATA or the build logic in buildListeningPool.
+ */
+function exportListeningTextsForTTS() {
+  const groups = ['group1', 'group2', 'group3'];
+  let output = '=== LISTENING AUDIO GENERATION EXPORT ===\n';
+  output += 'Generate each item with your chosen premium voice (e.g. macOS Karen at 0.85x).\n';
+  output += 'Save files to: audio/loops/<suggested-filename>.mp3\n\n';
+
+  groups.forEach(groupKey => {
+    // Build the pool exactly as the live code does
+    const pool = buildListeningPool(groupKey); // re-use the existing function
+
+    output += `\n--- GROUP: ${groupKey} (${pool.length} items) ---\n`;
+
+    pool.forEach((item, idx) => {
+      // Rebuild the exact spoken text the same way playNextAudioItem does
+      let spokenText = item.title + ". ";
+
+      if (item.overview) {
+        spokenText += item.overview + " ";
+      }
+
+      if (item.whyItMatters && isMeaningfulText(item.whyItMatters)) {
+        spokenText += "Why this matters: " + item.whyItMatters + " ";
+      }
+
+      if (item.commonMisconceptions && isMeaningfulText(item.commonMisconceptions, 18)) {
+        spokenText += "A common misconception is that " + item.commonMisconceptions + " ";
+      }
+
+      const goodKeyPoints = (item.keyPoints || []).filter(p => isMeaningfulText(p, 15));
+      if (goodKeyPoints.length > 0) {
+        spokenText += "Key things to remember: ";
+        goodKeyPoints.forEach((point, i) => {
+          spokenText += (i + 1) + ". " + point + ". ";
+        });
+      }
+
+      const filename = `${item.id}.mp3`;
+      output += `\n[${idx + 1}] Suggested file: audio/loops/${filename}\n`;
+      output += `TEXT TO SYNTHESIZE:\n${spokenText.trim()}\n`;
+      output += '---\n';
+    });
+  });
+
+  // Show in a nice way
+  const blob = new Blob([output], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'listening-audio-texts-for-tts.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  // Also log to console for easy copy
+  console.log('%c[ADF Forge] Listening texts exported to file + console below', 'color: limegreen');
+  console.log(output);
+
+  // Optional: also copy the whole thing to clipboard for convenience
+  navigator.clipboard?.writeText(output).catch(() => {});
 }
 
 function pauseAudioLoop() {
@@ -2351,7 +2595,12 @@ function pauseAudioLoop() {
   // Capture where we are in the current item so we can resume exactly there
   audioLoopPausedAtChunk = currentChunkIndex;
 
-  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  if (currentLoopAudio) {
+    currentLoopAudio.pause();
+  } else if (window.speechSynthesis) {
+    window.speechSynthesis.cancel();
+  }
+
   if (audioLoopTimeout) {
     clearTimeout(audioLoopTimeout);
     audioLoopTimeout = null;
@@ -2368,8 +2617,14 @@ function resumeAudioLoop() {
   document.getElementById('audio-pause-btn').style.display = 'inline-block';
   document.getElementById('audio-resume-btn').style.display = 'none';
 
+  if (currentLoopAudio) {
+    // Resume embedded audio file (position is preserved automatically)
+    currentLoopAudio.play().catch(() => {});
+    return;
+  }
+
   if (audioLoopCurrentItem && audioLoopPausedAtChunk >= 0) {
-    // Resume the *same* item from the exact chunk we paused at
+    // Resume the *same* item from the exact chunk we paused at (synthesis fallback)
     const item = audioLoopCurrentItem;
     const startChunk = audioLoopPausedAtChunk;
 
@@ -2391,7 +2646,7 @@ function resumeAudioLoop() {
     const resumeChunk = audioLoopPausedAtChunk;
     audioLoopPausedAtChunk = -1;
 
-    // Speak starting from the saved chunk
+    // Speak starting from the saved chunk (synthesis)
     speakAudioLoopText(spokenText, () => {
       // After this item finishes, go back to normal random loop
       if (audioLoopActive && !audioLoopPaused) {
@@ -2419,7 +2674,10 @@ function skipAudioItem() {
     audioLoopTimeout = null;
   }
 
-  if (window.speechSynthesis) {
+  if (currentLoopAudio) {
+    currentLoopAudio.pause();
+    currentLoopAudio = null;
+  } else if (window.speechSynthesis) {
     window.speechSynthesis.cancel();
   }
 
@@ -2442,7 +2700,11 @@ function stopAudioLearningLoop() {
     clearTimeout(audioLoopTimeout);
     audioLoopTimeout = null;
   }
-  if (window.speechSynthesis) {
+
+  if (currentLoopAudio) {
+    currentLoopAudio.pause();
+    currentLoopAudio = null;
+  } else if (window.speechSynthesis) {
     window.speechSynthesis.cancel();
   }
 
@@ -2653,6 +2915,40 @@ function buildListeningPool(groupKey) {
       });
     }
   }
+
+  // Enrich listening items with images from the main data sources when the curated entry
+  // didn't include one (or id alias like m1a1 vs abrams in ARMY data).
+  // This makes study tools / audio loop cards show the proper photos consistently.
+  const idToImg = {};
+  // From AIRCRAFT, NAVY, ARMY, WEAPONS
+  const mainSources = [
+    (typeof AIRCRAFT !== 'undefined' ? AIRCRAFT : []),
+    (typeof NAVY !== 'undefined' ? NAVY : []),
+    (typeof ARMY !== 'undefined' ? ARMY : []),
+    (typeof WEAPONS !== 'undefined' ? WEAPONS : [])
+  ];
+  mainSources.forEach(arr => {
+    (arr || []).forEach(item => {
+      if (item && item.id && item.img && !idToImg[item.id]) {
+        idToImg[item.id] = item.img;
+      }
+    });
+  });
+  // Special alias for Abrams (main data uses "abrams", listening sometimes uses "m1a1")
+  if (idToImg['abrams'] && !idToImg['m1a1']) idToImg['m1a1'] = idToImg['abrams'];
+  // Also from BASES (object) for group1
+  if (typeof BASES !== 'undefined' && BASES) {
+    Object.keys(BASES).forEach(k => {
+      const b = BASES[k];
+      if (b && b.img && !idToImg[k]) idToImg[k] = b.img;
+    });
+  }
+
+  pool.forEach(entry => {
+    if (entry && !entry.img && entry.id && idToImg[entry.id]) {
+      entry.img = idToImg[entry.id];
+    }
+  });
 
   // Safety net: if for some reason the pool is empty (or very small), provide a decent fallback
   // so the loop can start and the user isn't blocked.
@@ -3037,7 +3333,7 @@ function showMaritimeDetail(id) {
 
   document.getElementById('modalInner').innerHTML = `
     <div class="modal-hero">
-      <img src="${vessel.img}" alt="${vessel.name}" loading="lazy">
+      ${getCardMediaHTML(vessel.img, vessel.name)}
       <div class="modal-hero-overlay"></div>
       <div class="modal-hero-text">
         <div class="modal-desig">${wrapGlossaryTerms(vessel.desig)} · ${wrapGlossaryTerms(vessel.typeName)}</div>
@@ -3136,9 +3432,11 @@ function buildVehiclesGrid() {
     html += `<div class="aircraft-section-header"><h3>Australian Army - Ground Vehicles</h3></div>`;
     html += `<div class="vehicles-category-grid">`;
     html += groundVehicles.map(v => `
-      <div class="fleet-card" id="army-${v.id}" data-detail-id="${v.id}">
+      <div class="fleet-card will-reveal" id="army-${v.id}" data-detail-id="${v.id}">
         <div class="fleet-img-wrap">
-          ${v.img ? `<img src="${v.img}" alt="${v.name}" loading="lazy">` : `<div style="height:140px; background:var(--navy-mid); display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:13px;">Photo coming soon</div>`}
+          ${v.img 
+            ? getCardMediaHTML(v.img, v.name)
+            : `<div style="height:140px; background:var(--navy-mid); display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:13px;">Photo coming soon</div>`}
           <span class="fleet-type-badge">${v.typeName}</span>
         </div>
         <div class="fleet-card-body">
@@ -3160,9 +3458,11 @@ function buildVehiclesGrid() {
     html += `<div class="aircraft-section-header"><h3>Army Aviation - Helicopters</h3></div>`;
     html += `<div class="vehicles-category-grid">`;
     html += armyAviation.map(v => `
-      <div class="fleet-card" id="army-${v.id}" data-detail-id="${v.id}">
+      <div class="fleet-card will-reveal" id="army-${v.id}" data-detail-id="${v.id}">
         <div class="fleet-img-wrap">
-          ${v.img ? `<img src="${v.img}" alt="${v.name}" loading="lazy">` : `<div style="height:140px; background:var(--navy-mid); display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:13px;">Photo coming soon</div>`}
+          ${v.img 
+            ? getCardMediaHTML(v.img, v.name)
+            : `<div style="height:140px; background:var(--navy-mid); display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:13px;">Photo coming soon</div>`}
           <span class="fleet-type-badge">Army Aviation</span>
         </div>
         <div class="fleet-card-body">
@@ -3184,9 +3484,11 @@ function buildVehiclesGrid() {
     html += `<div class="aircraft-section-header threat"><h3>Adversary Army Vehicles (China / Russia)</h3></div>`;
     html += `<div class="vehicles-category-grid">`;
     html += advData.map(v => `
-      <div class="fleet-card" id="adv-vehicle-${v.id}" data-detail-id="${v.id}">
+      <div class="fleet-card will-reveal" id="adv-vehicle-${v.id}" data-detail-id="${v.id}">
         <div class="fleet-img-wrap">
-          ${v.img ? `<img src="${v.img}" alt="${v.name}" loading="lazy">` : `<div style="height:140px; background:var(--navy-mid); display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:13px;">Photo coming soon</div>`}
+          ${v.img 
+            ? getCardMediaHTML(v.img, v.name)
+            : `<div style="height:140px; background:var(--navy-mid); display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:13px;">Photo coming soon</div>`}
           <span class="fleet-type-badge badge-adversary">${v.typeName}</span>
         </div>
         <div class="fleet-card-body">
@@ -3216,6 +3518,10 @@ function updateHeroStats() {
     const basesEl = document.getElementById('stat-bases');
     if (basesEl && typeof BASES !== 'undefined' && BASES) {
       basesEl.textContent = Object.keys(BASES).length;
+    }
+    const opsEl = document.getElementById('stat-operations');
+    if (opsEl && typeof OPERATIONS !== 'undefined' && Array.isArray(OPERATIONS)) {
+      opsEl.textContent = OPERATIONS.length;
     }
     const glossEl = document.getElementById('stat-glossary');
     if (glossEl && typeof GLOSSARY !== 'undefined' && Array.isArray(GLOSSARY)) {
@@ -3248,9 +3554,11 @@ function buildNavyGrid() {
       const tags = (v.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
       const role = wrapGlossaryTerms(v.tagline || '');
       return `
-        <div class="fleet-card" id="maritime-${v.id}" data-detail-id="${v.id}">
+        <div class="fleet-card will-reveal" id="maritime-${v.id}" data-detail-id="${v.id}">
           <div class="fleet-img-wrap">
-            ${v.img ? `<img src="${v.img}" alt="${v.name}" loading="lazy">` : `<div style="height:140px; background:var(--navy-mid); display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:13px;">Photo coming soon</div>`}
+            ${v.img 
+              ? getCardMediaHTML(v.img, v.name)
+              : `<div style="height:140px; background:var(--navy-mid); display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:13px;">Photo coming soon</div>`}
             <span class="fleet-type-badge${badgeClass}">${badgeText}</span>
           </div>
           <div class="fleet-card-body">
@@ -3443,7 +3751,7 @@ function showVehicleDetail(id) {
 
   const heroHTML = (v.img && v.img.trim() !== '') ? `
     <div class="modal-hero">
-      <img src="${v.img}" alt="${v.name}" loading="lazy">
+      ${getCardMediaHTML(v.img, v.name)}
       <div class="modal-hero-overlay"></div>
       <div class="modal-hero-text">
         <div class="modal-desig">${wrapGlossaryTerms(v.desig)} · ${wrapGlossaryTerms(v.typeName)}</div>
@@ -3501,7 +3809,7 @@ function showAdversaryVehicleDetail(id) {
 
   const heroHTML = (v.img && v.img.trim() !== '') ? `
     <div class="modal-hero">
-      <img src="${v.img}" alt="${v.name}" loading="lazy">
+      ${getCardMediaHTML(v.img, v.name)}
       <div class="modal-hero-overlay"></div>
       <div class="modal-hero-text">
         <div class="modal-desig">${wrapGlossaryTerms(v.desig)} · ${wrapGlossaryTerms(v.typeName)}</div>
@@ -3812,7 +4120,7 @@ function showAdversaryDetail(id) {
 
   document.getElementById('modalInner').innerHTML = `
     <div class="modal-hero">
-      <img src="${ac.img}" alt="${ac.name}" loading="lazy">
+      ${getCardMediaHTML(ac.img, ac.name)}
       <div class="modal-hero-overlay"></div>
       <div class="modal-hero-text">
         <div class="modal-desig">${wrapGlossaryTerms(ac.desig)} · ${wrapGlossaryTerms(ac.origin)}</div>
@@ -4677,56 +4985,6 @@ function updatePositionLayerControls() {
   ctrls.style.display = (googleDiv && googleDiv.style.display !== 'none' && opsGoogleMap) ? 'block' : 'none';
 }
 
-// ── THEME SWITCHER ────────────────────────────────────────────
-const THEMES = ['default', 'midnight', 'light'];
-const THEME_NAMES = {
-  'default': 'Default',
-  'midnight': 'Midnight',
-  'light': 'Light'
-};
-
-function setTheme(theme) {
-  if (!THEMES.includes(theme)) theme = 'default';
-
-  document.documentElement.setAttribute('data-theme', theme);
-  localStorage.setItem('raaf-theme', theme);
-
-  // Update label
-  const nameEl = document.getElementById('currentThemeName');
-  if (nameEl) nameEl.textContent = THEME_NAMES[theme] || 'Default';
-}
-
-function cycleTheme() {
-  const current = document.documentElement.getAttribute('data-theme') || 'default';
-  const currentIndex = THEMES.indexOf(current);
-  const nextIndex = (currentIndex + 1) % THEMES.length;
-  const nextTheme = THEMES[nextIndex];
-
-  setTheme(nextTheme);
-}
-
-function initThemeSwitcher() {
-  // Load saved theme or default
-  const saved = localStorage.getItem('raaf-theme') || 'default';
-  setTheme(saved);
-
-  // Attach click handler
-  const toggleBtn = document.getElementById('themeToggle');
-  if (toggleBtn) {
-    toggleBtn.addEventListener('click', cycleTheme);
-  }
-
-  // Optional: keyboard support (T key cycles theme when not typing)
-  document.addEventListener('keydown', (e) => {
-    if (e.key.toLowerCase() === 't' && 
-        document.activeElement.tagName !== 'INPUT' && 
-        document.activeElement.tagName !== 'TEXTAREA') {
-      e.preventDefault();
-      cycleTheme();
-    }
-  });
-}
-
 // ── SAFE CARD CLICK HANDLERS (event delegation - no inline onclick) ──
 // Avoids fragility with inline onclick= attributes (e.g. under MetaMask SES lockdown
 // or extensions that interfere with HTML attribute handlers).
@@ -4799,6 +5057,110 @@ function initCardClickHandlers() {
   }
 }
 
+function initCardAnimations() {
+  const cards = document.querySelectorAll('.aircraft-card, .fleet-card');
+  if (!cards.length) return;
+
+  // Set initial hidden state (prevents flash of visible content)
+  cards.forEach(card => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(40px) scale(0.96)';
+  });
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, index) => {
+      if (entry.isIntersecting) {
+        const card = entry.target;
+        // Stagger the reveals
+        setTimeout(() => {
+          card.style.transition = 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0) scale(1)';
+          // Start video inside this card (if any) now that the card is visually revealed
+          ensureCardVideosPlay(card);
+        }, index * 50);
+
+        observer.unobserve(card);
+      }
+    });
+  }, {
+    threshold: 0.15,
+    rootMargin: '0px 0px -80px 0px'
+  });
+
+  cards.forEach(card => observer.observe(card));
+
+  // For cards already in view on load, reveal immediately with stagger
+  setTimeout(() => {
+    const visibleCards = Array.from(cards).filter(card => {
+      const rect = card.getBoundingClientRect();
+      return rect.top < window.innerHeight && rect.bottom > 0;
+    });
+    visibleCards.forEach((card, index) => {
+      setTimeout(() => {
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0) scale(1)';
+        // Start video inside this card (if any) now that the card is visually revealed
+        ensureCardVideosPlay(card);
+      }, index * 50);
+    });
+  }, 100);
+}
+
+function ensureCardVideosPlay(root = document) {
+  // Stronger video starter for cards (now with poster support for instant still frame).
+  // Called right after we force the parent card to visible (opacity 1) + after paint.
+  // Includes retries because some browsers (esp. Safari) are picky about when muted video can start.
+  const vids = root.querySelectorAll ? root.querySelectorAll('.aircraft-img-wrap video, .fleet-img-wrap video') : [];
+  vids.forEach((vid) => {
+    try {
+      vid.muted = true;
+      vid.loop = true;
+      vid.playsInline = true;
+      vid.setAttribute('webkit-playsinline', 'true');
+      vid.style.width = '100%';
+      vid.style.height = '100%';
+      vid.style.objectFit = 'cover';
+      vid.style.display = 'block';
+
+      if (typeof vid.load === 'function') vid.load();
+
+      const tryPlay = (attempt = 0) => {
+        if (attempt > 4) return;
+        if (!vid.paused) return;
+        const p = vid.play();
+        if (p && typeof p.then === 'function') {
+          p.then(() => {
+            // playing
+          }).catch(() => {
+            // retry after short delay
+            setTimeout(() => tryPlay(attempt + 1), 150 + attempt * 100);
+          });
+        } else if (vid.paused) {
+          setTimeout(() => tryPlay(attempt + 1), 150 + attempt * 100);
+        }
+      };
+
+      vid.currentTime = 0;
+      tryPlay();
+
+      // Safety net listeners
+      vid.addEventListener('canplay', function once() {
+        vid.removeEventListener('canplay', once);
+        vid.currentTime = 0;
+        tryPlay();
+      }, { once: true });
+
+      vid.addEventListener('loadeddata', function once() {
+        vid.removeEventListener('loadeddata', once);
+        vid.currentTime = 0;
+        tryPlay();
+      }, { once: true });
+    } catch (e) {}
+  });
+}
+
 // ── INIT ──────────────────────────────────────────────────────
 // Wrap grid builders so a bad data shape / missing field in one area never prevents
 // the main nav links and home feature cards from becoming clickable.
@@ -4813,10 +5175,28 @@ try { buildSpaceGrid(); } catch (e) { console.error('[ADF Forge] buildSpaceGrid 
 try { updateHeroStats(); } catch (e) { console.error('[ADF Forge] updateHeroStats failed:', e); }
 try { initCalibToggle(); } catch (e) { console.error('[ADF Forge] initCalibToggle failed:', e); }
 try { initStudyTools(); } catch (e) { console.error('[ADF Forge] initStudyTools failed:', e); }
-try { initThemeSwitcher(); } catch (e) { console.error('[ADF Forge] initThemeSwitcher failed:', e); }
 
 initMainNavigation();
 initCardClickHandlers();
+
+initCardAnimations();
+ensureCardVideosPlay();
+
+// Extra safety: after everything is built, kick video playback for any cards that are
+// already in a visible section (e.g. direct deep link to #navy or #army on reload).
+setTimeout(() => {
+  const activeSection = document.querySelector('section.active');
+  if (activeSection) {
+    const cards = activeSection.querySelectorAll('.aircraft-card, .fleet-card');
+    if (cards.length) {
+      cards.forEach(c => {
+        if (getComputedStyle(c).opacity !== '0') {
+          ensureCardVideosPlay(c);
+        }
+      });
+    }
+  }
+}, 250);
 
 // ============================================
 // TEXT READER / LISTEN FEATURE (cleaned)
@@ -4911,6 +5291,11 @@ function forceLoadVoices(callback) {
     } catch (e) {}
     if ((readerVoices && readerVoices.length > 0) || attempts >= maxAttempts) {
       audioLoopVoicesLoaded = true;
+      if (readerVoices && readerVoices.length > 0) {
+        // Prime the engine as soon as we have a list (helps first real speak produce sound)
+        const best = getBestVoiceFromSelect() || getAudioLoopVoice();
+        primeSpeechEngine(best, readerRate || 0.85);
+      }
       if (typeof callback === 'function') callback();
       return;
     }
@@ -4961,9 +5346,14 @@ function initTextReader() {
   if (speedInput) speedInput.value = String(readerRate);
   if (speedVal) speedVal.textContent = readerRate.toFixed(2) + '×';
 
-  // Sync badge on init — Karen is now the preferred default voice site-wide
+  // Sync badge on init — show the actual best / user-chosen voice name
+  // (falls back to "Karen" in the label only as a friendly default mention)
   const badge = document.querySelector('.reader-voice-badge');
-  if (badge) badge.textContent = `Karen • ${readerRate.toFixed(2)}×`;
+  if (badge) {
+    const best = getBestVoiceFromSelect();
+    const voiceName = best ? best.name.split(' ')[0] : 'Karen';
+    badge.textContent = `${voiceName} • ${readerRate.toFixed(2)}×`;
+  }
 
   window.speechSynthesis.onvoiceschanged = () => {
     populateVoiceSelect();
@@ -4994,13 +5384,26 @@ function populateVoiceSelect() {
 }
 
 function getBestVoiceFromSelect() {
-  // Smart picker used by the floating reader AND as fallback for audio loops.
-  // Prefers Karen (premium AU voice) as the new site-wide default, then other high-quality natural voices.
-  // Works across Safari, Firefox, and Chrome.
+  // Central voice picker for the whole site (Read Aloud + Study Loops).
+  // 1. User explicit choice (from the Voice dropdown) takes priority.
+  // 2. Otherwise strongly prefer Karen (any quality level the device has).
+  // 3. Then other good natural voices.
+  // 4. Finally any English voice so the feature never fails on any device.
+  // This ensures graceful behaviour on iPhone, Android, Windows, and macOS
+  // even when the visitor has not installed premium voices.
   const voices = getFreshVoices();
   if (!voices || voices.length === 0) return null;
 
-  // 1. Karen (premium) — user's requested default for the whole site
+  // 1. User chose a specific voice in the Study Tools dropdown → use it everywhere
+  if (typeof audioLoopVoiceName !== 'undefined' && audioLoopVoiceName) {
+    let exact = voices.find(v => v.name === audioLoopVoiceName);
+    if (exact) return exact;
+    let fuzzy = voices.find(v => v.name.toLowerCase().includes(audioLoopVoiceName.toLowerCase().slice(0, 8)));
+    if (fuzzy) return fuzzy;
+  }
+
+  // 2. Karen (Premium / Enhanced / Standard — any variant the device offers)
+  // This is the requested site default.
   let v = voices.find(v => /karen/i.test(v.name));
   if (v) return v;
 
@@ -5070,7 +5473,7 @@ function populateAudioVoiceSelect() {
   // Clear and rebuild
   select.innerHTML = '';
 
-  // Option 0: Auto best (recommended) — now defaults to Karen (premium) site-wide
+  // Option 0: Auto best (recommended) — uses smart logic preferring Karen Premium
   const autoOpt = document.createElement('option');
   autoOpt.value = '';
   autoOpt.textContent = '★ Best available (Karen preferred)';
@@ -5089,32 +5492,63 @@ function populateAudioVoiceSelect() {
     return;
   }
 
-  // Add all English voices (and a few others) with nice labels
+  // Curated top voices — max ~5 options total (Best + up to 4 specific).
+  // These are the highest quality, most natural voices commonly available.
+  // Karen Premium is always prioritized when present.
+  // List stays short no matter how many voices the device reports.
+  const preferred = [
+    { regex: /karen/i, suffix: ' ★ premium' },
+    { regex: /samantha/i, suffix: ' ★ natural' },
+    { regex: /tara/i, suffix: ' ★ best' },
+    { regex: /siri|google.*(female|uk|us)|microsoft.*(hazel|zira|karen)/i, suffix: '' }
+  ];
+
   const seen = new Set();
-  voices.forEach(v => {
-    const lang = (v.lang || 'unknown').toUpperCase();
-    const name = v.name || 'Unknown voice';
+  let added = 0;
+  const maxSpecific = 4; // + the Best option = 5 max
 
-    // Prefer English voices, but show others too so the user has full choice
-    const key = name + '|' + lang;
-    if (seen.has(key)) return;
-    seen.add(key);
-
-    const opt = document.createElement('option');
-    opt.value = name;
-
-    let label = name;
-    if (lang && lang !== 'UNKNOWN') {
-      label += ` (${lang})`;
+  for (let pref of preferred) {
+    if (added >= maxSpecific) break;
+    for (let v of voices) {
+      if (added >= maxSpecific) break;
+      const name = v.name || '';
+      const lang = (v.lang || 'unknown').toUpperCase();
+      const key = name + '|' + lang;
+      if (seen.has(key)) continue;
+      if (pref.regex.test(name) || pref.regex.test(name + ' ' + lang)) {
+        seen.add(key);
+        const opt = document.createElement('option');
+        opt.value = name;
+        let label = name;
+        if (lang && lang !== 'UNKNOWN') label += ` (${lang})`;
+        if (pref.suffix) label += pref.suffix;
+        opt.textContent = label;
+        select.appendChild(opt);
+        added++;
+      }
     }
-    // Mark the really good ones — Karen is now the site-wide premium default
-    if (/karen/i.test(name)) label += ' ★ premium';
-    else if (/tara/i.test(name)) label += ' ★ best';
-    else if (/samantha/i.test(name)) label += ' ★ natural';
+  }
 
-    opt.textContent = label;
-    select.appendChild(opt);
-  });
+  // If we didn't find enough good matches, add a couple more solid English voices as last resort
+  if (added < maxSpecific) {
+    voices.forEach(v => {
+      if (added >= maxSpecific) return;
+      const name = v.name || '';
+      const lang = (v.lang || 'unknown').toUpperCase();
+      const key = name + '|' + lang;
+      if (seen.has(key)) return;
+      if (/english|en-/i.test(lang) && !/karen|samantha|tara|siri|google|microsoft/i.test(name)) {
+        seen.add(key);
+        const opt = document.createElement('option');
+        opt.value = name;
+        let label = name;
+        if (lang && lang !== 'UNKNOWN') label += ` (${lang})`;
+        opt.textContent = label;
+        select.appendChild(opt);
+        added++;
+      }
+    });
+  }
 
   // Restore previous selection
   if (previousValue) {
@@ -5135,6 +5569,24 @@ function populateAudioVoiceSelect() {
 
   // Update a small hint
   updateAudioVoiceHint();
+
+  // Show helpful installation guidance for Apple users when a good Karen isn't available
+  tryShowKarenInstallHint(voices);
+}
+
+function tryShowKarenInstallHint(voices) {
+  const hintEl = document.getElementById('karen-install-hint');
+  if (!hintEl) return;
+
+  const hasKaren = voices && voices.some(v => /karen/i.test(v.name));
+  const isApple = /Mac|iPhone|iPad|iPod/.test(navigator.platform) || 
+                  /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
+
+  if (!hasKaren && isApple) {
+    hintEl.style.display = 'block';
+  } else {
+    hintEl.style.display = 'none';
+  }
 }
 
 function updateAudioVoiceHint() {
@@ -5174,6 +5626,16 @@ function setAudioLoopVoice(name) {
   }
 
   updateAudioVoiceHint();
+
+  // Refresh reader badge immediately so the choice is visible everywhere
+  const badge = document.querySelector('.reader-voice-badge');
+  if (badge) {
+    const best = getBestVoiceFromSelect();
+    const voiceName = best ? best.name.split(' ')[0] : 'Karen';
+    const rateMatch = badge.textContent.match(/([0-9.]+)×/);
+    const rateStr = rateMatch ? rateMatch[0] : `${readerRate.toFixed(2)}×`;
+    badge.textContent = `${voiceName} • ${rateStr}`;
+  }
 
   // If a loop is currently speaking, the new voice will be used on the next item.
   // We could also restart the current utterance, but that can be jarring — we keep it simple.
@@ -5274,6 +5736,67 @@ function refreshAudioVoices() {
   setTimeout(doWarmupAndPopulate, 30);
 }
 
+function testAudioVoice() {
+  const select = document.getElementById('audio-voice-select');
+  const chosenName = select ? select.value : null;
+
+  const synth = window.speechSynthesis;
+  if (!synth) {
+    alert('Speech not supported in this browser.');
+    return;
+  }
+
+  // Make sure we have the latest voices
+  ensureVoicesListener();
+  try { synth.getVoices(); } catch (e) {}
+
+  let voice = null;
+  const voices = getFreshVoices();
+
+  if (chosenName) {
+    voice = voices.find(v => v.name === chosenName);
+  }
+  if (!voice) {
+    voice = getAudioLoopVoice() || getBestVoiceFromSelect();
+  }
+
+  // Prime first (helps on stubborn setups)
+  primeSpeechEngine(voice, readerRate || 0.85);
+
+  // Speak a clear, short, memorable test sentence at the current rate
+  setTimeout(() => {
+    try {
+      synth.cancel();
+      const testText = 'This is a voice test. Karen or the best available voice at ' + (readerRate || 0.85).toFixed(2) + ' times speed.';
+      const u = new SpeechSynthesisUtterance(testText);
+      if (voice) {
+        u.voice = voice;
+        if (voice.lang) u.lang = voice.lang;
+      } else {
+        u.lang = 'en-AU';
+      }
+      u.rate = readerRate || 0.85;
+      u.pitch = 1.0;
+      u.volume = 0.96;
+
+      u.onend = () => {
+        console.log('[VoiceTest] test utterance completed');
+      };
+      u.onerror = (e) => {
+        console.warn('[VoiceTest] error during test speak', e);
+      };
+
+      synth.speak(u);
+      console.log('[VoiceTest] speaking test with', voice ? voice.name : 'system default', 'rate', u.rate);
+
+      // If the voice picker is empty-ish, repopulate after this speak (often unlocks more)
+      setTimeout(() => { try { populateAudioVoiceSelect(); } catch (e) {} }, 400);
+    } catch (err) {
+      console.error('[VoiceTest] failed to speak test', err);
+    }
+  }, 80);
+}
+
 // Ensure the voiceschanged listener is attached (Firefox is pickier about this timing)
 function ensureVoicesListener() {
   const synth = window.speechSynthesis;
@@ -5292,6 +5815,36 @@ function ensureVoicesListener() {
 
 // Load saved audio voice preference early
 loadAudioLoopVoice();
+
+// Prime the speechSynthesis engine with a near-silent short utterance.
+// This is the most reliable way to wake up the Web Speech API on macOS/Chrome/Safari
+// so that subsequent real utterances actually produce audio. Call this right before
+// the first real speak after a user gesture.
+function primeSpeechEngine(voice = null, rate = 0.85) {
+  const synth = window.speechSynthesis;
+  if (!synth) return;
+  try {
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance('.');
+    if (voice) {
+      u.voice = voice;
+      if (voice.lang) u.lang = voice.lang;
+    } else {
+      u.lang = 'en-AU';
+    }
+    u.rate = rate;
+    u.pitch = 1.0;
+    u.volume = 0.01; // almost silent prime — just enough to initialize the audio path
+    synth.speak(u);
+    // Cancel quickly so the user doesn't hear a click/pop. The important part is that
+    // the engine has been asked to speak once after a user gesture.
+    setTimeout(() => {
+      try { synth.cancel(); } catch (e) {}
+    }, 140);
+  } catch (e) {
+    // Non-fatal
+  }
+}
 
 function updateReaderSectionLabel(sectionId) {
   const nameEl = document.getElementById('reader-section-name');
@@ -5420,7 +5973,7 @@ function speakNextChunk() {
   const chunk = currentTextChunks[currentChunkIndex];
   if (!chunk || chunk.length < 4) {
     currentChunkIndex++;
-    speakNextChunk();
+    setTimeout(() => speakNextChunk(), 5);  // avoid deep sync recursion
     return;
   }
 
@@ -5441,7 +5994,10 @@ function speakNextChunk() {
     }
     currentChunkIndex++;
     updateProgressUI();
-    speakNextChunk();
+    // Give the previous utterance's audio a moment to fully finish before starting the next chunk.
+    // This prevents overlapping speech (e.g. title + body) on Firefox and avoids instant recursion in emulations.
+    const interChunkDelay = /firefox/i.test(navigator.userAgent) ? 180 : 80;
+    setTimeout(() => speakNextChunk(), interChunkDelay);
   };
 
   utterance.onerror = () => {
@@ -5450,15 +6006,19 @@ function speakNextChunk() {
     }
     currentChunkIndex++;
     updateProgressUI();
-    speakNextChunk();
+    setTimeout(() => speakNextChunk(), 15);
   };
 
   currentUtterance = utterance;
 
   // The cancel + tiny delay + speak pattern is the most reliable cross-browser workaround
   // for the Web Speech API state machine (especially after pause/resume or voice changes).
+  // Use longer delay on Firefox to reduce risk of overlapping utterances.
+  const speakDelay = /firefox/i.test(navigator.userAgent) ? 80 : 25;
   setTimeout(() => {
     try {
+      const v = utterance.voice ? utterance.voice.name : 'system-default';
+      console.log('[Reader] speaking chunk with voice:', v, 'rate:', utterance.rate);
       window.speechSynthesis.cancel();
       window.speechSynthesis.speak(utterance);
       if (window.speechSynthesis.paused) window.speechSynthesis.resume();
@@ -5466,7 +6026,7 @@ function speakNextChunk() {
       currentChunkIndex++;
       speakNextChunk();
     }
-  }, 18);
+  }, speakDelay);
 }
 
 function startReadingCurrentSection() {
@@ -5490,7 +6050,16 @@ function startReadingCurrentSection() {
   updateReaderSectionLabel(sectionId);
   updateReaderPlayPauseUI();
   updateProgressUI();   // show 0% initially
-  speakNextChunk();
+
+  // No automatic prime here anymore (prevents potential overlap with the real speak on some browsers).
+  // Users can use the "Test" button in study tools to wake voices if needed.
+
+  // Extra ensure for Firefox (and to unlock voices on first reader use)
+  ensureVoicesListener();
+  try { if (window.speechSynthesis) window.speechSynthesis.getVoices(); } catch (e) {}
+
+  // Small delay before first chunk to let cancel settle (consistent with loop path, helps Firefox).
+  setTimeout(() => speakNextChunk(), 30);
 }
 
 function startReadingCurrentDetail() {
@@ -5669,6 +6238,10 @@ function playOrResumeCurrentSection() {
     return;
   }
 
+  // Extra ensure for Firefox and to make sure voices are ready before speaking.
+  ensureVoicesListener();
+  try { if (window.speechSynthesis) window.speechSynthesis.getVoices(); } catch (e) {}
+
   // If we already have chunks from a previous play (even after Stop), resume from current position
   if (currentTextChunks.length > 0 && currentChunkIndex < currentTextChunks.length) {
     isSpeaking = true;
@@ -5795,9 +6368,13 @@ function updateSpeechRate(inputEl) {
   const valEl = document.getElementById('reader-speed-val');
   if (valEl) valEl.textContent = newRate.toFixed(2) + '×';
 
-  // Update badge rate if visible
+  // Update badge rate if visible (keep current voice name if possible)
   const badge = document.querySelector('.reader-voice-badge');
-  if (badge) badge.textContent = `Tara • ${newRate.toFixed(2)}×`;
+  if (badge) {
+    const currentText = badge.textContent || '';
+    const voicePart = currentText.split(' • ')[0] || 'Karen';
+    badge.textContent = `${voicePart} • ${newRate.toFixed(2)}×`;
+  }
 
   // If we're currently speaking, restart the current chunk so the new rate applies immediately
   if (isSpeaking && !isPaused && currentTextChunks.length) {
@@ -5834,7 +6411,11 @@ function toggleReaderPanel() {
 
     // Set badge with current rate
     const badge = document.querySelector('.reader-voice-badge');
-    if (badge) badge.textContent = `Tara • ${readerRate.toFixed(2)}×`;
+    if (badge) {
+      const best = getBestVoiceFromSelect();
+      const voiceName = best ? best.name.split(' ')[0] : 'Karen';
+      badge.textContent = `${voiceName} • ${readerRate.toFixed(2)}×`;
+    }
 
     // If we have a stopped/paused session, show the current progress position
     if (currentTextChunks.length > 0) {
@@ -5897,7 +6478,7 @@ function followReaderToSection(sectionId) {
 // Patch showSection so major nav (feature cards, top nav, etc.) updates the reader if open
 const originalShowSection = window.showSection;
 if (typeof originalShowSection === 'function') {
-  window.showSection = function(id, el) {
+  window.showSection = function(id, el, options) {
     const result = originalShowSection.apply(this, arguments);
     // Only follow with reader if the reader panel is currently visible
     const panel = document.getElementById('reader-panel');

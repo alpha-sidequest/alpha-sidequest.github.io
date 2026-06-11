@@ -359,7 +359,7 @@ const AIRCRAFT = [
     typeName: "5th Gen Fighter",
     category: "Combat",
     tagline: "Australia's primary combat aircraft. A stealthy multirole fighter that blends air-to-air dominance with precision strike capability.",
-    img: "images/f35a.jpg",
+    img: "images/f35a.mp4",
     stats: [
       { k: "Speed", v: "Mach 1.6" },
       { k: "Range", v: "2,220 km" },
@@ -385,7 +385,7 @@ const AIRCRAFT = [
     typeName: "Strike Fighter",
     category: "Combat",
     tagline: "A powerful twin-engine strike fighter. Australia's premier long-range strike platform until F-35A reaches full operational capability.",
-    img: "images/superhornet.jpg",
+    img: "images/superhornet.mp4",
     stats: [
       { k: "Speed", v: "Mach 1.8+" },
       { k: "Range", v: "~2,000 km" },
@@ -410,7 +410,7 @@ const AIRCRAFT = [
     typeName: "Electronic Warfare",
     category: "Airborne Early Warning & Electronic Warfare",
     tagline: "The world's only dedicated airborne electronic attack aircraft. It can shut down enemy radars and communications from the air.",
-    img: "images/growler.jpg",
+    img: "images/growler.mp4",
     stats: [
       { k: "Speed", v: "Mach 1.8" },
       { k: "Range", v: "~2,000 km" },
@@ -435,7 +435,7 @@ const AIRCRAFT = [
     typeName: "Airborne Early Warning",
     category: "Airborne Early Warning & Electronic Warfare",
     tagline: "Australia's airborne command post and radar in the sky. Sees threats hundreds of kilometres away and directs the entire battle.",
-    img: "images/wedgetail.jpg",
+    img: "images/wedgetail.mp4",
     stats: [
       { k: "Speed", v: "Mach 0.85" },
       { k: "Range", v: "~7,000 km" },
@@ -460,7 +460,7 @@ const AIRCRAFT = [
     typeName: "Maritime Patrol",
     category: "Maritime Patrol & ISR",
     tagline: "Australia's maritime guardian. Hunts submarines and surface threats across vast ocean areas in the Indo-Pacific.",
-    img: "images/poseidon.jpg",
+    img: "images/poseidon.mp4",
     stats: [
       { k: "Speed", v: "Mach 0.82" },
       { k: "Range", v: "~8,300 km" },
@@ -485,7 +485,7 @@ const AIRCRAFT = [
     typeName: "Heavy Transport",
     category: "Transport & Air Mobility",
     tagline: "Australia's heavy strategic airlifter — carries tanks, helicopters and hundreds of troops anywhere in the world.",
-    img: "images/c17.jpg",
+    img: "images/c17.mp4",
     stats: [
       { k: "Payload", v: "77,500 kg" },
       { k: "Range", v: "10,400 km" },
@@ -508,7 +508,7 @@ const AIRCRAFT = [
     typeName: "Medium Transport",
     category: "Transport & Air Mobility",
     tagline: "The RAAF's versatile tactical workhorse. Can deliver troops, vehicles, airdrops and humanitarian aid almost anywhere.",
-    img: "images/c130j.jpg",
+    img: "images/c130j.mp4",
     stats: [
       { k: "Payload", v: "19,000 kg" },
       { k: "Range", v: "3,800 km" },
@@ -532,7 +532,7 @@ const AIRCRAFT = [
     typeName: "Battlefield Airlift",
     category: "Transport & Air Mobility",
     tagline: "The 'Magnificent Seven' — a tough, agile battlefield airlifter that can operate from the smallest and roughest airstrips.",
-    img: "images/c27j.jpg",
+    img: "images/c27j.mp4",
     stats: [
       { k: "Payload", v: "9,000 kg" },
       { k: "Range", v: "1,850 km" },
@@ -555,7 +555,7 @@ const AIRCRAFT = [
     typeName: "Air-to-Air Refuelling",
     category: "Air Refuelling",
     tagline: "Extends the range of the entire RAAF fleet. Turns a 2-hour mission into an 8-hour one.",
-    img: "images/kc30a.jpg",
+    img: "images/kc30a.mp4",
     stats: [
       { k: "Fuel Offload", v: "111,000 kg" },
       { k: "Range", v: "14,800 km" },
@@ -577,7 +577,7 @@ const AIRCRAFT = [
     typeName: "Signals Intelligence",
     category: "Maritime Patrol & ISR",
     tagline: "Australia's most secretive airborne intelligence platform — listens to everything, seen by almost no one.",
-    img: "images/peregrine.jpg",
+    img: "images/peregrine.mp4",
     stats: [
       { k: "Type", v: "SIGINT / ISR" },
       { k: "Based on", v: "Gulfstream G550" },
@@ -599,7 +599,7 @@ const AIRCRAFT = [
     typeName: "Advanced Trainer",
     category: "Training",
     tagline: "The RAAF's primary advanced trainer and the foundation of modern Australian military pilot training.",
-    img: "images/pc21.jpg",
+    img: "images/pc21.mp4",
     stats: [
       { k: "Max Speed", v: "370 km/h" },
       { k: "Range", v: "1,200 km" },
@@ -623,7 +623,7 @@ const AIRCRAFT = [
     typeName: "Lead-In Fighter Trainer",
     category: "Training",
     tagline: "Australia's lead-in fighter trainer. The final step before pilots transition to the F-35A or Super Hornet.",
-    img: "images/hawk127.jpg",
+    img: "images/hawk127.mp4",
     stats: [
       { k: "Max Speed", v: "Mach 0.88" },
       { k: "Range", v: "2,000 km" },
@@ -647,7 +647,7 @@ const AIRCRAFT = [
     typeName: "Utility / Navigation Trainer",
     category: "Training",
     tagline: "The RAAF's multi-role light transport and advanced navigation trainer, supporting both training and real-world tasks.",
-    img: "images/kingair.jpg",
+    img: "images/kingair.mp4",
     stats: [
       { k: "Max Speed", v: "560 km/h" },
       { k: "Range", v: "2,500 km" },
@@ -670,7 +670,7 @@ const AIRCRAFT = [
     typeName: "VIP Transport",
     category: "VIP & Special Mission",
     tagline: "The RAAF's long-range VIP jet used to fly the Prime Minister and senior officials around the world.",
-    img: "images/bbj.jpg",
+    img: "images/bbj.mp4",
     stats: [
       { k: "Range", v: "10,000+ km" },
       { k: "Speed", v: "Mach 0.82" },
@@ -693,7 +693,7 @@ const AIRCRAFT = [
     typeName: "VIP Transport",
     category: "VIP & Special Mission",
     tagline: "The RAAF's fast, long-range trijet used for VIP and government transport missions.",
-    img: "images/falcon7x.jpg",
+    img: "images/falcon7x.mp4",
     stats: [
       { k: "Range", v: "11,000 km" },
       { k: "Speed", v: "Mach 0.88" },
@@ -716,7 +716,7 @@ const AIRCRAFT = [
     typeName: "Heavy-Lift Helicopter",
     category: "Rotary Wing",
     tagline: "RAAF's only heavy-lift helicopter. The workhorse that moves M1 Abrams tanks, artillery, troops and disaster relief supplies when nothing else can.",
-    img: "images/chinook.jpg",
+    img: "images/chinook.mp4",
     stats: [
       { k: "Speed", v: "315 km/h" },
       { k: "Range", v: "~1,100 km" },
@@ -740,7 +740,7 @@ const AIRCRAFT = [
     typeName: "HALE UAV",
     category: "Uncrewed Systems",
     tagline: "Australia's high-altitude maritime surveillance drone. A persistent eye over the oceans that never gets tired.",
-    img: "images/triton.jpg",
+    img: "images/triton.mp4",
     stats: [
       { k: "Endurance", v: "24+ hours" },
       { k: "Altitude", v: "50,000+ ft" },
@@ -764,7 +764,7 @@ const AIRCRAFT = [
     typeName: "Loyal Wingman (CCA)",
     category: "Uncrewed Systems",
     tagline: "Australia's revolutionary 'loyal wingman' — a smart, autonomous drone that flies alongside crewed fighters.",
-    img: "images/ghostbat.jpg",
+    img: "images/ghostbat.mp4",
     stats: [
       { k: "Status", v: "Flight testing + early production" },
       { k: "Range", v: "3,700+ km" },
@@ -1007,7 +1007,7 @@ const NAVY = [
     name: "Hobart Class",
     typeName: "Air Warfare Destroyer",
     tagline: "Australia's most capable surface combatants. Aegis-equipped destroyers providing area air defence for naval task groups.",
-    img: "images/hobart.jpg",
+    img: "images/hmas_hobart.mp4",
     stats: [
       { k: "Displacement", v: "7,000 t" },
       { k: "Speed", v: "28+ kts" },
@@ -1030,7 +1030,7 @@ const NAVY = [
     name: "Seahawk 'Romeo'",
     typeName: "Shipborne Multi-Role Helicopter",
     tagline: "The RAN's primary shipborne helicopter. The eyes, ears and precision strike arm of every major surface combatant.",
-    img: "images/mh60r.jpg",
+    img: "images/mh60r.mp4",
     stats: [
       { k: "Speed", v: "270 km/h" },
       { k: "Range", v: "~450 km" },
@@ -1052,7 +1052,7 @@ const NAVY = [
     name: "Anzac Class",
     typeName: "Frigate (ASMD / AMCAP)",
     tagline: "General-purpose frigates upgraded with world-class Australian CEAFAR2 radar. The workhorses of the current surface fleet.",
-    img: "images/anzac.jpg",
+    img: "images/anzac.mp4",
     stats: [
       { k: "Displacement", v: "3,600 t" },
       { k: "Speed", v: "27 kts" },
@@ -1074,7 +1074,7 @@ const NAVY = [
     name: "Collins Class",
     typeName: "Diesel-Electric Submarine",
     tagline: "Australia's current submarine force. Large, long-range conventional boats optimised for the vast Indo-Pacific.",
-    img: "images/collins.jpg",
+    img: "images/collins.mp4",
     stats: [
       { k: "Displacement", v: "3,100 t (surf)" },
       { k: "Speed", v: "21 kts submerged" },
@@ -1096,7 +1096,7 @@ const NAVY = [
     name: "Canberra Class",
     typeName: "Amphibious Assault Ship",
     tagline: "The largest ships ever operated by the RAN. Full-spectrum amphibious capability with 18+ helicopters and a well dock.",
-    img: "images/canberra.jpg",
+    img: "images/canberra.mp4",
     stats: [
       { k: "Displacement", v: "27,500 t" },
       { k: "Speed", v: "20+ kts" },
@@ -1118,7 +1118,7 @@ const NAVY = [
     name: "Supply Class",
     typeName: "Replenishment Oiler",
     tagline: "The RAN's new double-hulled replenishment ships. Essential for sustaining any task group far from Australia.",
-    img: "images/supply-class.jpg",
+    img: "images/supply-class.mp4",
     stats: [
       { k: "Displacement", v: "19,500 t" },
       { k: "Speed", v: "20 kts" },
@@ -1139,7 +1139,7 @@ const NAVY = [
     name: "Choules Class",
     typeName: "Dock Landing Ship",
     tagline: "Versatile amphibious sealift ship acquired from the UK. Heavy vehicle and landing-craft capacity for regional operations.",
-    img: "images/choules.jpg",
+    img: "images/choules.mp4",
     stats: [
       { k: "Displacement", v: "16,000 t" },
       { k: "Speed", v: "18 kts" },
@@ -1160,7 +1160,7 @@ const NAVY = [
     name: "Hunter Class",
     typeName: "Anti-Submarine Frigate",
     tagline: "The RAN's future high-end ASW frigates. Australian-optimised Type 26 with CEAFAR2 and Aegis integration.",
-    img: "images/hunter-class.jpg",
+    img: "images/hunter-class.mp4",
     stats: [
       { k: "Displacement", v: "8,800 t" },
       { k: "Speed", v: "27+ kts" },
@@ -1182,7 +1182,7 @@ const NAVY = [
     name: "Virginia-class + SSN-AUKUS",
     typeName: "Nuclear Attack Submarine",
     tagline: "Australia's future nuclear-powered attack submarines under AUKUS. Virginia-class boats first, then sovereign SSN-AUKUS.",
-    img: "images/virginia-class.jpg",
+    img: "images/virginia-class.mp4",
     stats: [
       { k: "Displacement", v: "~7,800 t (VA)" },
       { k: "Speed", v: "25+ kts" },
@@ -1296,7 +1296,7 @@ const ARMY = [
     name: "Abrams AIM",
     typeName: "Main Battle Tank",
     tagline: "Australia's heavy armoured punch. The 70-tonne tank that only the Chinook can move by air when needed.",
-    img: "images/abrams.jpg",
+    img: "images/abrams.mp4",
     stats: [
       { k: "Weight", v: "70 tonnes" },
       { k: "Main Gun", v: "120 mm M256" },
@@ -1318,7 +1318,7 @@ const ARMY = [
     name: "Bushmaster",
     typeName: "Protected Mobility Vehicle",
     tagline: "The backbone of Australian protected mobility. Mine-resistant, highly mobile, and a frequent passenger on RAAF transports.",
-    img: "images/bushmaster.jpg",
+    img: "images/bushmaster.mp4",
     stats: [
       { k: "Weight", v: "~15 t" },
       { k: "Capacity", v: "1+9 troops" },
@@ -1339,7 +1339,7 @@ const ARMY = [
     name: "Hawkei",
     typeName: "Protected Light Vehicle",
     tagline: "The new lightweight protected 4x4 replacing the Land Rover. Designed from the ground up for rapid air deployment.",
-    img: "images/hawkei.jpg",
+    img: "images/hawkei.mp4",
     stats: [
       { k: "Weight", v: "~7 t" },
       { k: "Capacity", v: "1+5" },
@@ -1360,7 +1360,7 @@ const ARMY = [
     name: "155 mm Howitzer",
     typeName: "Towed Artillery",
     tagline: "The Army's long-range indirect fire support. Lightweight enough for Chinook sling-load yet devastating on the battlefield.",
-    img: "images/m777.jpg",
+    img: "images/m777.mp4",
     stats: [
       { k: "Calibre", v: "155 mm" },
       { k: "Range", v: "24–30 km (standard)" },
@@ -1381,7 +1381,7 @@ const ARMY = [
     name: "Heavy Truck",
     typeName: "Heavy Logistics Vehicle",
     tagline: "The Army's heavy transport backbone. Moves fuel, ammunition, water and engineering equipment in large quantities.",
-    img: "images/hx77.jpg",
+    img: "images/hx77.mp4",
     stats: [
       { k: "Payload", v: "15–20 tonnes" },
       { k: "Configuration", v: "8x8 / 6x6" },
@@ -1402,7 +1402,7 @@ const ARMY = [
     name: "Australian Light Armoured Vehicle",
     typeName: "Wheeled Recon / APC",
     tagline: "The Army's long-serving 8x8 reconnaissance and patrol vehicle. Still widely used while Boxer and Redback arrive.",
-    img: "images/aslav.jpg",
+    img: "images/aslav.mp4",
     stats: [
       { k: "Weight", v: "~13 t" },
       { k: "Crew + Troops", v: "3 + 6" },
@@ -1423,7 +1423,7 @@ const ARMY = [
     name: "Combat Reconnaissance Vehicle",
     typeName: "Wheeled IFV / Recon",
     tagline: "The Army's new 8x8 heavyweight. Highly protected, modular, and designed for the Indo-Pacific fight.",
-    img: "images/boxer.jpg",
+    img: "images/boxer.mp4",
     stats: [
       { k: "Weight", v: "~35 t (mission fit)" },
       { k: "Crew + Dismounts", v: "3 + 6–8" },
@@ -1444,7 +1444,7 @@ const ARMY = [
     name: "Infantry Fighting Vehicle",
     typeName: "Tracked IFV (Future)",
     tagline: "Australia's future tracked infantry fighting vehicle under LAND 400 Phase 3. Will replace the venerable M113.",
-    img: "images/redback.jpg",
+    img: "images/redback.mp4",
     stats: [
       { k: "Weight", v: "~42 t" },
       { k: "Crew + Dismounts", v: "3 + 8" },
@@ -1465,7 +1465,7 @@ const ARMY = [
     name: "HIMARS",
     typeName: "High Mobility Artillery Rocket System",
     tagline: "Long-range precision rocket artillery. Recently acquired and a major new strike capability for the Army.",
-    img: "images/himars.jpg",
+    img: "images/himars.mp4",
     stats: [
       { k: "Range (GMLRS)", v: "70+ km" },
       { k: "Range (PrSM)", v: "500+ km (future)" },
@@ -1487,7 +1487,7 @@ const ARMY = [
     name: "Black Hawk",
     typeName: "Utility Helicopter",
     tagline: "The Australian Army's primary utility helicopter for troop transport, special operations, and medical evacuation.",
-    img: "images/blackhawk.jpg",
+    img: "images/blackhawk.mp4",
     stats: [
       { k: "Speed", v: "280 km/h" },
       { k: "Range", v: "~590 km" },
@@ -1507,7 +1507,7 @@ const ARMY = [
     name: "Tiger",
     typeName: "Armed Reconnaissance Helicopter",
     tagline: "The Army's dedicated attack and reconnaissance helicopter for finding and engaging enemy forces.",
-    img: "images/tiger.jpg",
+    img: "images/tiger.mp4",
     stats: [
       { k: "Speed", v: "290 km/h" },
       { k: "Range", v: "~800 km" },
@@ -2727,7 +2727,7 @@ const SYSTEMS = [
     overview: "High-resolution day and night cameras that can zoom in on vessels from 50,000 feet to read names or identify activity.",
     layman: "Incredibly powerful cameras that can read the name on a ship from way up in the stratosphere.",
     platforms: ["triton"],
-    img: "images/triton.jpg"
+    img: "images/triton.mp4"
   },
   {
     id: "an-aps-153-eo-ir",
@@ -2873,7 +2873,7 @@ const SYSTEMS = [
     overview: "Integrates all sensor data (radar, ESM, IFF) and fuses them into a single, coherent air picture. Operators in the cabin use this to manage the whole air battle.",
     layman: "The brain of the aircraft — it combines all the radar and sensor data into one clear picture that operators use to control the battle.",
     platforms: ["e7a"],
-    img: "images/wedgetail.jpg"
+    img: "images/wedgetail.mp4"
   },
   {
     id: "glass-cockpit-pilatus",
@@ -2884,7 +2884,7 @@ const SYSTEMS = [
     overview: "Fully integrated touchscreen displays and onboard simulation systems that allow students to practice complex tactics and emergencies in the air without needing external support aircraft.",
     layman: "The cockpit feels like a real fighter jet. Students can practice radar, weapons, and emergencies right there in the training plane.",
     platforms: ["pc21"],
-    img: "images/pc21.jpg"
+    img: "images/pc21.mp4"
   },
   {
     id: "enhanced-vision-c27j",
@@ -2895,7 +2895,7 @@ const SYSTEMS = [
     overview: "Forward-looking infrared and low-light camera system that gives pilots greatly improved situational awareness when operating into remote or poorly lit airstrips at night or in bad weather.",
     layman: "Special cameras that let the pilots 'see' the runway clearly even when it's pitch black or raining heavily.",
     platforms: ["c27j"],
-    img: "images/c27j.jpg"
+    img: "images/c27j.mp4"
   },
   {
     id: "defensive-aids-c27j",
@@ -2972,7 +2972,7 @@ const SYSTEMS = [
     overview: "Can carry 44 fully equipped troops or a mix of light vehicles and stores internally. The rear ramp allows rapid loading and unloading, including while hovering for certain operations.",
     layman: "A flying truck that can drive an Abrams tank straight in or unload 40 soldiers in seconds via the back ramp.",
     platforms: ["ch47f"],
-    img: "images/chinook.jpg"
+    img: "images/chinook.mp4"
   },
   // Army ground vehicle sensors / sights (added for full cross-platform coverage)
   {
@@ -3006,7 +3006,7 @@ const SYSTEMS = [
     overview: "Integrated electro-optical/infrared sight package on the remote or manned turret. Provides detection, recognition and engagement of targets at range in all light conditions.",
     layman: "The armoured vehicle's own camera suite that lets the crew see and shoot accurately at night or through smoke and dust.",
     platforms: ["boxer"],
-    img: "images/boxer.jpg"
+    img: "images/boxer.mp4"
   },
   {
     id: "arhtiger-osiris",
@@ -3348,7 +3348,8 @@ const LISTENING_DATA = {
         "APG-81 AESA radar is exceptionally powerful and difficult to detect, giving the pilot high situational awareness while the aircraft remains hard to find.",
         "Internal weapons carriage preserves low observability while still allowing it to carry advanced weapons such as AIM-120D and JSM maritime strike missiles.",
         "Advanced data fusion turns the aircraft into a node that dramatically increases the combat effectiveness of legacy platforms and ground forces through Link 16 and other links."
-      ]
+      ],
+      img: "images/f35a.jpg"
     },
     {
       id: "growler",
@@ -3358,7 +3359,8 @@ const LISTENING_DATA = {
         "ALQ-99 jamming pods and ALQ-218 receiver give it the ability to detect, locate and suppress enemy air defences.",
         "Often works as a 'guardian' for strike packages, blinding enemy radars so the bombers and fighters can get through.",
         "Extremely high demand from the US Navy and allies because of its unique capability."
-      ]
+      ],
+      img: "images/growler.jpg"
     },
     {
       id: "hobart",
@@ -3368,7 +3370,8 @@ const LISTENING_DATA = {
         "SPY-1D radar and Aegis combat system give world-class area air defence against aircraft and missiles.",
         "Can fire SM-2, SM-6 and ESSM missiles and are being upgraded with NSM for surface strike.",
         "Work closely with the F-35 and Growler to create a layered defence and strike capability."
-      ]
+      ],
+      img: "images/hobart.jpg"
     },
     {
       id: "m1a1",
@@ -3380,7 +3383,8 @@ const LISTENING_DATA = {
         "120mm smoothbore gun with advanced ammunition gives it massive firepower against modern tanks and fortifications.",
         "Heavy armour and excellent fire control system make it very survivable on the modern battlefield.",
         "Works as part of a team with infantry in IFVs, attack helicopters and artillery."
-      ]
+      ],
+      img: "images/abrams.jpg"
     },
     {
       id: "superhornet",
@@ -3392,7 +3396,8 @@ const LISTENING_DATA = {
         "Equipped with the APG-79 AESA radar, giving excellent detection and tracking performance.",
         "Can carry a wide range of weapons including the JSM for long-range maritime strike.",
         "Works closely with the Growler for electronic attack support during strike missions."
-      ]
+      ],
+      img: "images/superhornet.jpg"
     },
     {
       id: "poseidon",
@@ -3404,7 +3409,8 @@ const LISTENING_DATA = {
         "Long endurance and advanced sensors allow it to cover enormous areas of ocean for extended periods.",
         "Equipped with torpedoes, Harpoon missiles, and sonobuoys for hunting and engaging submarines and surface ships.",
         "Works in close coordination with the Navy's surface fleet and helicopters for layered maritime operations."
-      ]
+      ],
+      img: "images/poseidon.mp4"
     },
     {
       id: "wedgetail",
@@ -3416,7 +3422,8 @@ const LISTENING_DATA = {
         "MESA radar provides true 360-degree coverage with very long range detection of aircraft and ships.",
         "Can direct fighters, coordinate strikes, and manage the entire air picture from a safe distance.",
         "One of the most advanced AEW&C systems in the world and a major force multiplier for the entire ADF."
-      ]
+      ],
+      img: "images/wedgetail.mp4"
     },
     {
       id: "jassm",
@@ -3440,7 +3447,8 @@ const LISTENING_DATA = {
         "Large size for a conventional submarine gives good endurance and the ability to carry a significant weapons load.",
         "Very quiet when operating on battery, making them difficult to detect in the right conditions.",
         "Provide both anti-shipping strike and intelligence gathering deep in adversary areas."
-      ]
+      ],
+      img: "images/collins.mp4"
     },
     {
       id: "bushmaster",
@@ -3452,7 +3460,8 @@ const LISTENING_DATA = {
         "V-shaped hull and high ground clearance provide excellent protection against under-vehicle blasts.",
         "Can carry a section of infantry plus the crew with good situational awareness and firepower options.",
         "Has become the standard vehicle for many Army units operating in contested or IED-prone environments."
-      ]
+      ],
+      img: "images/bushmaster.mp4"
     }
     // Add more high-priority platforms here following the same pattern. Aim for variety across air, land, sea, and weapons.
   ],
