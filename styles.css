@@ -44,7 +44,7 @@
    (regular/500/600/700) and place them in fonts/ with the exact filenames above. */
 html, body {
   overflow-x: hidden; /* prevent unwanted horizontal page scroll; nav handles its own overflow */
-  scroll-padding-top: 70px; /* account for sticky nav height when jumping to sections */
+  scroll-padding-top: 60px; /* account for sticky nav height when jumping to sections (matches the tighter .section-wrap padding) */
 }
 
 body, .nav-link, h1, h2, h3, .feature-card-title, .section-header h2 {
@@ -931,12 +931,12 @@ section.active { display: block; }
 
 .section-wrap {
   max-width: 1200px; margin: 0 auto;
-  padding: 100px 2rem 80px; /* generous top padding to clear the sticky nav even when .nav-links wraps to two rows */
+  padding: 52px 2rem 80px; /* a bit tighter again — still safe for nav (including wrap) */
 }
 
 /* Extra space for sections under the sticky nav (which includes search bar) */
 section {
-  padding-top: 10px;
+  padding-top: 6px; /* small buffer only */
 }
 
 

@@ -70,20 +70,19 @@
   </a>
   <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
   <div class="nav-links">
-    <span class="nav-link" data-section="bases">Bases</span>
-    <span class="nav-link" data-section="operations">Operations</span>
-    <span class="nav-link" data-section="airforce">Air Force</span>
-    <span class="nav-link" data-section="navy">Navy</span>
-    <span class="nav-link" data-section="army">Army</span>
-    <span class="nav-link" data-section="space">Space</span>
-    <span class="nav-link" data-section="cyberspace">Cyberspace</span>
-    <span class="nav-link" data-section="weapons">Weapons &amp; Systems</span>
-    <span class="nav-link" data-section="ranks-leadership">Ranks &amp; Leadership</span>
-    <span class="nav-link" data-section="pfa">Pre-entry Fitness (PFA)</span>
-    <span class="nav-link" data-section="national-defence">National Defence</span>
-    <span class="nav-link" data-section="study-tools">Study Tools</span>
-
-    <span class="nav-link" data-section="glossary">Glossary</span>
+    <span class="nav-link" data-section="bases" onclick="if(typeof showSection==='function'){showSection('bases',this);}return false;">Bases</span>
+    <span class="nav-link" data-section="operations" onclick="if(typeof showSection==='function'){showSection('operations',this);}return false;">Operations</span>
+    <span class="nav-link" data-section="airforce" onclick="if(typeof showSection==='function'){showSection('airforce',this);}return false;">Air Force</span>
+    <span class="nav-link" data-section="navy" onclick="if(typeof showSection==='function'){showSection('navy',this);}return false;">Navy</span>
+    <span class="nav-link" data-section="army" onclick="if(typeof showSection==='function'){showSection('army',this);}return false;">Army</span>
+    <span class="nav-link" data-section="space" onclick="if(typeof showSection==='function'){showSection('space',this);}return false;">Space</span>
+    <span class="nav-link" data-section="cyberspace" onclick="if(typeof showSection==='function'){showSection('cyberspace',this);}return false;">Cyberspace</span>
+    <span class="nav-link" data-section="weapons" onclick="if(typeof showSection==='function'){showSection('weapons',this);}return false;">Weapons &amp; Systems</span>
+    <span class="nav-link" data-section="ranks-leadership" onclick="if(typeof showSection==='function'){showSection('ranks-leadership',this);}return false;">Ranks &amp; Leadership</span>
+    <span class="nav-link" data-section="pfa" onclick="if(typeof showSection==='function'){showSection('pfa',this);}return false;">Pre-entry Fitness (PFA)</span>
+    <span class="nav-link" data-section="national-defence" onclick="if(typeof showSection==='function'){showSection('national-defence',this);}return false;">National Defence</span>
+    <span class="nav-link" data-section="study-tools" onclick="if(typeof showSection==='function'){showSection('study-tools',this);}return false;">Study Tools</span>
+    <span class="nav-link" data-section="glossary" onclick="if(typeof showSection==='function'){showSection('glossary',this);}return false;">Glossary</span>
   </div>
   <div class="nav-search">
     <input type="text" id="globalSearch" placeholder="Search everything...">
@@ -544,10 +543,11 @@
             <input type="checkbox" id="layer-adversary" onchange="toggleAdversaryLayer(this.checked)">
             <span>Adversary (China / Russia OSINT)</span>
           </label>
-          <button onclick="refreshPositionLayers()" style="font-size:11px; padding:2px 8px; margin-left:8px;">↻ Refresh</button>
+          <button onclick="refreshPositionLayers()" style="font-size:11px; padding:2px 8px; margin-left:8px;">↻ Refresh live data</button>
+          <span id="last-position-refresh" style="font-size:10px; color:var(--text-dim); margin-left:8px;"></span>
         </div>
         <div style="font-size:10px; color:var(--text-dim); margin-top:6px; line-height:1.3;">
-          Military assets often do not transmit publicly. Aircraft data from free OpenSky Network API (civil + limited military). Ship/adversary = illustrative open-source last-known positions. Not authoritative or real-time for sensitive operations.
+          Military assets often do not transmit publicly. <strong>↻ Refresh live data</strong> re-fetches from OpenSky (aircraft layer) + re-draws. For updates to ships/adversary (China/Russia/ADF): use public OSINT from Naval News, The War Zone, Reuters, or X accounts like @oryxspioenkop (equipment sightings). Edit data.js with fresh public reports. Best-effort only — not real-time.
         </div>
       </div>
 

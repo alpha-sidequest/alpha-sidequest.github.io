@@ -92,7 +92,49 @@ function showSection(id, el) {
     }, 50);
     // Also ensure the maps (and their markers) are created if the API finished loading after initial attempt
     setTimeout(ensureGoogleMapsInit, 80);
+
+    // Refresh public position layers (ships/adversary static + ADF aircraft live attempt) when landing on operations
+    // so the layers update "automatically" when you select the section.
+    if (id === 'operations') {
+      setTimeout(() => {
+        if (typeof refreshPositionLayers === 'function') {
+          refreshPositionLayers();
+        }
+        if (typeof updatePositionLayerControls === 'function') {
+          updatePositionLayerControls();
+        }
+      }, 140);
+    }
   }
+}
+
+// === ROBUST NAV FIX (added to fix "site became unclickable" after edits) ===
+// This global listener ensures .nav-link and any [data-section] always trigger navigation,
+// even if the container delegation in initMainNavigation fails to attach or runs late.
+// Uses capture phase for maximum reliability.
+document.addEventListener('click', function(e) {
+  const link = e.target.closest('.nav-link[data-section], [data-section]');
+  if (link) {
+    const sectionId = link.getAttribute('data-section');
+    if (sectionId && typeof showSection === 'function') {
+      if (link.tagName === 'SPAN' || link.tagName === 'DIV') {
+        e.preventDefault();
+      }
+      showSection(sectionId, link);
+    }
+  }
+}, true); // capture phase
+
+// Make showSection globally available as early as possible (some inline onclicks and patches rely on it)
+window.showSection = showSection;
+
+// Early safety call for nav (in case the later initMainNavigation is delayed by other code)
+if (document.readyState !== 'loading') {
+  try { if (typeof initMainNavigation === 'function') initMainNavigation(); } catch(e) { console.warn('Early nav init failed (non-fatal):', e); }
+} else {
+  document.addEventListener('DOMContentLoaded', () => {
+    try { if (typeof initMainNavigation === 'function') initMainNavigation(); } catch(e) { console.warn('Early nav init failed (non-fatal):', e); }
+  });
 }
 
 // ── BASE MAP ──────────────────────────────────────────────────
@@ -4036,6 +4078,8 @@ let adfAircraftMarkers = [];
 let adfShipMarkers = [];
 let adversaryMarkers = [];
 
+let lastPositionRefresh = null;
+
 function initGoogleMaps() {
   if (typeof google === 'undefined' || !google.maps) {
     console.warn('[ADF Forge] Google Maps API not loaded (missing or invalid key). Using offline maps only.');
@@ -4517,10 +4561,14 @@ async function toggleAdfAircraftLayer(enabled) {
     if (layersDiv) {
       layersDiv.style.opacity = '1';
     }
+    lastPositionRefresh = new Date();
+    updateLastRefreshDisplay();
     console.log(`[Positions] ADF aircraft: ${added} live + 3 demo`);
   } catch (e) {
     console.warn('[Positions] OpenSky aircraft fetch issue (common due to rate limits / CORS / military not broadcasting):', e);
     if (layersDiv) layersDiv.style.opacity = '1';
+    lastPositionRefresh = new Date();
+    updateLastRefreshDisplay();
     // demos are already shown — no scary alert
   }
 }
@@ -4595,6 +4643,9 @@ function refreshPositionLayers() {
   const shipsCb = document.getElementById('layer-adf-ships');
   const advCb = document.getElementById('layer-adversary');
 
+  lastPositionRefresh = new Date();
+  updateLastRefreshDisplay();
+
   if (aircraftCb && aircraftCb.checked) {
     toggleAdfAircraftLayer(false);
     setTimeout(() => toggleAdfAircraftLayer(true), 120);
@@ -4606,6 +4657,16 @@ function refreshPositionLayers() {
   if (advCb && advCb.checked) {
     toggleAdversaryLayer(false);
     setTimeout(() => toggleAdversaryLayer(true), 60);
+  }
+}
+
+function updateLastRefreshDisplay() {
+  const el = document.getElementById('last-position-refresh');
+  if (!el) return;
+  if (lastPositionRefresh) {
+    el.textContent = 'Last refresh: ' + lastPositionRefresh.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  } else {
+    el.textContent = '';
   }
 }
 
@@ -6678,4 +6739,3 @@ setTimeout(() => {
   }
 }, 300);
 
-/* =====================================================
