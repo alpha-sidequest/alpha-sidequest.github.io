@@ -2,7 +2,7 @@
 // ADF Forge - Data Layer
 // ============================================
 // Source of truth for the entire tri-service reference.
-// BASES (18, with optional image + lat/lng for aerials + GMaps), AIRCRAFT, NAVY, ARMY, WEAPONS, SYSTEMS, GLOSSARY, RANKS, etc.
+// BASES (25+ tri-service: RAAF operational, bare/forward, Navy fleet/training, Army barracks + training), AIRCRAFT, NAVY, ARMY, WEAPONS, SYSTEMS, GLOSSARY, RANKS, etc.
 // Edit here, reload index.html. Grids and cross-refs are built from this.
 
 // ---------- ADF BASES (Tri-service: RAAF, Army, Navy) ----------
@@ -327,6 +327,23 @@ const BASES = {
     lng: 123.833,
     squadrons: [
       { num: "Bare Base", name: "Support Squadron", aircraft: "Rotational / Deployed" },
+    ]
+  },
+  wagga: {
+    name: "RAAF Base Wagga",
+    location: "New South Wales",
+    role: "Recruit Training & Ground Academy ('Home of the Airman')",
+    color: "#9B59B6",
+    desc: "Primary RAAF recruit training base and headquarters of Ground Academy. Home to No. 1 Recruit Training Unit (1RTU) for all Air Force recruits, plus major ground training schools including technical training (RAAFSTT), administration & logistics (RAAFSALT), and postgraduate studies. No. 31 Squadron provides airbase operations and support. One of the RAAF's oldest and most community-integrated bases (est. 1940).",
+    image: "images/wagga_bae.png",
+    lat: -35.1583,
+    lng: 147.4667,
+    squadrons: [
+      { num: "No. 1 RTU", name: "Recruit Training", aircraft: "n/a" },
+      { num: "No. 31 Sqn", name: "Airbase Operations", aircraft: "Support / Coordination" },
+      { num: "RAAFSTT", name: "Technical Training", aircraft: "n/a" },
+      { num: "RAAFSALT", name: "Admin & Logistics Training", aircraft: "n/a" },
+      { num: "Ground Academy", name: "HQ & Training Schools", aircraft: "n/a" },
     ]
   },
 };
@@ -3235,34 +3252,88 @@ const LISTENING_DATA = {
     {
       id: "amberley",
       title: "RAAF Base Amberley",
-      overview: "Australia's largest and most important air combat base, located in Queensland. It is the central hub for strike, electronic attack, heavy transport and air-to-air refuelling. Think of Amberley as the 'main workshop' where the most powerful combat aircraft and strategic transport assets live and train together.",
+      overview: "Australia's largest and most important air combat base, located in Queensland. It serves as the central hub for strike, electronic attack, heavy transport, and air-to-air refuelling. Think of it as the 'main workshop' where Australia's most powerful combat and strategic lift assets live and train together under one roof.",
+      whyItMatters: "Amberley is the only base in Australia that can generate and sustain a full combat air package including its own tankers and heavy airlift. Losing or degrading Amberley would severely limit Australia's ability to project power or sustain operations in the north.",
+      commonMisconceptions: "Many assume it is purely a fighter base. In reality it is a multi-role strategic hub that combines fighters, electronic attack, tankers, and heavy lift in one location.",
       keyPoints: [
-        "Home to the F/A-18F Super Hornet and EA-18G Growler squadrons — the core of Australia's air combat and electronic warfare power.",
-        "Also hosts the KC-30A tanker and C-17 Globemaster, making it the only base that can launch and support a full strike package with its own refuelling and heavy lift.",
-        "Critical for northern operations and rapid deployment across the Indo-Pacific."
+        "Houses No.1 and No.6 Squadrons flying the F/A-18F Super Hornet and EA-18G Growler — the backbone of RAAF air combat and electronic warfare.",
+        "Also home to KC-30A tankers and C-17 Globemasters, allowing it to launch, refuel, and sustain complex strike and air mobility missions without relying on other bases.",
+        "Strategically vital for operations in the northern approaches and as a forward operating location for sustained campaigns."
       ]
     },
     {
       id: "williamtown",
       title: "RAAF Base Williamtown",
-      overview: "The home of the F-35A Lightning II and the Wedgetail airborne early warning aircraft. This is Australia's primary air defence base and the headquarters of Air Combat Group. Williamtown is where the future of Australian air power is being built and trained.",
+      overview: "Home of the F-35A Lightning II and the E-7A Wedgetail. This is Australia's primary air defence base and headquarters of Air Combat Group. It is the centre where fifth-generation air power and battle management capabilities are concentrated and developed.",
+      whyItMatters: "Williamtown is the only location currently hosting the full F-35A operational capability and the Wedgetail fleet. It is the heart of Australia's ability to control the air and direct complex joint operations.",
+      commonMisconceptions: "Some think the F-35 is just a better fighter jet. In reality the combination of F-35 stealth sensors and Wedgetail battle management creates a system that multiplies the effectiveness of the entire ADF.",
       keyPoints: [
-        "Primary base for the entire F-35A fleet — conversion unit and operational squadrons are all based here.",
-        "Wedgetail provides 360 degree battle management and is one of the most advanced airborne command and control aircraft in the world.",
-        "Key northern detachment capability to Tindal for forward presence."
+        "Primary base and training centre for the entire Australian F-35A fleet, including the Operational Conversion Unit.",
+        "Wedgetail provides unmatched 360-degree airborne early warning and command & control — essentially an airborne headquarters for air and joint operations.",
+        "Maintains a critical detachment capability to Tindal, extending air defence coverage deep into Australia's northern approaches."
       ]
     },
     {
       id: "operation-accordion",
       title: "Operation Accordion",
       overview: "Australia's main support mission in the Middle East, based at Al Minhad Air Base in the UAE. It is the only permanent forward-deployed ADF headquarters in the world and provides the backbone for up to twelve concurrent operations across the region.",
+      whyItMatters: "It allows Australia to maintain a persistent presence and rapid response capability in a critical region without having to surge everything from home bases every time a crisis occurs.",
+      commonMisconceptions: "Some see it as just 'support'. In reality it is the central nervous system that enables multiple simultaneous ADF operations far from Australia.",
       keyPoints: [
         "Acts as the central logistics and command hub for all ADF activities in the Middle East and surrounding areas.",
         "Enables rapid response and sustained presence without needing to fly everything from Australia every time.",
         "Critical enabler for any future larger commitment in the region."
       ]
+    },
+    {
+      id: "pearce",
+      title: "RAAF Base Pearce",
+      overview: "Located in Western Australia, Pearce is the primary fighter pilot training base and also supports maritime patrol operations. It is strategically important for training and for operations across the Indian Ocean approaches.",
+      whyItMatters: "Australia's ability to generate and sustain combat pilots depends heavily on Pearce. It is also a key western node for maritime surveillance and operations in the Indian Ocean.",
+      commonMisconceptions: "Often overlooked compared to eastern bases. In reality it is vital for pilot production and for covering Australia's vast western and northwestern maritime areas.",
+      keyPoints: [
+        "Home to No.79 Squadron for basic fighter training and No.25 Squadron for lead-in fighter training on the Hawk 127.",
+        "Regularly hosts maritime patrol aircraft and supports operations into the Indian Ocean and northwest approaches.",
+        "Critical for maintaining pilot numbers and for training in the unique conditions of Western Australia."
+      ]
+    },
+    {
+      id: "darwin",
+      title: "RAAF Base Darwin",
+      overview: "Australia's northernmost major air base. It is a key forward location for air defence, exercises, and operations in the northern approaches. It regularly hosts US aircraft rotations under the Force Posture Initiative.",
+      whyItMatters: "Darwin is the most forward major base for defending the northern approaches and for projecting power into Southeast Asia and the South China Sea region.",
+      commonMisconceptions: "People think it is just a small forward base. It is actually a major hub that can surge significantly and hosts important allied rotations.",
+      keyPoints: [
+        "Strategically positioned as Australia's northernmost significant air base for rapid response and air defence.",
+        "Hosts rotational US Air Force deployments including fighters and bombers, strengthening deterrence and interoperability.",
+        "Serves as a critical node for operations and exercises in the northern approaches."
+      ]
+    },
+    {
+      id: "operation-gateway",
+      title: "Operation Gateway",
+      overview: "A long-running maritime surveillance operation focused on the Indian Ocean and South China Sea. It provides persistent intelligence on shipping movements and supports Australia's understanding of the regional maritime picture.",
+      whyItMatters: "Australia depends on sea lanes for trade and security. Knowing who is moving where in our northern maritime approaches is fundamental to protecting national interests.",
+      commonMisconceptions: "It is sometimes dismissed as 'just watching ships'. In reality it builds the detailed pattern-of-life understanding that allows detection of unusual or threatening activity.",
+      keyPoints: [
+        "Involves regular P-8A Poseidon deployments to provide wide-area maritime surveillance.",
+        "Contributes to the overall picture of merchant and naval traffic in critical sea lanes.",
+        "Has been running for decades and remains highly relevant in the current strategic environment."
+      ]
+    },
+    {
+      id: "tindal",
+      title: "RAAF Base Tindal",
+      overview: "A key forward operating base in the Northern Territory. Tindal is strategically located for operations across northern Australia and into the region. It is being developed as a more resilient and capable northern node.",
+      whyItMatters: "Tindal allows the RAAF to operate fighters and other aircraft much closer to potential areas of interest without having to stage everything through more southern bases.",
+      commonMisconceptions: "Often seen as secondary to Darwin. In reality it is becoming increasingly important as a dispersed and survivable operating location.",
+      keyPoints: [
+        "Regularly hosts F-35 and other combat aircraft for exercises and operations.",
+        "Infrastructure upgrades are making it more capable of supporting sustained operations in the north.",
+        "Part of the broader effort to make northern bases more resilient and distributed."
+      ]
     }
-    // More items can be added following the same listening-optimized format
+    // More bases and operations can (and should) be added following the same listening-optimized format with whyItMatters and commonMisconceptions.
   ],
 
   // Group 2: Air Force, Navy, Army, Weapons & Systems
@@ -3270,11 +3341,13 @@ const LISTENING_DATA = {
     {
       id: "f35a",
       title: "F-35A Lightning II",
-      overview: "Australia's fifth-generation stealth multirole fighter. The F-35A is not just an aircraft — it is a flying sensor and command node that shares information across the entire joint force in real time. It is the cornerstone of Australia's future air combat capability.",
+      overview: "Australia's fifth-generation stealth multirole fighter. The F-35A functions as a flying sensor fusion and command node. It does not just find and kill targets — it shares high-quality data with other aircraft, ships, and ground forces in real time, multiplying the power of the entire joint force.",
+      whyItMatters: "The F-35 changes the character of air operations. Because it can operate inside contested airspace while feeding information to other platforms, it enables the rest of the force (Growlers, Super Hornets, Wedgetails, ships) to be far more effective and survivable.",
+      commonMisconceptions: "A common mistake is to compare it only on speed or weapons load to 4th-gen fighters. Its real value is in stealth + sensor fusion + networking, not traditional dogfighting metrics.",
       keyPoints: [
-        "APG-81 AESA radar gives exceptional situational awareness and the ability to detect and engage targets at long range while remaining hard to detect.",
-        "Internal weapons bays preserve stealth while carrying advanced missiles like the AIM-120 and JSM.",
-        "Data fusion and Link 16 make every F-35 a node that dramatically improves the effectiveness of other platforms and ground forces."
+        "APG-81 AESA radar is exceptionally powerful and difficult to detect, giving the pilot high situational awareness while the aircraft remains hard to find.",
+        "Internal weapons carriage preserves low observability while still allowing it to carry advanced weapons such as AIM-120D and JSM maritime strike missiles.",
+        "Advanced data fusion turns the aircraft into a node that dramatically increases the combat effectiveness of legacy platforms and ground forces through Link 16 and other links."
       ]
     },
     {
@@ -3301,13 +3374,87 @@ const LISTENING_DATA = {
       id: "m1a1",
       title: "M1A1 Abrams Main Battle Tank",
       overview: "The Australian Army's heavy armour. The Abrams is designed to close with and destroy enemy armour while surviving hits that would destroy lighter vehicles. It is the centrepiece of the Army's combined arms manoeuvre capability.",
+      whyItMatters: "Heavy armour gives the Army the ability to dominate the close fight and break through fortified positions that lighter forces cannot handle alone.",
+      commonMisconceptions: "Some think tanks are obsolete in modern warfare. In reality they remain essential for breaking stalemates and providing protected firepower in high-threat environments.",
       keyPoints: [
         "120mm smoothbore gun with advanced ammunition gives it massive firepower against modern tanks and fortifications.",
         "Heavy armour and excellent fire control system make it very survivable on the modern battlefield.",
         "Works as part of a team with infantry in IFVs, attack helicopters and artillery."
       ]
+    },
+    {
+      id: "superhornet",
+      title: "F/A-18F Super Hornet",
+      overview: "The RAAF's current main strike fighter, operated by No.1 and No.6 Squadrons. It is a highly capable multirole aircraft that can perform air-to-air, air-to-ground, and maritime strike missions.",
+      whyItMatters: "The Super Hornet provides the bulk of Australia's current air combat and strike capacity while the F-35 fleet builds up. It bridges the gap and will remain important for many years.",
+      commonMisconceptions: "Often seen as just a 'legacy' aircraft compared to the F-35. In practice it is a very modern, highly capable platform that complements the F-35 extremely well.",
+      keyPoints: [
+        "Equipped with the APG-79 AESA radar, giving excellent detection and tracking performance.",
+        "Can carry a wide range of weapons including the JSM for long-range maritime strike.",
+        "Works closely with the Growler for electronic attack support during strike missions."
+      ]
+    },
+    {
+      id: "poseidon",
+      title: "P-8A Poseidon",
+      overview: "The RAAF's primary maritime patrol and anti-submarine warfare aircraft. Operated by No.11 and No.12 Squadrons, the Poseidon provides long-range surveillance, submarine hunting, and strike capability over vast ocean areas.",
+      whyItMatters: "Australia has one of the largest maritime areas in the world. The Poseidon is essential for finding submarines, tracking surface vessels, and providing persistent ISR across the Indo-Pacific.",
+      commonMisconceptions: "People sometimes think of it only as a 'patrol plane'. It is in fact a heavily armed maritime combat aircraft capable of independent strike and anti-submarine warfare.",
+      keyPoints: [
+        "Long endurance and advanced sensors allow it to cover enormous areas of ocean for extended periods.",
+        "Equipped with torpedoes, Harpoon missiles, and sonobuoys for hunting and engaging submarines and surface ships.",
+        "Works in close coordination with the Navy's surface fleet and helicopters for layered maritime operations."
+      ]
+    },
+    {
+      id: "wedgetail",
+      title: "E-7A Wedgetail",
+      overview: "Australia's airborne early warning and control aircraft. The Wedgetail provides 360-degree radar coverage and acts as an airborne command post, directing fighters, managing the battlespace, and linking everything together.",
+      whyItMatters: "In modern air operations, whoever controls the information controls the battle. The Wedgetail multiplies the effectiveness of every other platform by providing real-time situational awareness and direction.",
+      commonMisconceptions: "Some view it as just a 'radar plane'. In reality it is a flying headquarters that can manage complex air operations involving dozens of aircraft and coordinate with ground and naval forces.",
+      keyPoints: [
+        "MESA radar provides true 360-degree coverage with very long range detection of aircraft and ships.",
+        "Can direct fighters, coordinate strikes, and manage the entire air picture from a safe distance.",
+        "One of the most advanced AEW&C systems in the world and a major force multiplier for the entire ADF."
+      ]
+    },
+    {
+      id: "jassm",
+      title: "JASSM - AGM-158",
+      overview: "The Joint Air-to-Surface Standoff Missile is a long-range, stealthy cruise missile designed to strike high-value targets from outside the range of most enemy air defences. It gives Australia a significant stand-off strike capability.",
+      whyItMatters: "For the first time, Australia has a weapon that can reliably reach well-defended targets deep inside an adversary's territory without putting aircraft at extreme risk.",
+      commonMisconceptions: "It is sometimes thought of as just 'another bomb'. It is actually a sophisticated, low-observable cruise missile with a large warhead and significant range.",
+      keyPoints: [
+        "Stealthy design and long range allow launch aircraft to stay outside most surface-to-air missile envelopes.",
+        "Carried by the F-35A and Super Hornet, dramatically extending Australia's strike reach.",
+        "Being integrated with the F-35 gives Australia one of the most survivable long-range strike options in the region."
+      ]
+    },
+    {
+      id: "collins",
+      title: "Collins-class Submarine",
+      overview: "Australia's current diesel-electric attack submarines. The Collins boats are large, capable, and quiet for their class. They provide Australia with a potent undersea warfare and intelligence collection capability.",
+      whyItMatters: "Submarines are one of the most effective ways to impose costs on an adversary in the maritime domain. They can operate undetected for long periods and strike when least expected.",
+      commonMisconceptions: "People sometimes dismiss diesel subs as inferior to nuclear boats. In the shallow, noisy waters around Australia and Southeast Asia, well-handled conventional submarines can be extremely dangerous.",
+      keyPoints: [
+        "Large size for a conventional submarine gives good endurance and the ability to carry a significant weapons load.",
+        "Very quiet when operating on battery, making them difficult to detect in the right conditions.",
+        "Provide both anti-shipping strike and intelligence gathering deep in adversary areas."
+      ]
+    },
+    {
+      id: "bushmaster",
+      title: "Bushmaster Protected Mobility Vehicle",
+      overview: "The Australian Army's workhorse protected vehicle. The Bushmaster is designed to carry troops safely in high-threat environments while providing good mobility and protection against mines and IEDs.",
+      whyItMatters: "It allows infantry to move through dangerous areas with a much higher chance of surviving mines and ambushes than soft-skinned vehicles.",
+      commonMisconceptions: "Often seen as just 'an armoured truck'. It is a purpose-designed protected mobility vehicle that has saved many lives in Afghanistan and other operations.",
+      keyPoints: [
+        "V-shaped hull and high ground clearance provide excellent protection against under-vehicle blasts.",
+        "Can carry a section of infantry plus the crew with good situational awareness and firepower options.",
+        "Has become the standard vehicle for many Army units operating in contested or IED-prone environments."
+      ]
     }
-    // Add more high-priority platforms here following the same pattern
+    // Add more high-priority platforms here following the same pattern. Aim for variety across air, land, sea, and weapons.
   ],
 
   // Group 3: Space, Cyberspace, Ranks, Leadership, National Defence
@@ -3346,14 +3493,527 @@ const LISTENING_DATA = {
       id: "national-defence-strategy",
       title: "2026 National Defence Strategy - Core Idea",
       overview: "Australia has shifted to a strategy of 'denial' in our immediate region. The goal is to make any potential aggressor calculate that the cost of attacking Australia or our interests would be too high, rather than trying to defeat them in a distant war.",
+      whyItMatters: "This is a fundamental shift from expeditionary thinking to defending the homeland and region from our own shores. It changes what capabilities we need and where we need to be able to operate.",
+      commonMisconceptions: "Some still think in terms of 'defeating' an enemy far away. The new strategy accepts we may not be able to do that and instead focuses on making any attack prohibitively expensive from the start.",
       keyPoints: [
         "Focus is on the 'five tasks' and being able to hold an adversary at risk from our own territory and waters.",
         "This requires long-range strike, resilient bases, a larger Navy and Army that can operate in our northern approaches.",
         "The strategy accepts that we may have to fight with what we have at the start of a conflict, so readiness and stockpiles matter enormously."
       ]
+    },
+    {
+      id: "space-debris-threat",
+      title: "Space Debris and Congestion",
+      overview: "The space around Earth is becoming increasingly crowded with satellites and debris. Even small pieces of debris traveling at orbital speeds can destroy satellites, and the problem is growing with every new launch and collision.",
+      whyItMatters: "Australia and its allies rely heavily on space for communications, navigation, intelligence, and missile warning. Losing access to space capabilities would cripple modern military operations almost immediately.",
+      commonMisconceptions: "Many assume space is 'big and empty'. In key orbits it is actually becoming quite congested, and the Kessler syndrome risk (cascading collisions) is real.",
+      keyPoints: [
+        "Even tiny debris can destroy multi-billion dollar satellites because of the extreme speeds involved in orbit.",
+        "Australia is working with allies to improve space domain awareness so we can better track what is happening overhead.",
+        "Resilient and redundant systems on the ground and in orbit are becoming essential as space becomes more contested."
+      ]
+    },
+    {
+      id: "ranks-commissioned",
+      title: "Commissioned Officer Ranks",
+      overview: "Commissioned officers hold the Queen's (or King's) commission and are responsible for command, leadership, and the overall direction of military forces. The rank structure creates a clear chain of command from junior officers up to the Chief of the Defence Force.",
+      whyItMatters: "Officers are ultimately responsible for the lives of their people and the success of missions. Understanding the rank structure helps you know who is in charge and how decisions flow in any operation.",
+      commonMisconceptions: "Civilians often assume higher rank automatically means more technical expertise. In reality, senior officers are primarily leaders and decision-makers; deep technical knowledge often sits with more junior specialists.",
+      keyPoints: [
+        "The structure runs from Second Lieutenant up through to General/Admiral ranks, with clear levels of command responsibility at each step.",
+        "Promotion is based on a combination of performance, potential, and the needs of the service.",
+        "The highest ranks (O-7 and above) are joint and strategic leaders responsible for large formations or entire services."
+      ]
+    },
+    {
+      id: "leadership-mission-command",
+      title: "Mission Command in Practice",
+      overview: "Mission Command is the ADF's preferred command philosophy. It means telling subordinates what needs to be achieved and why, then giving them maximum freedom in how they achieve it. It is designed for complex, fast-moving environments where detailed orders quickly become outdated.",
+      whyItMatters: "In modern warfare and operations, the side that can make good decisions faster usually wins. Mission Command enables speed and initiative at every level instead of waiting for orders from above.",
+      commonMisconceptions: "Some think it means 'do whatever you want'. In reality it requires very clear commander's intent and a high level of trust and shared understanding throughout the force.",
+      keyPoints: [
+        "Success depends on three things: clear intent from the commander, competence and initiative at every level, and mutual trust.",
+        "It is the opposite of micromanagement and is one of the key cultural differences between Western professional forces and more centralised adversaries.",
+        "Training and education are essential so that people at every level understand the commander's intent deeply enough to act when communications fail."
+      ]
+    },
+    {
+      id: "ranks-senior-enlisted",
+      title: "Senior Enlisted Ranks (Warrant Officers)",
+      overview: "Warrant Officers are the most senior non-commissioned members in the ADF. They sit at the top of the enlisted structure and serve as the principal advisers to commanders on matters affecting soldiers, sailors, and airmen.",
+      whyItMatters: "The senior enlisted voice is critical. Commanders rely on Warrant Officers to understand the lived experience of the force and to translate intent down and feedback up the chain.",
+      commonMisconceptions: "Civilians often think all senior leaders are officers. In reality the most experienced people on the 'shop floor' are usually senior warrant officers with decades of hands-on service.",
+      keyPoints: [
+        "They are the link between the commissioned officer corps and the enlisted force.",
+        "They carry enormous institutional knowledge and are often the ones who make complex plans actually work on the ground.",
+        "Each service has a senior warrant officer who advises the service chief directly (e.g., Warrant Officer of the Air Force, etc.)."
+      ]
+    },
+    {
+      id: "cyber-threat-china",
+      title: "Chinese State Cyber Threat",
+      overview: "China is assessed as the most significant state-based cyber threat to Australia. Multiple sophisticated actors, including those linked to the Ministry of State Security and People's Liberation Army, conduct persistent espionage against government, defence, and critical infrastructure targets.",
+      whyItMatters: "China's cyber operations are aimed at stealing intellectual property, understanding Australian decision-making, and preparing the battlefield for potential future conflict. This is not opportunistic crime — it is strategic, state-directed activity.",
+      commonMisconceptions: "Some still believe the main cyber threat is from criminals or lone hackers. State actors, particularly China, represent a far more persistent and capable threat with resources and long-term objectives.",
+      keyPoints: [
+        "Chinese actors have demonstrated the ability and willingness to target Australian defence industry and government networks at scale.",
+        "They often use living-off-the-land techniques and supply-chain compromise to maintain access for years.",
+        "Defending against this threat requires both technical measures and a whole-of-society awareness of the strategic nature of the activity."
+      ]
+    },
+    {
+      id: "space-satellites",
+      title: "Military Use of Satellites",
+      overview: "Satellites provide critical capabilities including communications, navigation (GPS), missile warning, intelligence collection, and weather data. Modern military operations are almost impossible to conduct effectively without reliable access to space-based services.",
+      whyItMatters: "Everything from precision-guided weapons to real-time video feeds to secure communications depends on satellites. An adversary that can disrupt these services gains an enormous advantage.",
+      commonMisconceptions: "Many people think of satellites as 'up there and safe'. In reality they are vulnerable to jamming, cyber attack, directed energy, and anti-satellite missiles.",
+      keyPoints: [
+        "GPS is used for navigation, timing, and guiding weapons — disrupting it affects far more than just maps.",
+        "Australia is investing in its own sovereign satellite communications and space domain awareness capabilities.",
+        "Resilience (having backups and being able to operate in a degraded environment) is now a core requirement."
+      ]
+    },
+    {
+      id: "space-asat-threat",
+      title: "Anti-Satellite (ASAT) Weapons",
+      overview: "Anti-satellite weapons are designed to destroy or disable satellites in orbit. They can be ground-launched missiles, co-orbital killers, or even directed energy weapons from the ground or space.",
+      whyItMatters: "A successful ASAT attack could blind Australia and its allies in the opening hours of a conflict by taking out critical communications, navigation, and intelligence satellites.",
+      commonMisconceptions: "Some believe space is too vast for ASATs to be practical. In reality, many satellites are in predictable orbits and relatively easy to target with modern missiles.",
+      keyPoints: [
+        "China and Russia have both demonstrated direct-ascent ASAT capabilities in tests.",
+        "Even the debris from a destroyed satellite can create long-lasting hazards for all space operations (Kessler syndrome risk).",
+        "Defending satellites is extremely difficult; the emphasis is on resilience, redundancy, and rapid replacement rather than perfect protection."
+      ]
+    },
+    {
+      id: "space-domain-awareness",
+      title: "Space Domain Awareness",
+      overview: "Space Domain Awareness is the ability to detect, track, and characterize objects in space — satellites, debris, and potential threats. It is the foundation for protecting friendly space assets and understanding adversary activities.",
+      whyItMatters: "Without good awareness, you cannot know if your satellites are being targeted or if an adversary is positioning assets for an attack. It is the 'eyes and ears' of space operations.",
+      commonMisconceptions: "Many assume we can see everything in space easily. Tracking small objects and determining their intent is actually very difficult and resource-intensive.",
+      keyPoints: [
+        "Australia is developing sovereign space surveillance capabilities, including radar and optical sensors.",
+        "Close cooperation with the US (through Combined Space Operations) greatly multiplies our awareness.",
+        "Knowing the 'pattern of life' in space allows us to spot unusual behavior that might indicate preparation for conflict."
+      ]
+    },
+    {
+      id: "space-australian-space-command",
+      title: "Defence Space Command",
+      overview: "Defence Space Command is the ADF's dedicated organisation for space operations, capability development, and integration of space into joint operations. It was established to give space the organisational focus it deserves.",
+      whyItMatters: "Space is now recognised as a critical domain. Having a dedicated command ensures space considerations are properly represented in planning and that we develop the people and capabilities needed.",
+      commonMisconceptions: "Some think this is Australia trying to become a space superpower. It is actually a modest but important step to better protect our access to space and use space capabilities effectively.",
+      keyPoints: [
+        "Responsible for space operations, space capability development, and space domain awareness for the ADF.",
+        "Works closely with the Australian Space Agency and international partners.",
+        "Critical for ensuring the ADF can operate effectively in a contested space environment."
+      ]
+    },
+    {
+      id: "cyber-supply-chain-attacks",
+      title: "Supply Chain Cyber Attacks",
+      overview: "Instead of attacking a target directly, sophisticated actors compromise a supplier, software provider, or hardware manufacturer so that the malicious code or backdoor is delivered as part of a legitimate product or update.",
+      whyItMatters: "This is one of the most effective ways to get inside well-defended networks. If the compromise happens before the equipment or software even reaches you, traditional defences are bypassed.",
+      commonMisconceptions: "Many organisations still focus almost exclusively on their own perimeter. Supply chain attacks show that your security is only as strong as the weakest link in your entire supply chain.",
+      keyPoints: [
+        "SolarWinds and similar incidents showed how one compromised update can affect thousands of organisations worldwide.",
+        "Defence and critical infrastructure are high-value targets for these types of attacks.",
+        "Rigorous vendor assessment, software bill of materials, and assuming breach are now essential practices."
+      ]
+    },
+    {
+      id: "cyber-information-operations",
+      title: "Information Operations & Influence",
+      overview: "Cyber is not only about networks and data. It is also used as a vector for information operations — shaping narratives, spreading disinformation, and influencing public opinion and decision-making in target countries.",
+      whyItMatters: "Modern conflict is fought in the information domain as much as the physical one. An adversary can achieve strategic effects by eroding public confidence, sowing division, or shaping the information environment before any shots are fired.",
+      commonMisconceptions: "Some still separate 'cyber' (technical) from 'information operations'. In practice the two are deeply connected — cyber tools are frequently used to enable influence activities.",
+      keyPoints: [
+        "Social media, news sites, and official-looking accounts can all be targeted or used as vectors for influence.",
+        "Attribution is deliberately made difficult so the attacking state can maintain plausible deniability.",
+        "Building societal resilience to disinformation is now part of national security."
+      ]
+    },
+    {
+      id: "ranks-lieutenant-colonel",
+      title: "Lieutenant Colonel (O-5) / Wing Commander",
+      overview: "A Lieutenant Colonel or Wing Commander is a senior officer who usually commands a battalion-sized unit or serves in significant staff roles at brigade or higher level. They are experienced leaders responsible for hundreds of people and complex tactical operations.",
+      whyItMatters: "This is a critical rank where officers move from direct tactical leadership into planning and directing larger formations. Performance at this level heavily influences who reaches senior command.",
+      commonMisconceptions: "The rank is sometimes seen as 'mostly staff work'. In reality, commanding officers at this level still carry direct responsibility for the lives of their people and the success of their missions.",
+      keyPoints: [
+        "Typically commands 500–800 personnel or leads a major staff branch (operations, plans, logistics).",
+        "Responsible for training, readiness, welfare, and operational output of their unit or formation.",
+        "Many future one-star and two-star officers are identified and developed at this rank."
+      ]
+    },
+    {
+      id: "ranks-colonel",
+      title: "Colonel (O-6) / Group Captain",
+      overview: "A Colonel or Group Captain is a senior officer who commands brigade-sized formations, major bases, or holds significant joint or service-level staff appointments. They operate at the operational level and are key advisers to one-star and two-star commanders.",
+      whyItMatters: "Colonels are the link between tactical execution and strategic direction. They turn higher-level guidance into executable plans and are responsible for the overall effectiveness of large organisations.",
+      commonMisconceptions: "People sometimes assume this rank is purely administrative. Many colonels still command significant combat formations or critical enabling organisations.",
+      keyPoints: [
+        "Usually commands a brigade (several thousand personnel) or holds a senior staff role at division or service headquarters.",
+        "Responsible for integrating multiple units and capabilities into coherent operations.",
+        "This is the last rank before officers are seriously considered for general/admiral officer appointments."
+      ]
+    },
+    {
+      id: "leadership-trust",
+      title: "Trust in Leadership",
+      overview: "Trust is the foundation of effective leadership in the ADF. Subordinates must trust that their leaders are competent, care about them, and will make good decisions. Leaders must trust that their people will do the right thing when left to their own initiative.",
+      whyItMatters: "Without trust, Mission Command collapses. People will not take initiative if they fear being second-guessed or punished for honest mistakes, and leaders will not delegate if they do not believe their teams are capable.",
+      commonMisconceptions: "Some believe trust is just about being 'nice' or popular. Real trust is built on consistent competence, integrity, and genuine care for people over time.",
+      keyPoints: [
+        "Trust is earned slowly and lost quickly. One major breach can take years to repair.",
+        "Leaders build trust by being competent, consistent, transparent where possible, and by looking after their people.",
+        "High-trust organisations can operate much faster and more effectively than low-trust ones, especially when communications are degraded."
+      ]
+    },
+    {
+      id: "national-defence-deterrence-by-denial",
+      title: "Deterrence by Denial",
+      overview: "The core idea of Australia's current strategy is to deter potential adversaries by making it clear that any attempt to attack or coerce Australia would be extremely costly and unlikely to succeed — rather than trying to threaten retaliation after the fact.",
+      whyItMatters: "This is a shift from being able to 'defeat' an enemy far from our shores to being able to stop them from achieving their objectives in the first place, close to our region and territory.",
+      commonMisconceptions: "Some still think in terms of 'punishing' an attacker after the fact. Deterrence by denial is about convincing them not to try in the first place because the attempt itself will fail or be too expensive.",
+      keyPoints: [
+        "Requires credible capabilities that can actually hold an adversary's forces at risk (long-range strike, resilient bases, capable maritime forces).",
+        "Also requires the will to use those capabilities and the resilience to absorb and recover from initial attacks.",
+        "Success is measured by an adversary deciding that the costs and risks of aggression are too high."
+      ]
+    },
+    {
+      id: "national-defence-aukus",
+      title: "AUKUS and Nuclear-Powered Submarines",
+      overview: "AUKUS is a trilateral security partnership between Australia, the UK, and the US. Its most prominent element is Australia's acquisition of nuclear-powered submarines, which will give Australia a much more capable, longer-range, and stealthier undersea platform than the current Collins class.",
+      whyItMatters: "Nuclear-powered submarines dramatically increase Australia's ability to operate persistently and stealthily across the vast distances of the Indo-Pacific, providing a powerful conventional deterrent.",
+      commonMisconceptions: "Some believe Australia is acquiring nuclear weapons. AUKUS is about conventionally armed, nuclear-powered submarines only. The boats will not carry nuclear weapons.",
+      keyPoints: [
+        "Nuclear propulsion gives submarines much greater speed, endurance, and stealth compared with diesel-electric boats.",
+        "The program will take decades and involves major investment in infrastructure, workforce, and regulatory frameworks.",
+        "It represents the biggest single capability investment in Australian defence history and a major deepening of the alliance with the United States."
+      ]
+    },
+    {
+      id: "space-resilience",
+      title: "Space Resilience and Redundancy",
+      overview: "Space resilience means designing systems so that the loss of individual satellites or ground stations does not cause mission failure. This includes having backup satellites, alternative communication paths, and the ability to operate with degraded space support.",
+      whyItMatters: "An adversary will almost certainly try to attack our space capabilities in a conflict. The ADF that can continue to fight effectively with reduced space support will have a major advantage.",
+      commonMisconceptions: "Resilience is not just about having 'spares'. It also requires training people to operate when GPS is jammed, satellite comms are down, or imagery is unavailable.",
+      keyPoints: [
+        "Modern forces are heavily dependent on space; operating without it requires significant changes to tactics and procedures.",
+        "Australia is investing in more distributed and resilient satellite architectures rather than a small number of high-value assets.",
+        "Regular training in GPS-denied and communications-denied environments is now essential."
+      ]
+    },
+    {
+      id: "cyber-red-team",
+      title: "Red Teaming and Offensive Cyber Testing",
+      overview: "Red teams are authorised friendly forces that attack an organisation's networks and systems using the same techniques as real adversaries. Their job is to find weaknesses before the real enemy does.",
+      whyItMatters: "You cannot defend what you do not understand. Regular, realistic red teaming is one of the best ways to discover vulnerabilities and test whether defences actually work.",
+      commonMisconceptions: "Some leaders see red team findings as criticism of their team. Good red teaming is a gift — it shows you where you are vulnerable so you can fix it before an adversary exploits it.",
+      keyPoints: [
+        "Effective red teams use the same tools, tactics, and persistence as real threat actors.",
+        "The best results come when red team findings are treated as valuable intelligence rather than a report card.",
+        "The ADF and its industry partners conduct regular red team activities against critical systems."
+      ]
+    },
+    {
+      id: "ranks-brigadier",
+      title: "Brigadier (O-7) / Air Commodore",
+      overview: "A Brigadier or Air Commodore is a one-star officer. They typically command brigades, major formations, or hold senior joint appointments. This is the first general/admiral officer rank and marks the transition into strategic leadership.",
+      whyItMatters: "One-star officers are the first level of truly joint and strategic leadership. They are responsible for integrating multiple capabilities and advising two-star and three-star commanders.",
+      commonMisconceptions: "The jump from Colonel to Brigadier is not just 'more of the same'. It is a fundamental shift from commanding a unit to leading at the formation and strategic level.",
+      keyPoints: [
+        "Commands formations of several thousand personnel or holds senior appointments in joint headquarters.",
+        "Responsible for major capability programs, operational planning, and advising government through the chain of command.",
+        "Promotion to this rank is highly competitive and signals that an officer is being groomed for the most senior roles."
+      ]
+    },
+    {
+      id: "leadership-cohesion",
+      title: "Unit Cohesion and Morale",
+      overview: "Cohesion is the bond that holds a team together under stress. It is built through shared hardship, trust, competence, and belief in the mission. High-cohesion units can achieve far more than the sum of their individual members.",
+      whyItMatters: "In combat and high-stress operations, cohesion is often the difference between success and failure, and between people staying in the force or leaving. It cannot be ordered — it must be earned.",
+      commonMisconceptions: "Some leaders believe cohesion comes from social events and 'fun' activities. Real cohesion comes from shared challenge, mutual respect, and confidence that your mates will not let you down.",
+      keyPoints: [
+        "Cohesion is built over time through realistic training, shared adversity, and leaders who genuinely care for their people.",
+        "It is fragile — one or two bad leaders or toxic incidents can destroy years of work.",
+        "The ADF invests heavily in team-building, welfare, and leadership development precisely because cohesion is a combat multiplier."
+      ]
+    },
+    {
+      id: "national-defence-guided-weapons",
+      title: "Guided Weapons and Explosive Ordnance Enterprise",
+      overview: "Australia is building a domestic guided weapons manufacturing and sustainment capability. This includes missiles, rockets, bombs, and the industrial base needed to produce and maintain them at scale during a conflict.",
+      whyItMatters: "In a high-intensity conflict, stockpiles of precision weapons will be consumed extremely quickly. Being able to produce and replenish them domestically is a critical strategic vulnerability that must be addressed.",
+      commonMisconceptions: "Some believe we can simply buy more weapons from overseas when we need them. In a major conflict, supply chains will be contested and our allies will have their own massive demands.",
+      keyPoints: [
+        "The enterprise includes both sovereign manufacturing and deep integration with US and allied production lines.",
+        "It covers the full spectrum from small precision munitions up to long-range strike weapons.",
+        "Sustaining this capability in peacetime is expensive but essential for credible deterrence and the ability to fight a prolonged campaign."
+      ]
+    },
+    {
+      id: "space-counterspace",
+      title: "Counter-Space Operations",
+      overview: "Counter-space operations are actions taken to deny an adversary the use of space capabilities. This includes jamming satellite communications, attacking ground stations, dazzling sensors, or destroying satellites themselves.",
+      whyItMatters: "An adversary that can blind or degrade our space support while protecting their own will have a massive advantage in any conflict. Counter-space is now a core part of modern warfare.",
+      commonMisconceptions: "Some believe counter-space is only about blowing up satellites. In practice, reversible effects like jamming and dazzling are often more attractive because they are harder to attribute and less escalatory.",
+      keyPoints: [
+        "Jamming and electronic attack against satellite links is already common in contested regions.",
+        "Ground stations and control links are often more vulnerable than the satellites themselves.",
+        "The ADF must train and equip to operate when space support is degraded or denied."
+      ]
+    },
+    {
+      id: "cyber-offensive-operations",
+      title: "Offensive Cyber Operations",
+      overview: "Offensive cyber operations use cyber tools to disrupt, degrade, or destroy an adversary's networks, systems, and data in support of military objectives. This can range from temporary disruption of command systems to permanent damage of critical infrastructure.",
+      whyItMatters: "Offensive cyber is a powerful tool that can achieve effects traditionally requiring kinetic strikes, often with lower risk to our own forces and less collateral damage.",
+      commonMisconceptions: "Many assume offensive cyber is only about 'hacking'. It is a full military capability that requires targeting, planning, deconfliction, and integration with other operations — just like any other weapon system.",
+      keyPoints: [
+        "Effects can be reversible (temporary disruption) or irreversible (data destruction or physical damage via cyber means).",
+        "Attribution and escalation control are major challenges — the defender may not know who attacked them or why.",
+        "The ADF maintains offensive cyber capabilities that can be employed in support of joint operations."
+      ]
+    },
+    {
+      id: "ranks-commander",
+      title: "Commander (O-5 Navy) / Lieutenant Colonel equivalent",
+      overview: "In the Navy, a Commander is the equivalent of a Lieutenant Colonel. They often command major warships (frigates, destroyers, submarines) or serve as executive officers on larger vessels and in senior staff roles.",
+      whyItMatters: "Commanding a warship is one of the most demanding leadership roles in the ADF. Commanders at sea are responsible for the ship, its crew, and the mission with very limited higher support.",
+      commonMisconceptions: "The title 'Commander' can be confusing because it is both a rank and a position. Not every person in command of a ship is the rank of Commander.",
+      keyPoints: [
+        "Commands major surface combatants or submarines, or fills key staff appointments ashore.",
+        "Responsible for the fighting efficiency, safety, and welfare of several hundred sailors.",
+        "Sea command at this level is a major career milestone and a key test for further promotion."
+      ]
+    },
+    {
+      id: "leadership-values",
+      title: "ADF Values and Behaviours",
+      overview: "The ADF has a set of core values — Courage, Integrity, Respect, and Excellence — that are expected to guide the behaviour of all members. These values are not just posters on the wall; they are meant to shape how people treat each other and make decisions under pressure.",
+      whyItMatters: "Values and culture determine how an organisation behaves when no one is watching. In the military, poor values lead to toxic cultures, ethical failures, and ultimately mission failure.",
+      commonMisconceptions: "Some think values training is 'soft'. In reality, values-based leadership is one of the hardest and most important parts of command, especially when it means making unpopular decisions or holding people to account.",
+      keyPoints: [
+        "Courage includes both physical courage and the moral courage to do the right thing when it is difficult.",
+        "Integrity means being honest with yourself, your people, and your superiors — even when it is uncomfortable.",
+        "Leaders are responsible for the culture of their unit. You cannot outsource values to the training system."
+      ]
+    },
+    {
+      id: "national-defence-northern-bases",
+      title: "Northern Bases and Dispersal",
+      overview: "Australia is investing heavily in making its northern bases more resilient and distributed. Instead of concentrating forces in a few large, vulnerable locations, the strategy emphasises dispersal, hardening, and the ability to operate from multiple smaller airfields and ports.",
+      whyItMatters: "Concentrated bases are easy targets for long-range missiles. A more dispersed and resilient posture makes it much harder for an adversary to achieve a decisive first strike.",
+      commonMisconceptions: "Some think this is just about building more runways. It also requires fuel storage, maintenance facilities, command and control, and the ability to rapidly move people and aircraft between locations.",
+      keyPoints: [
+        "Major upgrades are underway at existing northern bases plus development of additional dispersal locations.",
+        "The goal is to be able to absorb attacks and keep operating rather than having everything destroyed in the first wave.",
+        "This requires significant investment in infrastructure, logistics, and the ability to operate with limited centralised support."
+      ]
+    },
+    {
+      id: "cyber-volt-typhoon",
+      title: "Volt Typhoon (Chinese Cyber Actor)",
+      overview: "Volt Typhoon is a sophisticated Chinese state-sponsored cyber group focused on pre-positioning inside critical infrastructure networks (energy, water, transport, communications) for potential disruptive attacks in a future conflict.",
+      whyItMatters: "This represents a shift from espionage to preparation for wartime sabotage. If conflict breaks out, these actors could cause blackouts, disrupt logistics, and create chaos behind the lines.",
+      commonMisconceptions: "People often think cyber threats are mainly about stealing data. Volt Typhoon shows the growing risk of destructive, pre-planted capabilities designed to cause real-world effects.",
+      keyPoints: [
+        "The group prefers 'living off the land' techniques — using existing tools on the network to avoid detection.",
+        "They have shown particular interest in operational technology (OT) systems that control physical infrastructure.",
+        "Defence against this requires strong network segmentation, monitoring for unusual behavior, and rapid incident response capabilities."
+      ]
+    },
+    {
+      id: "cyber-resilience",
+      title: "Cyber Resilience",
+      overview: "Cyber resilience is the ability to continue operating effectively even when networks are under attack or partially compromised. It accepts that perfect prevention is impossible and focuses on detection, response, and recovery.",
+      whyItMatters: "In a real conflict, Australian networks will be attacked. The side that can keep fighting with degraded systems will have a major advantage.",
+      commonMisconceptions: "Resilience is not the same as 'backup and restore'. It includes operating in disconnected or contested environments and having manual workarounds.",
+      keyPoints: [
+        "Key elements include redundant systems, offline capabilities, well-trained people who can work without computers, and rapid recovery plans.",
+        "The ADF is increasingly designing systems and procedures that can function with limited or no network access.",
+        "Regular realistic exercises are essential to test whether resilience plans actually work under pressure."
+      ]
+    },
+    {
+      id: "ranks-lieutenant",
+      title: "Lieutenant (O-2)",
+      overview: "A Lieutenant is a junior commissioned officer, typically in their early to mid-20s. They command small teams (platoons in the Army, watches or departments at sea, flights in the Air Force) and are responsible for the welfare, training, and performance of their people.",
+      whyItMatters: "Lieutenants are the first level of commissioned leadership. How they lead their small teams sets the tone for the entire organisation and directly affects retention and combat effectiveness.",
+      commonMisconceptions: "Some believe junior officers just give orders. In reality they spend most of their time leading by example, solving problems for their team, and translating higher intent into action.",
+      keyPoints: [
+        "Usually commands 20-40 people (a platoon, a watch section, or a small flight).",
+        "Responsible for individual training, welfare, discipline, and small-unit tactics or procedures.",
+        "The rank where most officers learn the real craft of leadership under pressure."
+      ]
+    },
+    {
+      id: "ranks-captain",
+      title: "Captain (O-3) / Flight Lieutenant",
+      overview: "A Captain (Army/Navy) or Flight Lieutenant (Air Force) is an experienced junior officer. They often command companies, larger departments, or flights, and serve as staff officers or instructors. This is where officers start taking on broader responsibilities.",
+      whyItMatters: "Captains are the backbone of tactical leadership. They turn strategic direction into executable plans and are usually the last officers who still know every person in their unit by name.",
+      commonMisconceptions: "The rank is sometimes underestimated because it is still 'junior officer'. In practice, Captains run most day-to-day operations and training in the ADF.",
+      keyPoints: [
+        "Typically commands 100+ people or leads a significant staff function.",
+        "Often serves as a company commander, operations officer, or specialist instructor.",
+        "This is the rank where many officers decide whether they want a long-term military career."
+      ]
+    },
+    {
+      id: "ranks-major",
+      title: "Major (O-4) / Squadron Leader",
+      overview: "A Major or Squadron Leader is a senior junior officer who typically commands a sub-unit (company/squadron) or works as a key staff officer at battalion or higher level. They are expected to think and plan at the tactical-to-operational level.",
+      whyItMatters: "Majors are where real staff work and sub-unit command happens. They bridge the gap between the 'doing' ranks and higher command, and are critical for planning and executing operations.",
+      commonMisconceptions: "People often think majors are 'just staff officers'. Many are still commanding combat sub-units and making life-and-death decisions in the field.",
+      keyPoints: [
+        "Usually commands 100-200 people or is a primary staff officer for operations, plans, or logistics.",
+        "Responsible for writing and executing complex plans that involve multiple sub-units.",
+        "This is a key rank for promotion — performance here heavily influences whether someone reaches senior ranks."
+      ]
+    },
+    {
+      id: "national-defence-five-tasks",
+      title: "The Five Tasks of the 2026 National Defence Strategy",
+      overview: "The strategy defines five core tasks the ADF must be able to perform: defend Australia, contribute to the security of the immediate region, contribute to stability in the broader Indo-Pacific, support global security, and shape the strategic environment.",
+      whyItMatters: "These five tasks replace the old 'defence of Australia' plus expeditionary thinking. They force the ADF to be ready to operate across a spectrum from homeland defence to coalition operations.",
+      commonMisconceptions: "Some still believe the ADF's main job is 'defending Australia from invasion'. The strategy makes clear we must be able to act earlier and further afield to prevent threats from reaching our shores.",
+      keyPoints: [
+        "Task 1 is still the most important: the ability to defend Australia and its territories.",
+        "Tasks 2 and 3 focus on our immediate region and the broader Indo-Pacific — where most future risk lies.",
+        "The strategy accepts we may need to do several of these tasks simultaneously in a crisis."
+      ]
+    },
+    {
+      id: "national-defence-long-range-strike",
+      title: "Long Range Strike Capability",
+      overview: "A major pillar of the new strategy is the ability to hold adversary forces at risk from Australian territory using long-range missiles, aircraft, and (eventually) submarines. This includes HIMARS, Tomahawk, JASSM-ER, and future hypersonic weapons.",
+      whyItMatters: "Long-range strike allows Australia to deter aggression by threatening high-value targets deep in an adversary's operating areas without needing to put our own forces in immediate danger.",
+      commonMisconceptions: "Many assume this is just about buying missiles. It also requires resilient basing, targeting intelligence, command and control, and the ability to sustain operations under attack.",
+      keyPoints: [
+        "The ADF is acquiring land-based long-range precision strike systems (HIMARS with precision rockets and Tomahawk).",
+        "The F-35A and future bombers will carry standoff weapons like JASSM-ER.",
+        "AUKUS will eventually give Australia nuclear-powered submarines with long-range strike options."
+      ]
     }
   ]
 };
 
-// Expose for the study tools
+// Public / OSINT "latest known" position data for the Operations map live layers.
+// True real-time public tracking of military aircraft and ships is very limited (many assets do not broadcast for security).
+// Aircraft layer uses the free OpenSky Network public API (civil + occasional military squawks).
+// Ship / adversary layers are illustrative last-reported / open source intelligence examples (manually curated, not live).
+const ADF_SHIPS_LAST_KNOWN = [
+  {
+    id: "hmas-brisbane",
+    name: "HMAS Brisbane (DDG 43)",
+    type: "ship",
+    lat: -15.2,
+    lng: 145.8,
+    description: "Last reported in northern Australian / Coral Sea waters (public sources)",
+    updated: "Open source reporting"
+  },
+  {
+    id: "hmas-sydney",
+    name: "HMAS Sydney (DDG 42)",
+    type: "ship",
+    lat: -8.5,
+    lng: 152.0,
+    description: "Indo-Pacific presence / regional operations (public)",
+    updated: "Recent public info"
+  },
+  {
+    id: "hmas-hobart",
+    name: "HMAS Hobart (DDG 39)",
+    type: "ship",
+    lat: -12.0,
+    lng: 130.5,
+    description: "Northern deployment / Darwin area (public)",
+    updated: "Open source"
+  },
+  {
+    id: "hmas-supply",
+    name: "HMAS Supply (AOR)",
+    type: "ship",
+    lat: -20.5,
+    lng: 116.0,
+    description: "Replenishment oiler supporting task group (public reporting)",
+    updated: "Public sources"
+  },
+  {
+    id: "hmas-perth",
+    name: "HMAS Perth (FFH 157)",
+    type: "ship",
+    lat: -32.0,
+    lng: 115.5,
+    description: "Anzac-class frigate, west coast patrol (example)",
+    updated: "Public reporting"
+  },
+  {
+    id: "hmas-choules",
+    name: "HMAS Choules (LSD)",
+    type: "ship",
+    lat: -27.5,
+    lng: 153.5,
+    description: "Amphibious support / HADR ready (public)",
+    updated: "Open source"
+  }
+];
+
+const ADVERSARY_OSINT = [
+  {
+    id: "china-scs",
+    name: "PLAN Carrier Group (illustrative)",
+    side: "china",
+    lat: 17.0,
+    lng: 112.0,
+    description: "South China Sea presence - based on open-source intelligence & sightings",
+    color: "#C0392B"
+  },
+  {
+    id: "china-taiwan",
+    name: "PLAN Amphibious Task Group (illustrative)",
+    side: "china",
+    lat: 24.5,
+    lng: 120.5,
+    description: "Eastern Taiwan Strait - public OSINT reports",
+    color: "#C0392B"
+  },
+  {
+    id: "russia-pacific",
+    name: "Russian Pacific Fleet (illustrative)",
+    side: "russia",
+    lat: 42.5,
+    lng: 133.0,
+    description: "NW Pacific / Sea of Japan - public reports",
+    color: "#5D4E8C"
+  },
+  {
+    id: "russia-indian",
+    name: "Russian Navy Indian Ocean detachment (illustrative)",
+    side: "russia",
+    lat: -5.5,
+    lng: 78.0,
+    description: "Indian Ocean - open source tracking",
+    color: "#5D4E8C"
+  }
+];
+
+// Make sure all the main data structures are on window so buildListeningPool and the rest of the site can find them reliably.
+window.BASES = BASES;
+window.OPERATIONS = OPERATIONS;
+window.AIRCRAFT = AIRCRAFT;
+window.NAVY = NAVY;
+window.ARMY = ARMY;
+window.WEAPONS = WEAPONS;
+window.ADF_SHIPS_LAST_KNOWN = ADF_SHIPS_LAST_KNOWN;
+window.ADVERSARY_OSINT = ADVERSARY_OSINT;
+window.GLOSSARY = (typeof GLOSSARY !== 'undefined' ? GLOSSARY : []);
+window.SPACE = (typeof SPACE !== 'undefined' ? SPACE : []);
+window.CYBERSPACE_STUDY_ITEMS = (typeof CYBERSPACE_STUDY_ITEMS !== 'undefined' ? CYBERSPACE_STUDY_ITEMS : []);
+window.RANKS = (typeof RANKS !== 'undefined' ? RANKS : {});
+window.LEADERSHIP_ITEMS = (typeof LEADERSHIP_ITEMS !== 'undefined' ? LEADERSHIP_ITEMS : []);
+
+// Expose the listening data
 window.LISTENING_DATA = LISTENING_DATA;

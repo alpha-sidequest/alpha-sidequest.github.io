@@ -68,6 +68,7 @@
     </svg>
     <div class="nav-title"><span>ADF</span> Forge</div>
   </a>
+  <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
   <div class="nav-links">
     <span class="nav-link" data-section="bases">Bases</span>
     <span class="nav-link" data-section="operations">Operations</span>
@@ -81,6 +82,7 @@
     <span class="nav-link" data-section="pfa">Pre-entry Fitness (PFA)</span>
     <span class="nav-link" data-section="national-defence">National Defence</span>
     <span class="nav-link" data-section="study-tools">Study Tools</span>
+
     <span class="nav-link" data-section="glossary">Glossary</span>
   </div>
   <div class="nav-search">
@@ -296,7 +298,6 @@
                Use those numbers to tell me the correct position for each base.
                Toggle via the Calib button below (defaults off). -->
           <rect id="calib-rect" class="calib-helper" x="720" y="155" width="2560" height="2276" fill="rgba(255,255,255,0.01)" style="cursor: crosshair;" />
-
 
           <!-- Learmonth WA (Exmouth peninsula, far west coast) -->
           <g class="base-dot" data-base="learmonth" onclick="selectBase('learmonth',event)">
@@ -527,6 +528,38 @@
       <!-- ONLINE: Google Maps satellite (attempted by default; auto-falls back to offline SVG if key/referrers cause "Something went wrong") -->
       <div id="ops-google-map" style="width:100%; height:480px; border-radius:8px; overflow:hidden; display:none;"></div>
 
+      <!-- Public position layers (ADF aircraft/ships + adversary OSINT) - only active on Google map -->
+      <div id="ops-position-layers" style="margin: 8px 0 12px; padding: 8px 12px; background: var(--surface); border-radius: 6px; font-size: 13px; display: none;">
+        <strong>Public Position Layers</strong> (experimental / best-effort)
+        <div style="margin-top: 6px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+          <label style="display:flex; align-items:center; gap:4px;">
+            <input type="checkbox" id="layer-adf-aircraft" onchange="toggleAdfAircraftLayer(this.checked)">
+            <span>ADF Aircraft (public ADS-B)</span>
+          </label>
+          <label style="display:flex; align-items:center; gap:4px;">
+            <input type="checkbox" id="layer-adf-ships" onchange="toggleAdfShipLayer(this.checked)">
+            <span>ADF Ships (last reported)</span>
+          </label>
+          <label style="display:flex; align-items:center; gap:4px;">
+            <input type="checkbox" id="layer-adversary" onchange="toggleAdversaryLayer(this.checked)">
+            <span>Adversary (China / Russia OSINT)</span>
+          </label>
+          <button onclick="refreshPositionLayers()" style="font-size:11px; padding:2px 8px; margin-left:8px;">↻ Refresh</button>
+        </div>
+        <div style="font-size:10px; color:var(--text-dim); margin-top:6px; line-height:1.3;">
+          Military assets often do not transmit publicly. Aircraft data from free OpenSky Network API (civil + limited military). Ship/adversary = illustrative open-source last-known positions. Not authoritative or real-time for sensitive operations.
+        </div>
+      </div>
+
+      <!-- Clicked position details card (populated from layers) -->
+      <div id="position-info" style="margin-top: 8px; padding: 10px 12px; background: var(--navy-mid); border-radius: 6px; font-size: 13px; display: none; border-left: 3px solid var(--gold); max-width: 340px;">
+        <div style="display:flex; justify-content: space-between; align-items: center;">
+          <strong id="position-info-title" style="color: var(--gold);"></strong>
+          <button onclick="document.getElementById('position-info').style.display='none'" style="background:none; border:none; color:var(--text-muted); font-size:14px; cursor:pointer; line-height:1;">×</button>
+        </div>
+        <div id="position-info-body" style="margin-top: 6px; color: var(--text); line-height: 1.35;"></div>
+      </div>
+
       <!-- OFFLINE: Local calibrated map (fallback) -->
       <div id="ops-offline-map">
         <svg id="world-svg" viewBox="0 0 960 480" xmlns="http://www.w3.org/2000/svg">
@@ -738,8 +771,6 @@
         <p>Major surface combatants, submarines, support ships and organic helicopters of the Royal Australian Navy. Critical knowledge for RAAF maritime roles (P-8A Poseidon, MH-60R Seahawk, MQ-4C Triton, etc.).</p>
       </div>
 
-
-
       <div id="navyGrid">
         <!-- Populated dynamically by buildNavyGrid() from NAVY data in data.js.
              This makes Navy rendering consistent with Air Force / Army / Weapons (no more static duplication). -->
@@ -874,8 +905,6 @@ An officer must plan for “space denied” operations from day one: what happen
       <h2>Weapons &amp; Systems</h2>
       <p>Comprehensive coverage of Australian and adversary weapons (segregated by role: air-to-air, air-to-surface, surface-to-air, etc.) plus all sensors, radars, sonars, EW suites, avionics and other systems from RAAF aircraft, RAN vessels and Army platforms (segregated by type: radar, EO/IR, sonar, EW, etc.). All entries include technical detail, employment context, plain-English explanations, and cross-links to the platforms that use them.</p>
     </div>
-
-
 
     <!-- Air-to-Air Weapons -->
     <div style="margin: 32px 0 12px;">
@@ -2633,8 +2662,6 @@ An officer must plan for “space denied” operations from day one: what happen
         </p>
       </div>
 
-
-
       <!-- 9. TOOLS &amp; TRAINING FOR CYBER WARFARE OFFICERS -->
       <div>
         <h3 id="cyber-tools" style="font-family: 'Rajdhani', sans-serif; color: var(--gold); margin-bottom: 12px; font-size: 20px;">Tools, Training Platforms &amp; Equipment for Cyber Warfare Officers</h3>
@@ -2702,8 +2729,6 @@ An officer must plan for “space denied” operations from day one: what happen
   </div>
 </section>
 
-
-
 <!-- STUDY TOOLS SECTION (Flashcards + Quiz) - placed before Glossary for logical study flow -->
 <section id="study-tools">
   <div class="section-wrap">
@@ -2712,13 +2737,87 @@ An officer must plan for “space denied” operations from day one: what happen
       <p>Active recall practice. Everything is saved locally in your browser — your progress stays private on this device.</p>
     </div>
 
-    <!-- Mode Switcher -->
+    <!-- Audio Learning Loops - Primary / Landing Feature -->
+    <div id="audio-loops-primary" style="margin-bottom: 48px;">
+      <div class="section-header" style="margin-bottom: 12px;">
+        <h3 style="color: var(--gold); font-size: 24px;">Audio Learning Loops</h3>
+        <p style="color: var(--text-muted);">High-volume, passive listening using Karen (premium) by default at 0.85×. Built for retention and developing intuition through repetition. Use Smart Review (SRS) for focused practice on weaker areas.</p>
+      </div>
+
+      <div class="study-controls" style="flex-wrap: wrap; gap: 12px;">
+        <div style="width: 100%; margin-bottom: 8px;">
+          <strong style="color: var(--gold);">Choose your listening group:</strong>
+        </div>
+
+        <button class="study-btn audio-group-btn" data-group="group1" onclick="selectAudioGroup('group1', this)">
+          Group 1: Bases &amp; Operations
+        </button>
+        <button class="study-btn audio-group-btn" data-group="group2" onclick="selectAudioGroup('group2', this)">
+          Group 2: Air Force • Navy • Army • Weapons
+        </button>
+        <button class="study-btn audio-group-btn" data-group="group3" onclick="selectAudioGroup('group3', this)">
+          Group 3: Space • Cyberspace • Ranks • Leadership • National Defence
+        </button>
+      </div>
+
+      <!-- Voice selector for Audio Loops (works across Firefox, Chrome, Safari) -->
+      <div style="margin: 10px 0 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+        <label style="font-size: 13px; color: var(--text-muted); white-space: nowrap;">Voice:</label>
+        <select id="audio-voice-select" style="font-size: 13px; padding: 4px 8px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 4px; min-width: 220px;"
+                onchange="setAudioLoopVoice(this.value)">
+          <option value="">★ Best available (Karen preferred)</option>
+          <option value="">(click ↻ or start the loop to load real voices)</option>
+        </select>
+        <button type="button" onclick="refreshAudioVoices()" title="Refresh available voices from your browser/OS (may need to start the loop once)"
+                style="font-size: 12px; padding: 3px 7px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--text-muted); cursor: pointer;">↻</button>
+        <span id="audio-voice-hint" style="font-size: 11px; color: var(--text-dim);">click ↻ or start loop to load voices</span>
+      </div>
+
+      <div id="audio-loop-status" style="margin: 20px 0; padding: 16px; background: var(--surface); border-radius: 8px; min-height: 80px;">
+        <div style="font-size: 13px; color: var(--text-dim);">Select a group above, then start the loop.</div>
+        <div id="audio-current-item" style="font-size: 18px; font-weight: 600; color: var(--gold); margin-top: 8px;"></div>
+        <div id="audio-loop-info" style="font-size: 13px; color: var(--text-muted); margin-top: 4px;"></div>
+      </div>
+
+      <div class="study-controls">
+        <button id="audio-start-btn" class="study-btn primary" onclick="startAudioLearningLoop()" style="font-size: 15px; padding: 10px 24px;">
+          ▶ Start Listening Loop
+        </button>
+        <button class="study-btn" onclick="pauseAudioLoop()" style="display:none;" id="audio-pause-btn">⏸ Pause</button>
+        <button class="study-btn" onclick="resumeAudioLoop()" style="display:none;" id="audio-resume-btn">▶ Resume</button>
+        <button class="study-btn" onclick="skipAudioItem()">⏭ Skip to Next</button>
+        <button class="study-btn secondary" onclick="stopAudioLearningLoop()">⏹ Stop Loop</button>
+
+        <label style="margin-left:12px; display:flex; align-items:center; gap:6px; font-size:13px;">
+          <input type="checkbox" id="audio-smart-mode" onchange="toggleAudioSmartMode(this.checked)"> 
+          Smart Review (SRS)
+        </label>
+      </div>
+
+      <div style="margin-top: 16px; font-size: 13px; color: var(--text-dim);">
+        <strong>How it works:</strong> The loop randomly selects items and reads them in audio-optimized form (Title → Clear Overview → Why it matters → Key points with memory clues). 
+        It keeps going until you stop. Perfect for headphones while commuting, chores, or background review. Uses your chosen voice (Karen is the premium default; best quality voices work great on macOS Safari/Firefox).
+      </div>
+
+      <div id="audio-transcript" style="margin-top: 20px; padding: 18px 20px; background: var(--navy-mid); border-radius: 8px; font-size: 15px; color: var(--text); line-height: 1.55; min-height: 160px; border: 1px solid var(--border);">
+        <strong style="color: var(--gold);">Currently Speaking</strong>
+        <div id="audio-last-text" style="margin-top: 10px;"></div>
+      </div>
+    </div>
+
+    <hr style="border-color: var(--border); margin: 32px 0;">
+
+    <div class="section-header">
+      <h3 style="font-size: 20px;">Active Study Games</h3>
+      <p style="color: var(--text-muted);">Deliberate practice and testing tools.</p>
+    </div>
+
+    <!-- Mode Switcher for the games -->
     <div class="study-mode-tabs">
       <button class="study-tab active" onclick="switchStudyMode('flashcards', this)">Flashcards</button>
       <button class="study-tab" onclick="switchStudyMode('quiz', this)">Quiz Mode</button>
       <button class="study-tab" onclick="switchStudyMode('whoami', this)">Who Am I?</button>
       <button class="study-tab" onclick="switchStudyMode('matching', this)">Matching Game</button>
-      <button class="study-tab" onclick="switchStudyMode('audio-loops', this)">Audio Learning Loops</button>
     </div>
 
     <!-- FLASHCARDS MODE -->
@@ -2927,50 +3026,6 @@ An officer must plan for “space denied” operations from day one: what happen
       </div>
     </div>
 
-    <!-- AUDIO LEARNING LOOPS MODE -->
-    <div id="audio-loops-mode" class="study-mode-panel" style="display:none;">
-      <div class="study-controls" style="flex-wrap: wrap; gap: 12px;">
-        <div style="width: 100%; margin-bottom: 8px;">
-          <strong style="color: var(--gold);">Choose your listening group:</strong>
-        </div>
-
-        <button class="study-btn audio-group-btn" data-group="group1" onclick="selectAudioGroup('group1', this)">
-          Group 1: Bases &amp; Operations
-        </button>
-        <button class="study-btn audio-group-btn" data-group="group2" onclick="selectAudioGroup('group2', this)">
-          Group 2: Air Force • Navy • Army • Weapons
-        </button>
-        <button class="study-btn audio-group-btn" data-group="group3" onclick="selectAudioGroup('group3', this)">
-          Group 3: Space • Cyberspace • Ranks • Leadership • National Defence
-        </button>
-      </div>
-
-      <div id="audio-loop-status" style="margin: 20px 0; padding: 16px; background: var(--surface); border-radius: 8px; min-height: 80px;">
-        <div style="font-size: 13px; color: var(--text-dim);">Select a group above, then start the loop.</div>
-        <div id="audio-current-item" style="font-size: 18px; font-weight: 600; color: var(--gold); margin-top: 8px;"></div>
-        <div id="audio-loop-info" style="font-size: 13px; color: var(--text-muted); margin-top: 4px;"></div>
-      </div>
-
-      <div class="study-controls">
-        <button id="audio-start-btn" class="study-btn primary" onclick="startAudioLearningLoop()" style="font-size: 15px; padding: 10px 24px;">
-          ▶ Start Random Listening Loop (Tara)
-        </button>
-        <button class="study-btn" onclick="pauseAudioLoop()" style="display:none;" id="audio-pause-btn">⏸ Pause</button>
-        <button class="study-btn" onclick="resumeAudioLoop()" style="display:none;" id="audio-resume-btn">▶ Resume</button>
-        <button class="study-btn" onclick="skipAudioItem()">⏭ Skip to Next</button>
-        <button class="study-btn secondary" onclick="stopAudioLearningLoop()">⏹ Stop Loop</button>
-      </div>
-
-      <div style="margin-top: 16px; font-size: 13px; color: var(--text-dim);">
-        <strong>How it works:</strong> The loop randomly selects items and reads them in audio-optimized form (Title → Clear Overview → Key Systems with memory clues). 
-        It keeps going until you stop. Perfect for headphones while commuting, chores, or focused review. Uses Tara at the best listening speed.
-      </div>
-
-      <div id="audio-transcript" style="margin-top: 20px; padding: 12px; background: var(--navy-mid); border-radius: 6px; font-size: 13px; color: var(--text); max-height: 120px; overflow: auto;">
-        <strong>Last spoken:</strong> <span id="audio-last-text">—</span>
-      </div>
-    </div>
-
   </div>
 </section>
 
@@ -3015,7 +3070,7 @@ An officer must plan for “space denied” operations from day one: what happen
     <div class="reader-current">
       <strong>Now reading:</strong> 
       <span id="reader-section-name">—</span>
-      <span class="reader-voice-badge">Tara • 0.85×</span>
+      <span class="reader-voice-badge">Karen • 0.85×</span>
     </div>
 
     <div class="reader-controls">
@@ -3045,12 +3100,15 @@ An officer must plan for “space denied” operations from day one: what happen
     </div>
 
     <div class="reader-hint">
-      Uses Tara (most natural voice on this system) at the selected speed. 
-      On macOS, enable "Enhanced" voices in System Settings → Accessibility → Spoken Content for best quality.
-      Drag the progress bar to jump around.
+      Uses the best natural voice available (Karen preferred site-wide). 
+      For the main passive listening experience (Audio Learning Loops) you can choose any available voice from your browser/OS.
+      On macOS, enable "Enhanced" voices in System Settings → Accessibility → Spoken Content for the highest quality (Karen &amp; Tara are excellent).
     </div>
   </div>
 </div>
 
-</body>
-</html>
+<div id="reader-float-btn" onclick="toggleReaderPanel()">
+    🔊
+  </button>
+
+  <div id="reader-panel" class="reader-panel" style="display:none;">

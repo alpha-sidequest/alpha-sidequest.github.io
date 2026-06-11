@@ -23,3 +23,8 @@ images/space-background.jpg
 # Old broken script backups
 script.js.before-*
 script.js.broken-*
+
+# Private assessments content (never commit the actual secret HTML)
+private/
+.env
+node_modules/

@@ -545,7 +545,43 @@ function initMainNavigation() {
       target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   });
+
+  // Mobile nav toggle button
+  const navToggle = document.querySelector('.nav-toggle');
+  if (navToggle) {
+    navToggle.addEventListener('click', (e) => {
+      e.stopImmediatePropagation();
+      toggleNavMenu();
+    });
+  }
 }
+
+function toggleNavMenu() {
+  const navLinks = document.querySelector('.nav-links');
+  if (navLinks) {
+    navLinks.classList.toggle('open');
+  }
+}
+
+// Ensure nav is closed if window resizes to desktop size
+window.addEventListener('resize', () => {
+  const navLinks = document.querySelector('.nav-links');
+  if (navLinks && window.innerWidth > 1100 && navLinks.classList.contains('open')) {
+    navLinks.classList.remove('open');
+  }
+});
+
+// Close mobile nav when clicking a section link or outside
+document.addEventListener('click', (e) => {
+  const navLinks = document.querySelector('.nav-links');
+  if (!navLinks || !navLinks.classList.contains('open')) return;
+
+  if (e.target.closest('.nav-link')) {
+    navLinks.classList.remove('open');
+  } else if (!e.target.closest('nav')) {
+    navLinks.classList.remove('open');
+  }
+});
 
 function scrollToCardWithFlash(id) {
   const el = document.getElementById(id);
@@ -822,14 +858,34 @@ function getAllStudyItems(source) {
 
 function loadNewFlashcardDeck() {
   const source = document.getElementById('flashcardSource').value;
-  currentFlashcards = getAllStudyItems(source);
+  let items = getAllStudyItems(source);
 
-  // Filter out known items if we have progress
-  const unknown = currentFlashcards.filter(item => !knownFlashcards.has(item.id));
-  if (unknown.length > 0) currentFlashcards = unknown;
+  // Filter out known items (legacy)
+  const unknown = items.filter(item => !knownFlashcards.has(item.id));
+  if (unknown.length > 0) items = unknown;
 
+  // SRS: Prioritize due items for better retention
+  if (window.ADF_SRS && items.length > 0) {
+    const allIds = items.map(item => item.id || `${source}-${(item.front || item.title || '').substring(0, 50)}`);
+    const dueIds = ADF_SRS.getDueItems(allIds, Math.min(60, items.length));
+
+    if (dueIds.length > 0) {
+      const dueItems = [];
+      const otherItems = [];
+
+      items.forEach(item => {
+        const id = item.id || `${source}-${(item.front || item.title || '').substring(0, 50)}`;
+        if (dueIds.includes(id)) dueItems.push(item);
+        else otherItems.push(item);
+      });
+
+      items = [...dueItems, ...otherItems.sort(() => Math.random() - 0.5)];
+    }
+  }
+
+  currentFlashcards = items;
   currentFlashcardIndex = 0;
-  shuffleFlashcards(false); // shuffle without re-filtering
+  shuffleFlashcards(false);
   renderFlashcard();
 }
 
@@ -875,15 +931,46 @@ function renderFlashcard() {
 
   front.innerHTML = frontHTML;
 
-  back.innerHTML = `
+  let backHTML = `
     <div style="white-space: pre-line; line-height:1.55; font-size:15.5px;">${item.back}</div>
   `;
+
+  // SRS Quality Rating buttons (shown on back for active recall training)
+  if (window.ADF_SRS) {
+    const id = item.id || `${currentFlashcardSource}-${(item.front || item.title || '').substring(0, 50)}`;
+    backHTML += `
+      <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border);">
+        <div style="font-size:12px; color:var(--text-muted); margin-bottom:6px;">How well did you recall this?</div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <button class="study-btn secondary" style="font-size:12px; padding:4px 10px;" onclick="rateFlashcardSRS('${id}', 1, event)">Again (1)</button>
+          <button class="study-btn secondary" style="font-size:12px; padding:4px 10px;" onclick="rateFlashcardSRS('${id}', 2, event)">Hard (2)</button>
+          <button class="study-btn" style="font-size:12px; padding:4px 10px;" onclick="rateFlashcardSRS('${id}', 3, event)">Good (3)</button>
+          <button class="study-btn" style="font-size:12px; padding:4px 10px;" onclick="rateFlashcardSRS('${id}', 4, event)">Easy (4)</button>
+        </div>
+      </div>
+    `;
+  }
+
+  back.innerHTML = backHTML;
 
   counter.textContent = `${currentFlashcardIndex + 1} / ${currentFlashcards.length}`;
   knownCount.textContent = knownFlashcards.size;
 
   const pct = currentFlashcards.length > 0 ? Math.round(((currentFlashcardIndex + 1) / currentFlashcards.length) * 100) : 0;
   progressBar.style.width = pct + '%';
+}
+
+function rateFlashcardSRS(id, quality, event) {
+  if (event) event.stopImmediatePropagation();
+
+  if (window.ADF_SRS) {
+    ADF_SRS.update(id, quality);
+  }
+
+  // Move to next card after rating
+  setTimeout(() => {
+    nextFlashcard();
+  }, 120);
 }
 
 function flipFlashcard() {
@@ -900,8 +987,15 @@ function nextFlashcard() {
 function markFlashcardKnown() {
   if (!currentFlashcards.length) return;
   const item = currentFlashcards[currentFlashcardIndex];
-  knownFlashcards.add(item.id);
+  const id = item.id || `${currentFlashcardSource}-${(item.front || item.title || '').substring(0, 50)}`;
+
+  knownFlashcards.add(id);
   saveFlashcardProgress();
+
+  // SRS: Treat "known" as solid recall
+  if (window.ADF_SRS) {
+    ADF_SRS.update(id, 4); // Good
+  }
 
   // Remove from current deck
   currentFlashcards.splice(currentFlashcardIndex, 1);
@@ -1822,13 +1916,9 @@ function switchStudyMode(mode, clickedTab) {
   document.getElementById('quiz-mode').style.display = mode === 'quiz' ? 'block' : 'none';
   document.getElementById('whoami-mode').style.display = mode === 'whoami' ? 'block' : 'none';
   document.getElementById('matching-mode').style.display = mode === 'matching' ? 'block' : 'none';
-  document.getElementById('audio-loops-mode').style.display = mode === 'audio-loops' ? 'block' : 'none';
 
   if (mode === 'flashcards' && currentFlashcards.length === 0) {
     loadNewFlashcardDeck();
-  }
-  if (mode === 'audio-loops') {
-    stopAudioLearningLoop(); // clean state when switching to the tab
   }
 }
 
@@ -1836,6 +1926,11 @@ function switchStudyMode(mode, clickedTab) {
 document.addEventListener('keydown', function(e) {
   const flashcardsPanel = document.getElementById('flashcards-mode');
   if (!flashcardsPanel || flashcardsPanel.style.display === 'none') return;
+
+  // Never steal keys when typing in form fields (textareas etc.)
+  const active = document.activeElement;
+  const tag = active ? active.tagName : '';
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (active && active.isContentEditable)) return;
 
   if (e.key === ' ' || e.key === 'Spacebar') {
     e.preventDefault();
@@ -1860,6 +1955,34 @@ let audioLoopTimeout = null;
 let audioLoopSession = 0;
 let audioLoopCurrentItem = null;
 let audioLoopPausedAtChunk = -1;
+let audioLoopSmartMode = false; // SRS-aware selection when true
+let audioLoopRecentlyPlayed = []; // ids of recently played items for avoidance
+const RECENTLY_PLAYED_LIMIT = 8; // avoid repeating these in the pool
+
+// Audio loop voice preference (separate from the floating reader)
+let audioLoopVoiceName = null; // stores voice.name from speechSynthesis, or null = auto best
+let audioLoopVoicesLoaded = false;
+
+// Helper: skip weak/generic "why it matters" and similar filler that adds no value
+function isMeaningfulText(text, minLen = 22) {
+  if (!text || typeof text !== 'string') return false;
+  const t = text.trim();
+  if (t.length < minLen) return false;
+  const lower = t.toLowerCase();
+  const bad = [
+    'important army capability',
+    'key system that enhances the adf',
+    'provides the adf with important capability',
+    'key knowledge for understanding threats and the role of specialists',
+    'understanding ranks is essential for leadership',
+    'key surface or submarine capability for the ran',
+    'critical capability for the australian defence force',
+    'important capability for the raaf',
+    'important concept for modern operations'
+  ];
+  if (bad.some(g => lower.includes(g))) return false;
+  return true;
+}
 
 function selectAudioGroup(groupKey, buttonEl) {
   // Deselect all
@@ -1867,7 +1990,10 @@ function selectAudioGroup(groupKey, buttonEl) {
   if (buttonEl) buttonEl.classList.add('active');
 
   audioLoopGroup = groupKey;
-  audioLoopItems = (window.LISTENING_DATA && window.LISTENING_DATA[groupKey]) || [];
+  audioLoopItems = buildListeningPool(groupKey);
+  audioLoopRecentlyPlayed = []; // fresh avoidance when changing groups
+
+  console.log(`[AudioLoop] Group ${groupKey} loaded with ${audioLoopItems.length} total items (curated + auto-generated from main data)`);
 
   const status = document.getElementById('audio-loop-status');
   if (status) {
@@ -1881,6 +2007,17 @@ function selectAudioGroup(groupKey, buttonEl) {
   // Enable start button
   const startBtn = document.getElementById('audio-start-btn');
   if (startBtn) startBtn.disabled = false;
+
+  // Clear previous transcript when switching groups (avoids showing stale card from another group)
+  const t = document.getElementById('audio-last-text');
+  if (t) t.innerHTML = '<span style="color:var(--text-dim); font-size:13px;">Select "Start Listening Loop" to begin.</span>';
+
+  // Make sure the voice picker is populated as soon as the user interacts with audio
+  if (typeof forceLoadVoices === 'function') {
+    forceLoadVoices(() => populateAudioVoiceSelect());
+  } else {
+    populateAudioVoiceSelect();
+  }
 }
 
 function startAudioLearningLoop() {
@@ -1903,15 +2040,33 @@ function startAudioLearningLoop() {
   audioLoopCurrentItem = null;
   audioLoopPausedAtChunk = -1;
 
-  // Make sure voices (including Tara) are loaded
+  // Make sure voices are loaded (works on Safari, Firefox, Chrome)
   if (typeof forceLoadVoices === 'function') {
-    forceLoadVoices();
+    forceLoadVoices(() => {
+      // After voices are ready, make sure our picker reflects the saved choice
+      populateAudioVoiceSelect();
+    });
+  } else {
+    populateAudioVoiceSelect();
   }
+
+  // Apply any saved voice preference
+  loadAudioLoopVoice();
 
   // Shuffle for better experience
   audioLoopItems = [...audioLoopItems].sort(() => Math.random() - 0.5);
 
   updateAudioLoopUI();
+
+  // Show the active voice in the status area (helpful when user has chosen something other than auto)
+  setTimeout(() => {
+    const info = document.getElementById('audio-loop-info');
+    if (info && audioLoopActive) {
+      const activeVoice = getAudioLoopVoice();
+      const vName = activeVoice ? activeVoice.name : 'system default';
+      info.textContent = `${audioLoopItems.length} items • Voice: ${vName}`;
+    }
+  }, 60);
   playNextAudioItem();
 
   const startBtn = document.getElementById('audio-start-btn');
@@ -1934,28 +2089,64 @@ function playNextAudioItem() {
 
   if (audioLoopSession !== thisSession) return; // invalidated by stop
 
-  // Pick next (simple random with slight avoidance of immediate repeat)
-  let nextIndex = Math.floor(Math.random() * audioLoopItems.length);
-  if (audioLoopItems.length > 1 && audioLoopCurrentIndex === nextIndex) {
-    nextIndex = (nextIndex + 1) % audioLoopItems.length;
+  // Build candidate list with recently played avoidance + SRS
+  let candidates = [...audioLoopItems];
+
+  // Recently played avoidance (unless pool is tiny)
+  if (audioLoopRecentlyPlayed.length > 0 && candidates.length > audioLoopRecentlyPlayed.length + 3) {
+    candidates = candidates.filter(it => !audioLoopRecentlyPlayed.includes(it.id));
   }
-  audioLoopCurrentIndex = nextIndex;
+  if (candidates.length === 0) candidates = [...audioLoopItems];
+
+  // Smart / SRS mode: prefer due items
+  if (audioLoopSmartMode && window.ADF_SRS) {
+    const allIds = candidates.map(it => it.id);
+    const dueIds = ADF_SRS.getDueItems(allIds, 30);
+    if (dueIds.length > 0) {
+      const dueCandidates = candidates.filter(it => dueIds.includes(it.id));
+      if (dueCandidates.length > 0) candidates = dueCandidates;
+    }
+  }
+
+  // Pick from the filtered candidates
+  let chosenIndexInCandidates = Math.floor(Math.random() * candidates.length);
+  const chosenItem = candidates[chosenIndexInCandidates];
+  audioLoopCurrentIndex = audioLoopItems.findIndex(it => it.id === chosenItem.id);
+
+  // Record as recently played
+  if (chosenItem && chosenItem.id) {
+    audioLoopRecentlyPlayed.push(chosenItem.id);
+    if (audioLoopRecentlyPlayed.length > RECENTLY_PLAYED_LIMIT) {
+      audioLoopRecentlyPlayed.shift();
+    }
+  }
 
   const item = audioLoopItems[audioLoopCurrentIndex];
 
   audioLoopCurrentItem = item;
   audioLoopPausedAtChunk = -1;
 
-  // Build beautiful listening text
+  // Build beautiful, listening-optimized text with optional depth/nuance
   let spokenText = item.title + ". ";
 
   if (item.overview) {
     spokenText += item.overview + " ";
   }
 
-  if (item.keyPoints && item.keyPoints.length > 0) {
+  // Add "Why this matters" only when it is actually useful content (skip generic/repetitive fillers)
+  if (item.whyItMatters && isMeaningfulText(item.whyItMatters)) {
+    spokenText += "Why this matters: " + item.whyItMatters + " ";
+  }
+
+  if (item.commonMisconceptions && isMeaningfulText(item.commonMisconceptions, 18)) {
+    spokenText += "A common misconception is that " + item.commonMisconceptions + " ";
+  }
+
+  // Filter keyPoints to drop any obvious generic fallback lines
+  const goodKeyPoints = (item.keyPoints || []).filter(p => isMeaningfulText(p, 15));
+  if (goodKeyPoints.length > 0) {
     spokenText += "Key things to remember: ";
-    item.keyPoints.forEach((point, i) => {
+    goodKeyPoints.forEach((point, i) => {
       spokenText += (i + 1) + ". " + point + ". ";
     });
   }
@@ -1966,12 +2157,47 @@ function playNextAudioItem() {
   if (currentEl) currentEl.textContent = item.title;
   if (infoEl) infoEl.textContent = `Listening item ${audioLoopCurrentIndex + 1} of ${audioLoopItems.length} • Random mode`;
 
+  // Show the COMPLETE written text (full structured content) + image beside the text if the item has one
   const transcriptEl = document.getElementById('audio-last-text');
-  if (transcriptEl) transcriptEl.textContent = spokenText.substring(0, 180) + "...";
+  if (transcriptEl) {
+    let html = '';
+    const hasImg = !!item.img;
+    if (hasImg) {
+      html += `<div style="display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap;">`;
+      html += `<img src="${item.img}" alt="${item.title}" style="width:168px; max-width:32%; height:auto; max-height:168px; border-radius:6px; border:1px solid var(--border); object-fit:contain; flex-shrink:0; box-shadow:0 1px 3px rgba(0,0,0,0.2);">`;
+      html += `<div style="flex:1; min-width:240px;">`;
+    }
+    html += `<strong style="font-size:15.5px; color:var(--gold);">${item.title}</strong><br><br>`;
+    if (item.overview) html += `${item.overview}<br><br>`;
+    // Only show Why this matters when it adds real value (not the generic "key knowledge..." / "important capability" style lines)
+    if (item.whyItMatters && isMeaningfulText(item.whyItMatters)) {
+      html += `<em style="color:var(--text-muted);">Why this matters:</em> ${item.whyItMatters}<br><br>`;
+    }
+    if (item.commonMisconceptions && isMeaningfulText(item.commonMisconceptions, 18)) {
+      html += `<em style="color:var(--text-muted);">Common misconception:</em> ${item.commonMisconceptions}<br><br>`;
+    }
+    const goodKeyPointsHtml = (item.keyPoints || []).filter(p => isMeaningfulText(p, 15));
+    if (goodKeyPointsHtml.length) {
+      html += `<em style="color:var(--text-muted);">Key points to remember:</em><br>`;
+      goodKeyPointsHtml.forEach((p) => {
+        html += `• ${p}<br>`;
+      });
+    }
+    if (hasImg) {
+      html += `</div></div>`;
+    }
+    transcriptEl.innerHTML = html;
+  }
 
-  // Speak using the existing high-quality TTS engine, forcing Tara where possible
+  // Speak using the chosen voice (or best auto if none selected)
+  // Force one more voice enumeration right before we speak (this often makes the full list appear)
+  try { if (window.speechSynthesis) window.speechSynthesis.getVoices(); } catch (e) {}
+  populateAudioVoiceSelect();
+
   speakAudioLoopText(spokenText, () => {
     // When finished, pause briefly then move to next
+    // The session check here is redundant with the one inside loopSpeakNext,
+    // but kept for safety.
     if (audioLoopActive && !audioLoopPaused && audioLoopSession === thisSession) {
       audioLoopTimeout = setTimeout(() => {
         playNextAudioItem();
@@ -1992,17 +2218,6 @@ function speakAudioLoopText(text, onComplete, startFrom = 0) {
   isPaused = false;
   stopRequested = false;
 
-  // Try to force Tara
-  const originalGetBest = getBestVoiceFromSelect;
-  // Temporarily bias hard to Tara for the loop
-  window.getBestVoiceFromSelect = function() {
-    if (readerVoices && readerVoices.length) {
-      const tara = readerVoices.find(v => v.name.includes('Tara'));
-      if (tara) return tara;
-    }
-    return originalGetBest ? originalGetBest() : null;
-  };
-
   const thisSession = audioLoopSession;
 
   // We hook the completion
@@ -2011,8 +2226,6 @@ function speakAudioLoopText(text, onComplete, startFrom = 0) {
       stopRequested = false;
       isSpeaking = false;
       isPaused = false;
-      // Restore original voice selector
-      window.getBestVoiceFromSelect = originalGetBest;
       if (typeof onComplete === 'function') onComplete();
       return;
     }
@@ -2027,17 +2240,26 @@ function speakAudioLoopText(text, onComplete, startFrom = 0) {
 
     updateProgressUI();
 
+    // Extra ensure for Firefox — speaking often finally makes the full voice list available
+    ensureVoicesListener();
+    try { if (window.speechSynthesis) window.speechSynthesis.getVoices(); } catch (e) {}
+
     const utterance = new SpeechSynthesisUtterance(chunk);
-    const voice = getBestVoiceFromSelect();
-    if (voice) utterance.voice = voice;
-    utterance.lang = 'en-AU';
+
+    // Use the user's chosen voice (or the smart best-available picker)
+    const voice = getAudioLoopVoice();
+    if (voice) {
+      utterance.voice = voice;
+      if (voice.lang) utterance.lang = voice.lang;
+    } else {
+      utterance.lang = 'en-AU';
+    }
     utterance.rate = readerRate || 0.85;
     utterance.pitch = 1.0;
     utterance.volume = 0.96;
 
     utterance.onend = () => {
       if (!audioLoopActive || audioLoopPaused || audioLoopSession !== thisSession) {
-        window.getBestVoiceFromSelect = originalGetBest;
         if (typeof onComplete === 'function') onComplete();
         return;
       }
@@ -2048,7 +2270,6 @@ function speakAudioLoopText(text, onComplete, startFrom = 0) {
 
     utterance.onerror = () => {
       if (!audioLoopActive || audioLoopPaused || audioLoopSession !== thisSession) {
-        window.getBestVoiceFromSelect = originalGetBest;
         if (typeof onComplete === 'function') onComplete();
         return;
       }
@@ -2060,13 +2281,18 @@ function speakAudioLoopText(text, onComplete, startFrom = 0) {
 
     setTimeout(() => {
       if (!audioLoopActive || audioLoopPaused || audioLoopSession !== thisSession) {
-        window.getBestVoiceFromSelect = originalGetBest;
         if (typeof onComplete === 'function') onComplete();
         return;
       }
       try {
         window.speechSynthesis.cancel();
         window.speechSynthesis.speak(utterance);
+
+        // Speaking often unlocks the full voice list in Chrome etc.
+        // Re-populate the dropdown so the user can see and pick real voices.
+        setTimeout(() => {
+          try { populateAudioVoiceSelect(); } catch (e) {}
+        }, 350);
       } catch (e) {
         currentChunkIndex++;
         loopSpeakNext();
@@ -2105,12 +2331,16 @@ function resumeAudioLoop() {
     const item = audioLoopCurrentItem;
     const startChunk = audioLoopPausedAtChunk;
 
-    // Rebuild the spoken text for this item (same as in playNextAudioItem)
+    // Rebuild the spoken text for this item (consistent with playNextAudioItem)
     let spokenText = item.title + ". ";
     if (item.overview) spokenText += item.overview + " ";
-    if (item.keyPoints && item.keyPoints.length > 0) {
+    if (item.whyItMatters && isMeaningfulText(item.whyItMatters)) {
+      spokenText += "Why this matters: " + item.whyItMatters + " ";
+    }
+    const goodResumePoints = (item.keyPoints || []).filter(p => isMeaningfulText(p, 15));
+    if (goodResumePoints.length > 0) {
       spokenText += "Key things to remember: ";
-      item.keyPoints.forEach((point, i) => {
+      goodResumePoints.forEach((point, i) => {
         spokenText += (i + 1) + ". " + point + ". ";
       });
     }
@@ -2135,11 +2365,26 @@ function resumeAudioLoop() {
 }
 
 function skipAudioItem() {
-  if (audioLoopTimeout) clearTimeout(audioLoopTimeout);
-  if (window.speechSynthesis) window.speechSynthesis.cancel();
-  if (audioLoopActive) {
-    playNextAudioItem();
+  if (!audioLoopActive) return;
+
+  // Invalidate the current speaking chain (same as stop does)
+  // This prevents any pending onend / loopSpeakNext from the current item
+  // from continuing to speak remaining chunks or scheduling the next item.
+  audioLoopSession++;
+
+  if (audioLoopTimeout) {
+    clearTimeout(audioLoopTimeout);
+    audioLoopTimeout = null;
   }
+
+  if (window.speechSynthesis) {
+    window.speechSynthesis.cancel();
+  }
+
+  audioLoopPausedAtChunk = -1;
+
+  // Start the next fresh item
+  playNextAudioItem();
 }
 
 function stopAudioLearningLoop() {
@@ -2149,6 +2394,7 @@ function stopAudioLearningLoop() {
 
   audioLoopCurrentItem = null;
   audioLoopPausedAtChunk = -1;
+  audioLoopRecentlyPlayed = []; // clear avoidance list on full stop
 
   if (audioLoopTimeout) {
     clearTimeout(audioLoopTimeout);
@@ -2170,13 +2416,336 @@ function stopAudioLearningLoop() {
   if (currentEl) currentEl.textContent = 'Loop stopped.';
   if (infoEl) infoEl.textContent = 'Select a group and start again when ready.';
 
-  const transcript = document.getElementById('audio-last-text');
-  if (transcript) transcript.textContent = '—';
+  // Leave the last transcript (full text + any image) visible.
+  // The user can still read the complete content of the card that was playing.
+  // (We only clear the "currently speaking" label area on next play or group change.)
 }
 
 function updateAudioLoopUI() {
   // Can be expanded later for counters etc.
 }
+
+// Build the full listening pool for a group, combining curated + auto-generated from main data
+// Build the full listening pool for a group, combining curated + auto-generated from main data
+function buildListeningPool(groupKey) {
+  let pool = [];
+  const curated = (window.LISTENING_DATA && window.LISTENING_DATA[groupKey]) || [];
+  pool = [...curated];
+
+  // Use direct references - since data.js runs first, these should be in global scope
+  if (groupKey === 'group1') {
+    // All Bases (BASES is an object)
+    if (typeof BASES !== 'undefined' && BASES) {
+      Object.keys(BASES).forEach(key => {
+        const base = BASES[key];
+        if (base && !pool.find(p => p.id === key)) {
+          const entry = {
+            id: key,
+            title: base.name,
+            overview: base.desc,
+            whyItMatters: `${base.name} in ${base.location} is vital because it supports ${base.role.toLowerCase()}.`,
+            keyPoints: (base.squadrons || []).map(s => `${s.num} ${s.name} - ${s.aircraft}.`)
+          };
+          if (base.img) entry.img = base.img;
+          pool.push(entry);
+        }
+      });
+    }
+    // All Operations
+    if (typeof OPERATIONS !== 'undefined' && Array.isArray(OPERATIONS)) {
+      OPERATIONS.forEach(op => {
+        if (op && op.id && !pool.find(p => p.id === op.id)) {
+          const entry = {
+            id: op.id,
+            title: op.name,
+            overview: op.desc,
+            whyItMatters: `${op.name} in ${op.region} is important for maintaining presence and response options.`,
+            keyPoints: (op.assets || []).map(a => a)
+          };
+          if (op.img) entry.img = op.img;
+          pool.push(entry);
+        }
+      });
+    }
+  }
+
+  if (groupKey === 'group2') {
+    // Air Force
+    if (typeof AIRCRAFT !== 'undefined' && Array.isArray(AIRCRAFT)) {
+      AIRCRAFT.forEach(ac => {
+        if (ac && ac.id && !pool.find(p => p.id === ac.id)) {
+          const entry = {
+            id: ac.id,
+            title: `${ac.desig || ''} ${ac.name}`.trim(),
+            overview: ac.overview || ac.tagline || '',
+            whyItMatters: ac.tagline || 'Important capability for the RAAF.',
+            keyPoints: (ac.systems || []).slice(0, 3).map(s => `${s.name}: ${s.layman || s.desc}`)
+          };
+          if (ac.img) entry.img = ac.img;
+          pool.push(entry);
+        }
+      });
+    }
+    // Navy
+    if (typeof NAVY !== 'undefined' && Array.isArray(NAVY)) {
+      NAVY.forEach(v => {
+        if (v && v.id && !pool.find(p => p.id === v.id)) {
+          const entry = {
+            id: v.id,
+            title: `${v.desig || ''} ${v.name}`.trim(),
+            overview: v.overview || '',
+            keyPoints: (v.systems || []).slice(0, 3).map(s => `${s.name}: ${s.layman || s.desc}`)
+          };
+          // Only add whyItMatters when we have something specific and non-generic from the source
+          if (v.overview && isMeaningfulText(v.overview, 30)) {
+            entry.whyItMatters = v.overview;
+          } else if (v.tagline && isMeaningfulText(v.tagline, 25)) {
+            entry.whyItMatters = v.tagline;
+          }
+          if (v.img) entry.img = v.img;
+          pool.push(entry);
+        }
+      });
+    }
+    // Army
+    if (typeof ARMY !== 'undefined' && Array.isArray(ARMY)) {
+      ARMY.forEach(v => {
+        if (v && v.id && !pool.find(p => p.id === v.id)) {
+          const entry = {
+            id: v.id,
+            title: v.name,
+            overview: v.overview || '',
+            keyPoints: (v.systems || []).slice(0, 3).map(s => `${s.name}: ${s.layman || s.desc}`)
+          };
+          // Derive a real why only if the source has something specific; otherwise omit the generic filler
+          if (v.overview && isMeaningfulText(v.overview, 30)) {
+            entry.whyItMatters = v.overview;
+          } else if (v.tagline && isMeaningfulText(v.tagline, 25)) {
+            entry.whyItMatters = v.tagline;
+          }
+          if (v.img) entry.img = v.img;
+          pool.push(entry);
+        }
+      });
+    }
+    // Weapons & Systems
+    if (typeof WEAPONS !== 'undefined' && Array.isArray(WEAPONS)) {
+      WEAPONS.forEach(w => {
+        if (w && w.id && !pool.find(p => p.id === w.id)) {
+          const name = w.name || 'Unknown System';
+          const desc = w.desc || '';
+          const layman = w.layman || '';
+          const systems = w.systems || [];
+
+          let overview = desc;
+          if (!overview && layman) overview = layman;
+
+          // Only create a whyItMatters if we have real descriptive content; skip the generic fallbacks
+          let why = null;
+          if (layman && isMeaningfulText(layman, 25)) {
+            why = layman;
+          } else if (desc && isMeaningfulText(desc, 30)) {
+            why = desc;
+          }
+
+          let points = [];
+          if (layman && isMeaningfulText(layman, 20)) points.push(layman);
+          systems.forEach(s => {
+            const point = `${s.name}: ${s.layman || s.desc || ''}`;
+            if (point.length > 10 && isMeaningfulText(point, 18)) points.push(point);
+          });
+
+          const entry = {
+            id: w.id,
+            title: name,
+            overview: overview,
+            keyPoints: points.length > 0 ? points : null
+          };
+          if (why && isMeaningfulText(why, 22)) entry.whyItMatters = why;
+          if (w.img) entry.img = w.img;
+          pool.push(entry);
+        }
+      });
+    }
+  }
+
+  if (groupKey === 'group3') {
+    // Pull from CYBERSPACE_STUDY_ITEMS for more volume
+    if (typeof CYBERSPACE_STUDY_ITEMS !== 'undefined' && Array.isArray(CYBERSPACE_STUDY_ITEMS)) {
+      CYBERSPACE_STUDY_ITEMS.forEach(item => {
+        if (item && item.id && !pool.find(p => p.id === item.id)) {
+          const cyberEntry = {
+            id: item.id,
+            title: item.front || 'Cyber / Threat Concept',
+            overview: item.back || '',
+            keyPoints: []
+          };
+          // Only attach a why if the back/overview is actually substantive (avoid the generic specialist phrase)
+          if (item.back && isMeaningfulText(item.back, 35)) {
+            cyberEntry.whyItMatters = item.back;
+          }
+          pool.push(cyberEntry);
+        }
+      });
+    }
+
+    // Pull from RANKS
+    if (typeof RANKS !== 'undefined') {
+      const ranksArr = Array.isArray(RANKS) ? RANKS : Object.values(RANKS || {});
+      ranksArr.forEach(rank => {
+        if (rank && rank.name && !pool.find(p => p.id === rank.id || p.title === rank.name)) {
+          const rankEntry = {
+            id: rank.id || ('rank-' + rank.name.toLowerCase().replace(/\s+/g, '-')),
+            title: rank.name,
+            overview: rank.desc || `The ${rank.name} rank carries important responsibilities in the ADF.`,
+            keyPoints: []
+          };
+          // Curated LISTENING_DATA entries have rich per-rank whyItMatters.
+          // For auto-generated ranks, skip the generic "understanding ranks is essential" filler.
+          // We can optionally promote a short specific note if the desc is strong.
+          if (rank.desc && isMeaningfulText(rank.desc, 40)) {
+            rankEntry.whyItMatters = rank.desc;
+          }
+          pool.push(rankEntry);
+        }
+      });
+    }
+  }
+
+  // Safety net: if for some reason the pool is empty (or very small), provide a decent fallback
+  // so the loop can start and the user isn't blocked.
+  if (pool.length < 5) {
+    if (groupKey === 'group1') {
+      const fallback = [
+        { id: 'amberley', title: 'RAAF Base Amberley', overview: 'Major air base in Queensland, key for strike and transport.', whyItMatters: 'Critical hub for air combat power.', keyPoints: ['Home to Super Hornet and Growler squadrons.'] },
+        { id: 'williamtown', title: 'RAAF Base Williamtown', overview: 'Home of the F-35A and Wedgetail.', whyItMatters: 'Primary air defence base.', keyPoints: ['F-35 fleet base.'] },
+        { id: 'pearce', title: 'RAAF Base Pearce', overview: 'Fighter training base in Western Australia.', whyItMatters: 'Essential for pilot production.', keyPoints: ['Hawk lead-in fighter training.'] }
+      ];
+      fallback.forEach(f => { if (!pool.find(p => p.id === f.id)) pool.push(f); });
+    } else if (groupKey === 'group2') {
+      const fallback = [
+        { id: 'f35a', title: 'F-35A Lightning II', overview: 'Fifth generation stealth fighter.', whyItMatters: 'Cornerstone of future air power.', keyPoints: ['Advanced sensors and stealth.'] },
+        { id: 'growler', title: 'EA-18G Growler', overview: 'Electronic attack aircraft.', whyItMatters: 'Suppresses enemy air defences.', keyPoints: ['Jamming and HARM.'] },
+        { id: 'superhornet', title: 'F/A-18F Super Hornet', overview: 'Main strike fighter.', whyItMatters: 'Current backbone of RAAF combat power.', keyPoints: ['Multirole with AESA radar.'] },
+        { id: 'poseidon', title: 'P-8A Poseidon', overview: 'Maritime patrol and ASW aircraft.', whyItMatters: 'Critical for vast ocean surveillance.', keyPoints: ['Long endurance, torpedoes, Harpoon.'] },
+        { id: 'hobart', title: 'Hobart-class Destroyer', overview: 'Aegis air warfare destroyer.', whyItMatters: 'Core of naval task group air defence.', keyPoints: ['SPY-1D + SM-2/6.'] }
+      ];
+      fallback.forEach(f => { if (!pool.find(p => p.id === f.id)) pool.push(f); });
+    } else if (groupKey === 'group3') {
+      const fallback = [
+        { id: 'space-ops-officer', title: 'Space Operations Officer Role', overview: 'Protecting access to space.', whyItMatters: 'Critical for modern operations.', keyPoints: ['Understand threats to satellites.'] },
+        { id: 'cyber-warfare-officer', title: 'Cyber Warfare Officer', overview: 'Defending networks and conducting cyber operations.', whyItMatters: 'Modern conflict starts in cyberspace.', keyPoints: ['Defensive and offensive cyber roles.'] }
+      ];
+      fallback.forEach(f => { if (!pool.find(p => p.id === f.id)) pool.push(f); });
+    }
+  }
+
+  return pool;
+}
+
+function toggleAudioSmartMode(enabled) {
+  audioLoopSmartMode = !!enabled;
+  // If loop is running, the next item will respect the new mode
+  console.log('[AudioLoop] Smart Review (SRS) mode:', audioLoopSmartMode);
+}
+
+// ============================================
+// SPACED REPETITION SYSTEM (SRS) - For Retention
+// Lightweight SM-2 style scheduler stored in localStorage.
+// Works for both regular study items and listening cards.
+// ============================================
+
+const SRS = {
+  // Get all progress data
+  getAll() {
+    try {
+      return JSON.parse(localStorage.getItem('adfForgeSRS') || '{}');
+    } catch (e) {
+      return {};
+    }
+  },
+
+  // Save progress
+  save(data) {
+    localStorage.setItem('adfForgeSRS', JSON.stringify(data));
+  },
+
+  // Get or create progress for a specific item
+  getItem(id) {
+    const data = this.getAll();
+    if (!data[id]) {
+      data[id] = {
+        interval: 0,
+        ease: 2.5,
+        repetitions: 0,
+        due: Date.now(),
+        lastReviewed: null,
+      };
+      this.save(data);
+    }
+    return data[id];
+  },
+
+  // Update progress after review (quality: 0-5, where 3+ is "good")
+  update(id, quality) {
+    const data = this.getAll();
+    let item = data[id] || { interval: 0, ease: 2.5, repetitions: 0, due: Date.now() };
+
+    if (quality < 3) {
+      item.repetitions = 0;
+      item.interval = 1;
+    } else {
+      item.repetitions = (item.repetitions || 0) + 1;
+
+      if (item.repetitions === 1) {
+        item.interval = 1;
+      } else if (item.repetitions === 2) {
+        item.interval = 6;
+      } else {
+        item.interval = Math.round(item.interval * item.ease);
+      }
+    }
+
+    // Update ease factor
+    item.ease = item.ease + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
+    if (item.ease < 1.3) item.ease = 1.3;
+
+    // Set next due date (in ms)
+    const msPerDay = 24 * 60 * 60 * 1000;
+    item.due = Date.now() + (item.interval * msPerDay);
+    item.lastReviewed = Date.now();
+
+    data[id] = item;
+    this.save(data);
+    return item;
+  },
+
+  // Get items that are due (or overdue)
+  getDueItems(allItemIds, limit = 50) {
+    const data = this.getAll();
+    const now = Date.now();
+
+    return allItemIds
+      .map(id => ({ id, progress: data[id] || { due: 0 } }))
+      .filter(item => (item.progress.due || 0) <= now)
+      .sort((a, b) => (a.progress.due || 0) - (b.progress.due || 0))
+      .slice(0, limit)
+      .map(item => item.id);
+  },
+
+  // Get count of due items
+  getDueCount(allItemIds) {
+    const data = this.getAll();
+    const now = Date.now();
+    return allItemIds.filter(id => {
+      const p = data[id];
+      return !p || (p.due || 0) <= now;
+    }).length;
+  }
+};
+
+// Expose for debugging if needed
+window.ADF_SRS = SRS;
 
 // Initialize study tools when page loads
 function initStudyTools() {
@@ -2193,6 +2762,16 @@ function initStudyTools() {
 
   // Keyboard hint
   console.log('%c[Study Tools] Flashcards ready. Press Space to flip, → for next, K to mark known.', 'color:#666');
+
+  // Kick voice loading for the Audio Learning Loops picker (cross-browser)
+  setTimeout(() => {
+    ensureVoicesListener();
+    if (typeof forceLoadVoices === 'function') {
+      forceLoadVoices();
+    } else if (window.speechSynthesis) {
+      populateAudioVoiceSelect();
+    }
+  }, 300);
 }
 
 // ── GLOBAL SEARCH ─────────────────────────────────────────────
@@ -3452,6 +4031,11 @@ let basesGoogleMap = null;
 let opsMarkers = {}; // for selected highlighting on Google view
 let basesMarkers = {}; // for selected highlighting on Google view (bases)
 
+// Dynamic position layer markers (ADF aircraft, ships, adversary)
+let adfAircraftMarkers = [];
+let adfShipMarkers = [];
+let adversaryMarkers = [];
+
 function initGoogleMaps() {
   if (typeof google === 'undefined' || !google.maps) {
     console.warn('[ADF Forge] Google Maps API not loaded (missing or invalid key). Using offline maps only.');
@@ -3479,6 +4063,8 @@ function initGoogleMaps() {
       streetViewControl: false,
       fullscreenControl: true
     });
+
+    updatePositionLayerControls();
 
     // Add markers for all operations
     if (typeof OPERATIONS !== 'undefined' && Array.isArray(OPERATIONS)) {
@@ -3620,6 +4206,7 @@ function switchToOnlineOpsMap() {
     // API may have become ready after initial attempts; try now
     setTimeout(ensureGoogleMapsInit, 50);
   }
+  updatePositionLayerControls();
 }
 
 function switchToOfflineOpsMap() {
@@ -3627,6 +4214,15 @@ function switchToOfflineOpsMap() {
   const offlineDiv = document.getElementById('ops-offline-map');
   if (googleDiv) googleDiv.style.display = 'none';
   if (offlineDiv) offlineDiv.style.display = 'block';
+
+  // Hide live position controls when on offline map
+  const ctrls = document.getElementById('ops-position-layers');
+  if (ctrls) ctrls.style.display = 'none';
+
+  // Clear any active dynamic markers
+  clearMarkers(adfAircraftMarkers);
+  clearMarkers(adfShipMarkers);
+  clearMarkers(adversaryMarkers);
 }
 
 // Toggle for bases (Australia map)
@@ -3675,6 +4271,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (opsGoogle && typeof google !== 'undefined' && google.maps) {
       if (opsOffline) opsOffline.style.display = 'none';
       opsGoogle.style.display = 'block';
+      updatePositionLayerControls();
     } else if (opsOffline) {
       opsOffline.style.display = 'block';
     }
@@ -3752,6 +4349,272 @@ function hideLiveGoogleMapForOps() {
 
 // Optional: when selecting an op, if it has coords, you can auto-offer, but for now manual button + card link is good.
 // To enhance, we can call showLive... from selectOp if wanted, but keep separate for user control.
+
+// ── PUBLIC POSITION LAYERS (ADF aircraft/ships + adversary OSINT on ops map) ─────────────
+function clearMarkers(markersArray) {
+  if (!markersArray) return;
+  markersArray.forEach(m => { if (m) m.setMap(null); });
+  markersArray.length = 0;
+}
+
+function showPositionControls(show) {
+  const ctrls = document.getElementById('ops-position-layers');
+  if (ctrls) ctrls.style.display = show ? 'block' : 'none';
+}
+
+function findMatchingNavy(shipName) {
+  if (!shipName) return null;
+  const navy = window.NAVY || [];
+  const n = shipName.toLowerCase();
+  return navy.find(entry => {
+    const en = (entry.name || '').toLowerCase();
+    const eid = (entry.id || '').toLowerCase();
+    const des = (entry.desig || '').toLowerCase();
+    if (n.includes('brisbane') || n.includes('sydney') || n.includes('hobart')) {
+      return eid === 'hobart' || en.includes('hobart');
+    }
+    if (n.includes('perth') || n.includes('anzac')) {
+      return en.includes('anzac') || eid.includes('anzac');
+    }
+    if (n.includes('supply')) return en.includes('supply') || eid.includes('supply');
+    if (n.includes('choules')) return en.includes('choules') || eid.includes('choules');
+    return en.includes(n.split(' ').pop()) || des && n.includes(des);
+  });
+}
+
+function showPositionDetails(item) {
+  const info = document.getElementById('position-info');
+  const titleEl = document.getElementById('position-info-title');
+  const body = document.getElementById('position-info-body');
+  if (!info || !titleEl || !body) return;
+
+  titleEl.textContent = item.name || 'Position';
+
+  let html = '';
+  if (item.description) html += `<div style="margin-bottom:6px;">${item.description}</div>`;
+
+  if (item.type === 'ship' || (item.name && item.name.toLowerCase().includes('hmas'))) {
+    const match = findMatchingNavy(item.name || '');
+    if (match) {
+      html += `<div style="background:var(--surface); padding:6px; border-radius:4px; margin:4px 0;">`;
+      html += `<strong>${match.desig || ''} ${match.name}</strong>`;
+      if (match.typeName) html += ` — ${match.typeName}`;
+      html += `<br>`;
+      if (match.stats && match.stats.length) {
+        html += match.stats.slice(0, 3).map(s => `${s.k}: ${s.v}`).join(' • ') + '<br>';
+      }
+      const short = (match.tagline || match.overview || '').substring(0, 220);
+      html += short + (short.length >= 220 ? '...' : '');
+      html += `</div>`;
+      html += `<small>Unique ID in DB: <code>${match.id}</code></small>`;
+    } else {
+      html += `<div style="opacity:0.85;">No exact match in our detailed NAVY database, but representative of current RAN surface fleet.</div>`;
+    }
+  } else if (item.callsign) {
+    // aircraft from live data
+    html += `<div>Callsign: <strong>${item.callsign}</strong><br>`;
+    if (item.country) html += `Origin: ${item.country}<br>`;
+    html += `Source: Public ADS-B (OpenSky)</div>`;
+  } else if (item.side) {
+    html += `<div style="color:#ffaaaa;">Illustrative OSINT position — not real-time tracking.</div>`;
+  }
+
+  body.innerHTML = html;
+  info.style.display = 'block';
+}
+
+async function toggleAdfAircraftLayer(enabled) {
+  clearMarkers(adfAircraftMarkers);
+
+  const cb = document.getElementById('layer-adf-aircraft');
+  const layersDiv = document.getElementById('ops-position-layers');
+
+  if (!enabled || !opsGoogleMap) {
+    if (cb) cb.checked = false;
+    return;
+  }
+
+  if (layersDiv) layersDiv.style.opacity = '0.7';
+
+  // Always seed a few demo ADF aircraft so the layer is useful (real military combat jets rarely broadcast publicly)
+  const demoAdf = [
+    { lat: -12.4, lng: 130.9, callsign: 'RAAF P8-01', country: 'Australia' },
+    { lat: -25.0, lng: 135.0, callsign: 'RAAF C27-02', country: 'Australia' },
+    { lat: -20.5, lng: 148.0, callsign: 'RAAF C130-05', country: 'Australia' }
+  ];
+  demoAdf.forEach(d => {
+    const shortLabel = d.callsign.length > 12 ? d.callsign.substring(0,10) + '…' : d.callsign;
+    const m = new google.maps.Marker({
+      position: { lat: d.lat, lng: d.lng },
+      map: opsGoogleMap,
+      title: `${d.callsign} (demo / public pattern)`,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 6,
+        fillColor: '#3498db',
+        fillOpacity: 0.9,
+        strokeColor: '#1a5276',
+        strokeWeight: 1.5
+      },
+      label: {
+        text: shortLabel,
+        color: '#FFEB3B',
+        fontSize: '14px',
+        fontWeight: 'bold'
+      }
+    });
+    google.maps.event.addListener(m, 'click', () => showPositionDetails({ name: d.callsign, callsign: d.callsign, country: d.country }));
+    adfAircraftMarkers.push(m);
+  });
+
+  try {
+    const url = 'https://opensky-network.org/api/states/all?lamin=-48&lomin=90&lamax=8&lomax=175';
+    const res = await fetch(url, { mode: 'cors' });
+    if (!res.ok) throw new Error('OpenSky ' + res.status);
+
+    const data = await res.json();
+    const states = data.states || [];
+    let added = 0;
+
+    states.forEach(state => {
+      const lon = state[5];
+      const lat = state[6];
+      if (lon == null || lat == null) return;
+      if (added > 30) return;
+
+      const callsign = (state[1] || '').trim();
+      const country = state[2] || 'Unknown';
+      const last = state[4] || 0;
+      if (last && (Date.now()/1000 - last > 900)) return; // 15 min stale
+
+      const shortLabel = callsign.length > 12 ? callsign.substring(0,10) + '…' : callsign;
+      const m = new google.maps.Marker({
+        position: { lat, lng: lon },
+        map: opsGoogleMap,
+        title: `${callsign || '???'} — ${country} (public ADS-B)`,
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 5.5,
+          fillColor: '#5dade2',
+          fillOpacity: 0.85,
+          strokeColor: '#1a5276',
+          strokeWeight: 1
+        },
+        label: {
+          text: shortLabel || '✈',
+          color: '#FFEB3B',
+          fontSize: '13px',
+          fontWeight: 'bold'
+        }
+      });
+      google.maps.event.addListener(m, 'click', () => {
+        showPositionDetails({ name: callsign || 'Aircraft', callsign, country });
+      });
+      adfAircraftMarkers.push(m);
+      added++;
+    });
+
+    if (layersDiv) {
+      layersDiv.style.opacity = '1';
+    }
+    console.log(`[Positions] ADF aircraft: ${added} live + 3 demo`);
+  } catch (e) {
+    console.warn('[Positions] OpenSky aircraft fetch issue (common due to rate limits / CORS / military not broadcasting):', e);
+    if (layersDiv) layersDiv.style.opacity = '1';
+    // demos are already shown — no scary alert
+  }
+}
+
+function toggleAdfShipLayer(enabled) {
+  clearMarkers(adfShipMarkers);
+
+  if (!enabled || !opsGoogleMap) return;
+
+  const ships = (window.ADF_SHIPS_LAST_KNOWN || []);
+  ships.forEach(ship => {
+    const short = ship.name.replace('HMAS ', '').replace(' (', ' ').split(')')[0];
+    const marker = new google.maps.Marker({
+      position: { lat: ship.lat, lng: ship.lng },
+      map: opsGoogleMap,
+      title: ship.name,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 6.5,
+        fillColor: '#1E90FF',
+        fillOpacity: 0.9,
+        strokeColor: '#0A3D62',
+        strokeWeight: 1.5
+      },
+      label: {
+        text: short.length > 14 ? short.substring(0,12)+'…' : short,
+        color: '#FFEB3B',
+        fontSize: '14px',
+        fontWeight: 'bold'
+      }
+    });
+    google.maps.event.addListener(marker, 'click', () => showPositionDetails(ship));
+    adfShipMarkers.push(marker);
+  });
+}
+
+function toggleAdversaryLayer(enabled) {
+  clearMarkers(adversaryMarkers);
+
+  if (!enabled || !opsGoogleMap) return;
+
+  const adv = (window.ADVERSARY_OSINT || []);
+  adv.forEach(item => {
+    const color = item.color || '#C0392B';
+    const short = item.name.length > 18 ? item.name.substring(0,16)+'…' : item.name;
+    const marker = new google.maps.Marker({
+      position: { lat: item.lat, lng: item.lng },
+      map: opsGoogleMap,
+      title: item.name,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 6.5,
+        fillColor: color,
+        fillOpacity: 0.9,
+        strokeColor: '#222',
+        strokeWeight: 1
+      },
+      label: {
+        text: short,
+        color: '#FFEB3B',
+        fontSize: '13px',
+        fontWeight: 'bold'
+      }
+    });
+    google.maps.event.addListener(marker, 'click', () => showPositionDetails(item));
+    adversaryMarkers.push(marker);
+  });
+}
+
+function refreshPositionLayers() {
+  const aircraftCb = document.getElementById('layer-adf-aircraft');
+  const shipsCb = document.getElementById('layer-adf-ships');
+  const advCb = document.getElementById('layer-adversary');
+
+  if (aircraftCb && aircraftCb.checked) {
+    toggleAdfAircraftLayer(false);
+    setTimeout(() => toggleAdfAircraftLayer(true), 120);
+  }
+  if (shipsCb && shipsCb.checked) {
+    toggleAdfShipLayer(false);
+    setTimeout(() => toggleAdfShipLayer(true), 60);
+  }
+  if (advCb && advCb.checked) {
+    toggleAdversaryLayer(false);
+    setTimeout(() => toggleAdversaryLayer(true), 60);
+  }
+}
+
+function updatePositionLayerControls() {
+  const ctrls = document.getElementById('ops-position-layers');
+  if (!ctrls) return;
+  const googleDiv = document.getElementById('ops-google-map');
+  ctrls.style.display = (googleDiv && googleDiv.style.display !== 'none' && opsGoogleMap) ? 'block' : 'none';
+}
 
 // ── THEME SWITCHER ────────────────────────────────────────────
 const THEMES = ['default', 'midnight', 'light'];
@@ -3948,29 +4811,77 @@ function saveReaderRate(rate) {
   try { localStorage.setItem('readerRate', String(rate)); } catch (e) {}
 }
 
+// --- Audio Loop Voice persistence ---
+function loadAudioLoopVoice() {
+  try {
+    audioLoopVoiceName = localStorage.getItem('audioLoopVoiceName') || null;
+  } catch (e) {
+    audioLoopVoiceName = null;
+  }
+  return audioLoopVoiceName;
+}
+
+function saveAudioLoopVoice(name) {
+  audioLoopVoiceName = name || null;
+  try {
+    if (name) {
+      localStorage.setItem('audioLoopVoiceName', name);
+    } else {
+      localStorage.removeItem('audioLoopVoiceName');
+    }
+  } catch (e) {}
+}
+
 // Cleaned voice loader — user gesture (opening panel) + onvoiceschanged is usually enough
 function forceLoadVoices(callback) {
+  ensureVoicesListener(); // attach early, especially important for Firefox
+
   let attempts = 0;
-  const maxAttempts = 6;
+  const maxAttempts = 7;
   function tryLoad() {
     attempts++;
     try {
-      readerVoices = window.speechSynthesis.getVoices() || [];
+      const fresh = window.speechSynthesis.getVoices() || [];
+      if (fresh.length > 0) {
+        readerVoices = fresh;
+      }
       populateVoiceSelect();
+      populateAudioVoiceSelect(); // also keep the audio loop picker in sync
     } catch (e) {}
     if ((readerVoices && readerVoices.length > 0) || attempts >= maxAttempts) {
+      audioLoopVoicesLoaded = true;
       if (typeof callback === 'function') callback();
       return;
     }
-    setTimeout(tryLoad, 200);
+    setTimeout(tryLoad, 180);
   }
   tryLoad();
+}
+
+// Get a fresh list of voices (handles async nature of the Web Speech API)
+function getFreshVoices() {
+  try {
+    const synth = window.speechSynthesis;
+    if (!synth) return readerVoices || [];
+    const v = synth.getVoices() || [];
+    if (v.length > 0) {
+      readerVoices = v;
+      return v;
+    }
+    // If the live call gave nothing, but we previously had some, keep the previous list
+    // (prevents the dropdown from going blank after a slow load)
+    return readerVoices && readerVoices.length > 0 ? readerVoices : v;
+  } catch (e) {
+    return readerVoices || [];
+  }
 }
 
 function initTextReader() {
   const panel = document.getElementById('reader-panel');
   if (!panel) return;
   panel.style.display = 'none';
+
+  ensureVoicesListener(); // help Firefox get voices for the shared readerVoices list
 
   const playBtn = document.getElementById('reader-play-btn');
   const pauseBtn = document.getElementById('reader-pause-btn');
@@ -3989,48 +4900,337 @@ function initTextReader() {
   if (speedInput) speedInput.value = String(readerRate);
   if (speedVal) speedVal.textContent = readerRate.toFixed(2) + '×';
 
-  // Sync badge on init
+  // Sync badge on init — Karen is now the preferred default voice site-wide
   const badge = document.querySelector('.reader-voice-badge');
-  if (badge) badge.textContent = `Tara • ${readerRate.toFixed(2)}×`;
+  if (badge) badge.textContent = `Karen • ${readerRate.toFixed(2)}×`;
 
-  window.speechSynthesis.onvoiceschanged = populateVoiceSelect;
+  window.speechSynthesis.onvoiceschanged = () => {
+    populateVoiceSelect();
+    populateAudioVoiceSelect();
+  };
 
   // One reliable kick (user gesture from opening the panel helps some browsers surface voices)
   setTimeout(populateVoiceSelect, 80);
 }
 
 function populateVoiceSelect() {
-  // Voice selector UI has been removed — this function now only ensures
-  // the internal readerVoices list is populated so getBestVoiceFromSelect() works.
-  const voices = window.speechSynthesis.getVoices() || [];
+  // Ensures the internal readerVoices list is populated for both reader and audio loops.
+  const voices = window.speechSynthesis ? (window.speechSynthesis.getVoices() || []) : [];
   if (voices.length > 0) {
     readerVoices = voices;
   }
 
-  // Keep speed display in sync (no voice select anymore)
+  // Keep speed display in sync for the floating reader
   const speedInput = document.getElementById('reader-speed');
   const speedVal = document.getElementById('reader-speed-val');
   if (speedInput) speedInput.value = String(readerRate);
   if (speedVal) speedVal.textContent = readerRate.toFixed(2) + '×';
+
+  // Also refresh the audio loop voice picker if it exists on the page
+  if (document.getElementById('audio-voice-select')) {
+    populateAudioVoiceSelect();
+  }
 }
 
 function getBestVoiceFromSelect() {
-  // Voice selector is hidden — we always prefer Tara (user's preferred most human-like voice)
-  if (readerVoices && readerVoices.length > 0) {
-    let v = readerVoices.find(v => v.name.includes('Tara'));
-    if (v) return v;
+  // Smart picker used by the floating reader AND as fallback for audio loops.
+  // Prefers Karen (premium AU voice) as the new site-wide default, then other high-quality natural voices.
+  // Works across Safari, Firefox, and Chrome.
+  const voices = getFreshVoices();
+  if (!voices || voices.length === 0) return null;
 
-    // Fallbacks only if Tara isn't available on this system
-    v = readerVoices.find(v => {
-      const n = v.name.toLowerCase();
-      return n.includes('samantha') || n.includes('siri') || (n.includes('girl') && n.includes('female'));
-    });
-    if (!v) v = readerVoices.find(v => v.name.toLowerCase().includes('matilda'));
-    if (!v) v = readerVoices.find(v => /karen|sara|shell|sand/i.test(v.name));
-    return v || readerVoices[0] || null;
-  }
-  return null;
+  // 1. Karen (premium) — user's requested default for the whole site
+  let v = voices.find(v => /karen/i.test(v.name));
+  if (v) return v;
+
+  // 2. Tara (still excellent, previous favourite)
+  v = voices.find(v => /tara/i.test(v.name));
+  if (v) return v;
+
+  // 3. Other strong natural Australian / Apple voices
+  v = voices.find(v => /samantha|siri/i.test(v.name));
+  if (v) return v;
+
+  v = voices.find(v => /karen/i.test(v.name) && /en-au/i.test(v.lang || '')); // extra Karen check with lang
+  if (v) return v;
+
+  // 4. Other pleasant English voices that often sound good
+  v = voices.find(v => {
+    const n = v.name.toLowerCase();
+    const lang = (v.lang || '').toLowerCase();
+    return (n.includes('tessa') || n.includes('matilda') || n.includes('serena') || n.includes('fiona')) ||
+           (lang.includes('en-au') && /female|woman|girl/i.test(n));
+  });
+  if (v) return v;
+
+  // 5. Broader fallback — any clearly English voice
+  v = voices.find(v => (v.lang || '').toLowerCase().startsWith('en'));
+  if (v) return v;
+
+  return voices[0] || null;
 }
+
+// --- Audio Loop dedicated voice handling ---
+
+function getAudioLoopVoice() {
+  const voices = getFreshVoices();
+  if (!voices || voices.length === 0) return null;
+
+  // If the user picked a specific voice by name, try to find it exactly.
+  if (audioLoopVoiceName) {
+    let exact = voices.find(v => v.name === audioLoopVoiceName);
+    if (exact) return exact;
+
+    // Try a fuzzy match (some browsers slightly rename voices between loads)
+    exact = voices.find(v => v.name.toLowerCase().includes(audioLoopVoiceName.toLowerCase().slice(0, 8)));
+    if (exact) return exact;
+  }
+
+  // Auto / "Best available" — use the same smart logic as the reader (Tara first, etc.)
+  // This gives excellent results on Safari/Firefox on macOS and reasonable fallbacks elsewhere.
+  return getBestVoiceFromSelect() || voices[0] || null;
+}
+
+function populateAudioVoiceSelect() {
+  const select = document.getElementById('audio-voice-select');
+  if (!select) return;
+
+  ensureVoicesListener(); // Firefox often needs the listener re-attached on interaction
+
+  // Always ask the browser fresh (helps some timing issues)
+  try {
+    const live = window.speechSynthesis ? (window.speechSynthesis.getVoices() || []) : [];
+    if (live.length > 0) readerVoices = live;
+  } catch (e) {}
+
+  const voices = getFreshVoices();
+  const previousValue = select.value || audioLoopVoiceName;
+
+  // Clear and rebuild
+  select.innerHTML = '';
+
+  // Option 0: Auto best (recommended) — now defaults to Karen (premium) site-wide
+  const autoOpt = document.createElement('option');
+  autoOpt.value = '';
+  autoOpt.textContent = '★ Best available (Karen preferred)';
+  select.appendChild(autoOpt);
+
+  if (!voices || voices.length === 0) {
+    const opt = document.createElement('option');
+    opt.value = '';
+    opt.textContent = '(click ↻ or ▶ Start loop to load voices — browser dependent)';
+    select.appendChild(opt);
+    // Proactively try to wake voices in the background
+    if (window.speechSynthesis) {
+      setTimeout(() => { try { window.speechSynthesis.getVoices(); } catch (e) {} }, 50);
+    }
+    updateAudioVoiceHint();
+    return;
+  }
+
+  // Add all English voices (and a few others) with nice labels
+  const seen = new Set();
+  voices.forEach(v => {
+    const lang = (v.lang || 'unknown').toUpperCase();
+    const name = v.name || 'Unknown voice';
+
+    // Prefer English voices, but show others too so the user has full choice
+    const key = name + '|' + lang;
+    if (seen.has(key)) return;
+    seen.add(key);
+
+    const opt = document.createElement('option');
+    opt.value = name;
+
+    let label = name;
+    if (lang && lang !== 'UNKNOWN') {
+      label += ` (${lang})`;
+    }
+    // Mark the really good ones — Karen is now the site-wide premium default
+    if (/karen/i.test(name)) label += ' ★ premium';
+    else if (/tara/i.test(name)) label += ' ★ best';
+    else if (/samantha/i.test(name)) label += ' ★ natural';
+
+    opt.textContent = label;
+    select.appendChild(opt);
+  });
+
+  // Restore previous selection
+  if (previousValue) {
+    // exact match
+    let found = Array.from(select.options).find(o => o.value === previousValue);
+    if (!found && previousValue) {
+      // try partial
+      found = Array.from(select.options).find(o => o.value.toLowerCase().includes(previousValue.toLowerCase().slice(0, 6)));
+    }
+    if (found) {
+      select.value = found.value;
+    } else {
+      select.value = ''; // fall back to auto
+    }
+  } else {
+    select.value = ''; // default to auto/best
+  }
+
+  // Update a small hint
+  updateAudioVoiceHint();
+}
+
+function updateAudioVoiceHint() {
+  const hint = document.getElementById('audio-voice-hint');
+  if (!hint) return;
+
+  const select = document.getElementById('audio-voice-select');
+  if (!select) return;
+
+  const chosen = select.value;
+  const voices = getFreshVoices();
+
+  if (voices.length > 0) {
+    if (!chosen) {
+      hint.textContent = `auto • ${voices.length} voices available`;
+    } else {
+      hint.textContent = 'user choice';
+    }
+  } else {
+    hint.textContent = 'click ↻ or start loop to load voices';
+  }
+}
+
+function setAudioLoopVoice(name) {
+  saveAudioLoopVoice(name || null);
+
+  const select = document.getElementById('audio-voice-select');
+  if (select) {
+    // make sure the UI reflects it (in case called programmatically)
+    if (name) {
+      const opt = Array.from(select.options).find(o => o.value === name);
+      if (opt) select.value = name;
+      else select.value = '';
+    } else {
+      select.value = '';
+    }
+  }
+
+  updateAudioVoiceHint();
+
+  // If a loop is currently speaking, the new voice will be used on the next item.
+  // We could also restart the current utterance, but that can be jarring — we keep it simple.
+  if (audioLoopActive && !audioLoopPaused) {
+    const info = document.getElementById('audio-loop-info');
+    if (info) {
+      const old = info.textContent;
+      info.textContent = 'Voice updated — will apply to the next item';
+      setTimeout(() => {
+        if (info && info.textContent.includes('Voice updated')) {
+          info.textContent = old || `Listening item ${audioLoopCurrentIndex + 1} of ${audioLoopItems.length}`;
+        }
+      }, 1400);
+    }
+  }
+}
+
+function refreshAudioVoices() {
+  const select = document.getElementById('audio-voice-select');
+  const hint = document.getElementById('audio-voice-hint');
+  if (select) select.disabled = true;
+  if (hint) hint.textContent = 'refreshing...';
+
+  const synth = window.speechSynthesis;
+  if (!synth) {
+    if (select) select.disabled = false;
+    if (hint) hint.textContent = 'speech not supported';
+    return;
+  }
+
+  // Make sure the voiceschanged listener is attached (important for Firefox)
+  ensureVoicesListener();
+
+  // Force enumeration + multiple "warmup" speaks (this is the most reliable cross-browser way
+  // to get the full voice list on Chrome/Firefox/Safari — the list often only appears after
+  // at least one speak() call has been made).
+  let phase = 0;
+  const maxPhases = 5;  // one extra phase for Firefox stubbornness
+
+  function doWarmupAndPopulate() {
+    phase++;
+    try {
+      synth.getVoices(); // poke it
+    } catch (e) {}
+
+    try {
+      // Use a short real-ish string at near-zero volume. Some browsers ignore completely silent ones.
+      // Set lang to help Firefox/Safari pick good synthesizers.
+      const u = new SpeechSynthesisUtterance('a');
+      u.volume = 0.001;
+      u.rate = 1.0;
+      u.lang = 'en-AU';
+      synth.speak(u);
+
+      // Give it a moment to enumerate, then cancel and read the list
+      // Slightly longer delay on later phases helps Firefox surface the list.
+      const cancelDelay = 260 + (phase * 40);
+      setTimeout(() => {
+        try { synth.cancel(); } catch (e) {}
+
+        // Now grab whatever the browser is willing to report
+        const fresh = synth.getVoices() || [];
+        if (fresh.length > 0) {
+          readerVoices = fresh;
+        }
+
+        populateAudioVoiceSelect();
+
+        const current = getFreshVoices();
+        if (hint) {
+          if (current.length > 0) {
+            hint.textContent = `loaded ${current.length} voices`;
+            setTimeout(() => { if (hint) updateAudioVoiceHint(); }, 1600);
+          } else {
+            hint.textContent = 'still no voices — try starting the loop';
+          }
+        }
+
+        if (phase >= maxPhases) {
+          if (select) select.disabled = false;
+          console.log('[AudioLoop] refresh finished — visible voices:', current.length);
+          return;
+        }
+
+        // Next phase with a bit more delay (helps Firefox)
+        setTimeout(doWarmupAndPopulate, 320);
+      }, cancelDelay);
+    } catch (e) {
+      if (phase >= maxPhases) {
+        if (select) select.disabled = false;
+      } else {
+        setTimeout(doWarmupAndPopulate, 300);
+      }
+    }
+  }
+
+  // Kick off the sequence
+  setTimeout(doWarmupAndPopulate, 30);
+}
+
+// Ensure the voiceschanged listener is attached (Firefox is pickier about this timing)
+function ensureVoicesListener() {
+  const synth = window.speechSynthesis;
+  if (!synth) return;
+
+  // Attach/re-attach a robust handler
+  synth.onvoiceschanged = () => {
+    try {
+      const fresh = synth.getVoices() || [];
+      if (fresh.length > 0) readerVoices = fresh;
+    } catch (e) {}
+    try { populateVoiceSelect(); } catch (e) {}
+    try { populateAudioVoiceSelect(); } catch (e) {}
+  };
+}
+
+// Load saved audio voice preference early
+loadAudioLoopVoice();
 
 function updateReaderSectionLabel(sectionId) {
   const nameEl = document.getElementById('reader-section-name');
@@ -4601,9 +5801,12 @@ document.addEventListener('keydown', function(e) {
     closeReaderPanel();
   }
   if (e.key === ' ' || e.key === 'Spacebar') {
-    // Only hijack space if focus is not on an input/range inside the panel
+    // Never hijack space (or other keys) when the user is typing in a text field
     const active = document.activeElement;
-    if (active && (active.tagName === 'INPUT' || active.tagName === 'SELECT' || active.tagName === 'BUTTON')) return;
+    const tag = active ? active.tagName : '';
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'BUTTON' || (active && active.isContentEditable)) {
+      return;
+    }
     e.preventDefault();
     if (isSpeaking && !isPaused) {
       pauseSpeech();
@@ -4711,6 +5914,27 @@ try {
   initTextReader();
 } catch (e) { /* non-fatal */ }
 
+// Ensure voices listener is attached globally for the audio picker (even if reader init had issues)
+try {
+  if (window.speechSynthesis) {
+    ensureVoicesListener();
+  }
+} catch (e) {}
+
+// Immediate kick for the audio voice selector so the dropdown is never blank on load
+try {
+  setTimeout(() => {
+    if (document.getElementById('audio-voice-select')) {
+      ensureVoicesListener();
+      if (typeof forceLoadVoices === 'function') {
+        forceLoadVoices();
+      } else {
+        populateAudioVoiceSelect();
+      }
+    }
+  }, 60);
+} catch (e) {}
+
 // Watch for card closes so the reader goes silent (no auto-resume of section text)
 try {
   setupReaderDetailCloseWatcher();
@@ -4771,6 +5995,7 @@ function initGlossaryTooltips() {
     type: 'navy',
     id: 'anzac'
   });
+
   previewMap.set('hobart', {
     title: 'Hobart-class Destroyer',
     short: 'Australia\'s Aegis-equipped Air Warfare Destroyers (Hobart, Brisbane, Sydney). Primary area air-defence escorts with SPY-1D, SM-2/ESSM, NSM and MH-60R.',
@@ -5452,3 +6677,5 @@ setTimeout(() => {
     // The new tooltips are primarily for in-card / in-modal use.
   }
 }, 300);
+
+/* =====================================================

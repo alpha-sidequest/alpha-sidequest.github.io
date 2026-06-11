@@ -42,6 +42,11 @@
 /* Rajdhani first with system sans fallback. If the woff2 files are missing from fonts/ you will see 404s in console
    (non-fatal) and it will use the system stack. To get the exact look: download the 4 Rajdhani woff2 weights
    (regular/500/600/700) and place them in fonts/ with the exact filenames above. */
+html, body {
+  overflow-x: hidden; /* prevent unwanted horizontal page scroll; nav handles its own overflow */
+  scroll-padding-top: 70px; /* account for sticky nav height when jumping to sections */
+}
+
 body, .nav-link, h1, h2, h3, .feature-card-title, .section-header h2 {
   font-family: 'Rajdhani', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
@@ -168,12 +173,13 @@ body {
 
 /* ── NAV ── */
 nav {
-  position: sticky; top: 0; z-index: 100;
+  position: sticky; top: 0; z-index: 150; /* higher z to ensure search bar and nav stay above section content */
   background: rgba(10,22,40,0.96);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
   padding: 0 2rem;
   display: flex; align-items: center; gap: 0;
+  flex-wrap: wrap; /* support overall bar wrapping if needed alongside links wrap */
 }
 
 .nav-brand {
@@ -213,7 +219,85 @@ nav {
 .nav-title span { color: var(--gold); }
 
 .nav-links {
-  display: flex; gap: 0; flex: 1;
+  display: flex;
+  flex-wrap: wrap; /* allow the section links to naturally form two rows when they don't fit in one line */
+  gap: 2px; /* tiny gap for wrapped rows to breathe */
+  flex: 1;
+  align-items: center; /* helps alignment when wrapping */
+}
+
+/* Hide scrollbar for cleaner look but keep functionality */
+.nav-links::-webkit-scrollbar {
+  height: 4px;
+}
+.nav-links::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
+
+/* Responsive nav toggle (hamburger) */
+.nav-toggle {
+  display: none;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 18px;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 1400px) {
+  .nav-link {
+    padding: 14px 12px;
+    font-size: 11px; /* slightly smaller to encourage nice two-row wrap without being too tall */
+  }
+}
+
+@media (max-width: 1100px) {
+  .nav-toggle {
+    display: flex;
+  }
+
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(10,22,40,0.98);
+    backdrop-filter: blur(12px);
+    flex-direction: column;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    z-index: 200;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .nav-links.open {
+    display: flex;
+  }
+
+  .nav-link {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .nav-link:last-child {
+    border-bottom: none;
+  }
+
+  nav {
+    padding: 0 1rem;
+    position: relative;
+  }
 }
 
 .nav-link {
@@ -847,17 +931,15 @@ section.active { display: block; }
 
 .section-wrap {
   max-width: 1200px; margin: 0 auto;
-  padding: 48px 2rem 80px;
+  padding: 100px 2rem 80px; /* generous top padding to clear the sticky nav even when .nav-links wraps to two rows */
 }
 
-/* Long-form reading comfort */
-.section-wrap p,
-#national-defence p,
-#leadership p,
-#interview-prep p {
-  max-width: 74ch;
-  line-height: 1.78;
+/* Extra space for sections under the sticky nav (which includes search bar) */
+section {
+  padding-top: 10px;
 }
+
+
 
 .section-header {
   margin-bottom: 40px;
@@ -2237,6 +2319,16 @@ section.active { display: block; }
   border-color: var(--gold);
 }
 
+/* No dynamic highlighting while speaking - text stays normal for readability */
+#audio-transcript,
+#audio-last-text,
+#audio-last-text * {
+  /* Ensure the full transcript text remains clean and readable at all times.
+     No red, no per-word color changes, no speaking highlights. The spoken audio
+     plays but the written card stays intact for easy reading (page scrolls). */
+  color: inherit;
+}
+
 /* When reading */
 .text-reader.reading .reader-btn {
   animation: reader-pulse 1.5s infinite ease-in-out;
@@ -3530,3 +3622,5 @@ section.active { display: block; }
 .layman-box .glossary-term {
   font-size: inherit;
 }
+
+/* ============================================
